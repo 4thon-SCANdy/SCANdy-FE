@@ -1,25 +1,27 @@
 import styled from "styled-components";
+import { vw } from "../../../utils/units";
 
 export const LeftSectionContainer = styled.div`
   display: flex;
-  width: 26.6875rem;
-  padding: 3.75rem 2.25rem 2.0625rem 2.25rem;
+  width: ${vw(427)};
+  padding: ${vw(60)} ${vw(36)} ${vw(33)} ${vw(36)};
   flex-direction: column;
   justify-content: flex-end;
   align-items: center;
-  gap: 1.75rem;
+  gap: ${vw(28)};
   background: linear-gradient(180deg, #fdfdfd 0%, #eaedff 100%);
 `;
 
 export const Logo = styled.img`
-  width: 11.4375rem;
-  height: 5rem;
+  width: ${vw(183)};
+  height: ${vw(80)};
 `;
 
 export const TodayDate = styled.img`
-  width: 22.1875rem;
+  width: ${vw(355)};
 `;
 
 export const TagBox = styled.img`
-  width: 22.1875rem;
+  width: ${vw(355)};
+  height: ${vw(394)};
 `;
