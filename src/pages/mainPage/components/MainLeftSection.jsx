@@ -1,9 +1,9 @@
-import CalendarItem from "../../../components/CalendarItem";
 import * as S from "../styles/MainLeftSection.style";
 
 import LOGO from "@/assets/main/logo.svg";
 import TODAY from "@/assets/main/todayDate.svg";
 import TAG from "@/assets/main/tag.svg";
+import MiniCalendar from "./MiniCalendar";
 
 const MainLeftSection = () => {
   return (
@@ -11,7 +11,7 @@ const MainLeftSection = () => {
       <S.LeftSectionContainer>
         <S.Logo src={LOGO} />
         <S.TodayDate src={TODAY} />
-        <CalendarItem />
+        <MiniCalendar />
         <S.TagBox src={TAG} />
       </S.LeftSectionContainer>
     </>
