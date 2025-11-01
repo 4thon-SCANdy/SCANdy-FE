@@ -1,11 +1,14 @@
 import * as S from "../styles/MainRightSection.style";
 
-import PLAN from "@/assets/main/todayPlan.svg";
+import GOOGLE from "@/assets/main/google.svg";
 
 const MainRightSection = () => {
   return (
     <S.RightSectionContainer>
-      <S.PlanImg src={PLAN} />
+      <S.GoogleBox>
+        <S.GoogleImg src={GOOGLE} />
+        <S.GoogleText>구글 연동</S.GoogleText>
+      </S.GoogleBox>
     </S.RightSectionContainer>
   );
 };
