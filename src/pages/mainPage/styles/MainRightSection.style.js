@@ -76,6 +76,24 @@ export const BoxBottom = styled.div`
 
   overflow-y: auto;
   padding-top: ${vw(52)};
+
+  overflow-y: overlay;
+  position: relative;
+
+  &::-webkit-scrollbar {
+    width: ${vw(6)};
+    flex-shrink: 0;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #7e8df5;
+    border-radius: ${vw(10)};
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #eaedff;
+    border-radius: ${vw(10)};
+  }
 `;
 
 export const TodayBox = styled.div`
