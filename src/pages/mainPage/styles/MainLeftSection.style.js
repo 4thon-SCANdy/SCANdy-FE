@@ -30,7 +30,7 @@ export const DateTop = styled.div`
   gap: ${vw(10)};
   border-radius: ${vw(20)} ${vw(20)} 0 0;
   background: #fdfdfd;
-  width: ${vw(118)};
+  width: ${({ $width }) => $width || vw(118)};
   height: ${vw(40)};
   box-shadow: 0 0 20px 0 rgba(180, 191, 255, 0.3);
 `;
@@ -99,7 +99,65 @@ export const Line = styled.img`
   height: ${vw(32)};
 `;
 
-export const TagBox = styled.img`
-  width: ${vw(355)};
+export const TagBox = styled.div`
   height: ${vw(394)};
+`;
+
+export const TagTop = styled.div`
+  display: inline-flex;
+  padding: ${vw(12)} ${vw(30)};
+  justify-content: center;
+  align-items: center;
+  gap: ${vw(10)};
+  border-radius: ${vw(20)} ${vw(20)} 0 0;
+  background: #fdfdfd;
+`;
+
+export const TagTitle = styled.p`
+  color: #4842b2;
+  font-family: Pretendard;
+  font-size: ${vw(16)};
+  font-style: normal;
+  font-weight: 600;
+  line-height: 100%; /* 16px */
+  letter-spacing: -0.4px;
+`;
+
+export const TagBottom = styled.div`
+  display: flex;
+  width: ${vw(355)};
+  height: ${vw(354)};
+  padding: ${vw(24)} ${vw(236)} 0 ${vw(19)};
+  flex-direction: column;
+  align-items: flex-start;
+  gap: ${vw(23)};
+  flex-shrink: 0;
+  border-radius: 0 ${vw(20)} ${vw(20)} ${vw(20)};
+  background: #fdfdfd;
+`;
+
+export const TodoList = styled.p`
+  display: flex;
+  height: ${vw(25)};
+  justify-content: center;
+  align-items: center;
+  gap: ${vw(10)};
+  flex-shrink: 0;
+`;
+
+export const CheckBox = styled.div`
+  width: ${vw(25)};
+  height: ${vw(25)};
+  border-radius: ${vw(8)};
+  border: ${vw(1.5)} solid #b4bfff;
+`;
+
+export const TodoText = styled.p`
+  color: #606060;
+  font-family: Pretendard;
+  font-size: ${vw(18)};
+  font-style: normal;
+  font-weight: 500;
+  line-height: 100%; /* 18px */
+  letter-spacing: -0.45px;
 `;
