@@ -11,4 +11,5 @@ export const ArrowImg = styled.img`
   width: ${vw(35)};
   height: ${vw(46)};
   flex-shrink: 0;
+  cursor: pointer;
 `;
