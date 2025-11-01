@@ -4,7 +4,7 @@ import { vw } from "@/utils/units";
 import MiniCalendar from "./MiniCalendar";
 
 import LOGO from "@/assets/main/logo.svg";
-import LINE from "@/assets/miniCalendar/line.svg";
+import LINE from "@/assets/Calendar/line.svg";
 
 const days = [
   "일요일",
