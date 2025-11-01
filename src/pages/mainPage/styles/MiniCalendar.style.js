@@ -2,12 +2,12 @@ import styled from "styled-components";
 import "react-calendar/dist/Calendar.css";
 import { vw } from "@/utils/units";
 
-import LEFT from "../../../assets/miniCalendar/prev.svg";
-import LEFT_HOVER from "../../../assets/miniCalendar/prev-hover.svg";
-import LEFT_CLICK from "../../../assets/miniCalendar/prev-click.svg";
-import RIGHT from "../../../assets/miniCalendar/next.svg";
-import RIGHT_HOVER from "../../../assets/miniCalendar/next-hover.svg";
-import RIGHT_CLICK from "../../../assets/miniCalendar/next-click.svg";
+import LEFT from "../../../assets/calendar/prev.svg";
+import LEFT_HOVER from "../../../assets/calendar/prev-hover.svg";
+import LEFT_CLICK from "../../../assets/calendar/prev-click.svg";
+import RIGHT from "../../../assets/calendar/next.svg";
+import RIGHT_HOVER from "../../../assets/calendar/next-hover.svg";
+import RIGHT_CLICK from "../../../assets/calendar/next-click.svg";
 
 export const CalendarContainer = styled.div`
   width: ${vw(355)};
