@@ -7,7 +7,7 @@ const MainCalendar = ({ currentDate }) => {
   return (
     <S.MainCalendarContainer>
       <S.CalendarTop>
-        <S.MonthText>10월</S.MonthText>
+        <S.MonthText>{currentDate.getMonth() + 1}월</S.MonthText>
       </S.CalendarTop>
       <S.CalendarBottom>
         <Calendar
@@ -21,11 +21,10 @@ const MainCalendar = ({ currentDate }) => {
             ["일", "월", "화", "수", "목", "금", "토"][date.getDay()]
           }
           formatDay={(locale, date) => {
-            const today = new Date();
-            const currentMonth = today.getMonth();
+            const currentMonth = currentDate.getMonth();
+            const isCurrentMonth = date.getMonth() === currentMonth;
             const day = date.getDay();
             const isWeekend = day === 0 || day === 6;
-            const isCurrentMonth = date.getMonth() === currentMonth;
 
             // 색상 지정
             let dayColor = "#7E8DF5"; // 날짜 색

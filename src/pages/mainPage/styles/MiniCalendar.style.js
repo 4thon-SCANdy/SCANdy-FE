@@ -50,34 +50,6 @@ export const CalendarContainer = styled.div`
     background: linear-gradient(90deg, #eaedff 0%, #b4bfff 147.61%);
   }
 
-  /* 왼쪽 버튼 (이전 달) */
-  .react-calendar__navigation__prev-button {
-    width: ${vw(35)};
-    height: ${vw(46)};
-    color: transparent;
-    background-image: url(${LEFT});
-    border: none;
-    transition: 0.2s;
-  }
-
-  .react-calendar__navigation__prev-button:hover {
-    background-image: url(${LEFT_HOVER});
-  }
-
-  /* 오른쪽 버튼 (다음 달) */
-  .react-calendar__navigation__next-button {
-    width: ${vw(35)};
-    height: ${vw(46)};
-    color: transparent;
-    background-image: url(${RIGHT});
-    border: none;
-    transition: 0.2s;
-  }
-
-  .react-calendar__navigation__next-button:hover {
-    background-image: url(${RIGHT_HOVER});
-  }
-
   .react-calendar__tile {
     display: flex;
     justify-content: center;
