@@ -3,7 +3,7 @@ import "react-calendar/dist/Calendar.css";
 import * as S from "../styles/MainCalendar.style";
 import { vw } from "@/utils/units";
 
-const MainCalendar = () => {
+const MainCalendar = ({ currentDate }) => {
   return (
     <S.MainCalendarContainer>
       <S.CalendarTop>
@@ -16,6 +16,7 @@ const MainCalendar = () => {
           showNavigation={false}
           prev2Label={null}
           next2Label={null}
+          activeStartDate={currentDate}
           formatShortWeekday={(locale, date) =>
             ["일", "월", "화", "수", "목", "금", "토"][date.getDay()]
           }
