@@ -8,7 +8,7 @@ const MainPage = () => {
     <>
       <S.MainContainer>
         <MainLeftSection />
-        <MainCalendar />
+        <MainCalendar currentDate={new Date()} />
         <MainRightSection />
       </S.MainContainer>
     </>
