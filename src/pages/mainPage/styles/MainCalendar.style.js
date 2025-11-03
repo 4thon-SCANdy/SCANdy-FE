@@ -37,6 +37,16 @@ export const MainCalendarContainer = styled.div`
     margin: 0; /* 혹시 있을 여백도 제거 */
   }
 
+  .react-calendar__tile:hover {
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .react-calendar__tile--active {
+    background: transparent;
+    cursor: pointer;
+  }
+
   /* 날짜 칸 */
   .react-calendar__tile {
     width: ${vw(152)};
@@ -68,6 +78,10 @@ export const MainCalendarContainer = styled.div`
   .react-calendar__month-view__days__day--neighboringMonth {
     background: #fdfdfd;
     color: #bdbdbd;
+  }
+
+  .react-calendar__month-view__days__day--neighboringMonth:hover {
+    background: #fdfdfd;
   }
 
   /* 선택 */
