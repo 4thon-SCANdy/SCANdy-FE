@@ -144,7 +144,7 @@ export const AndyImg = styled.img`
 `;
 
 export const PlusText = styled.p`
-  color: #7e8df5;
+  color: #606060;
   font-family: Pretendard;
   font-size: ${vw(20)};
   font-style: normal;
