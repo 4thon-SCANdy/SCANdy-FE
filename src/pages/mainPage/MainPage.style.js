@@ -7,6 +7,6 @@ export const MainContainer = styled.div`
   flex-shrink: 0;
   background: #fdfdfd;
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: ${vw(38)};
 `;

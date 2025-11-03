@@ -1,5 +1,5 @@
 import * as S from "./MainPage.style";
-import MainCalendar from "./components/MainCalendar";
+import MainCenterSection from "./components/MainCenterSection";
 import MainLeftSection from "./components/MainLeftSection";
 import MainRightSection from "./components/MainRightSection";
 
@@ -8,7 +8,7 @@ const MainPage = () => {
     <>
       <S.MainContainer>
         <MainLeftSection />
-        <MainCalendar />
+        <MainCenterSection />
         <MainRightSection />
       </S.MainContainer>
     </>

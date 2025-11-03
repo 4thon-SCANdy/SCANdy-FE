@@ -6,7 +6,7 @@ export const LeftSectionContainer = styled.div`
   width: ${vw(427)};
   padding: ${vw(60)} ${vw(36)} ${vw(33)} ${vw(36)};
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: flex-start;
   align-items: center;
   gap: ${vw(27)};
   background: linear-gradient(180deg, #fdfdfd 0%, #eaedff 100%);
