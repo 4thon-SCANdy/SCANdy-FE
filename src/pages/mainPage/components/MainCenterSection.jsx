@@ -2,7 +2,7 @@ import * as S from "../styles/MainCenterSection.style";
 import { useState } from "react";
 
 import MainCalendar from "./MainCalendar";
-import MainCalendarArrow from "./MainCalendarArrow";
+import CalendarArrow from "./CalendarArrow";
 import SearchBar from "./SearchBar";
 
 const MainCenterSection = () => {
@@ -25,7 +25,7 @@ const MainCenterSection = () => {
       <S.CenterSectionContainer>
         <S.CenterHeader>
           <SearchBar />
-          <MainCalendarArrow
+          <CalendarArrow
             currentDate={currentDate}
             onPrev={handlePrevMonth}
             onNext={handleNextMonth}

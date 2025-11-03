@@ -4,12 +4,12 @@ import { vw } from "@/utils/units";
 export const CalenderArrowContainer = styled.div`
   display: flex;
   flex-direction: row;
-  gap: ${vw(80)};
+  gap: ${({ $gap }) => ($gap ? vw($gap) : vw(80))};
 `;
 
 export const ArrowImg = styled.img`
-  width: ${vw(35)};
-  height: ${vw(46)};
+  width: ${({ $width }) => ($width ? vw($width) : vw(35))};
+  height: ${({ $height }) => ($height ? vw($height) : vw(46))};
   flex-shrink: 0;
   cursor: pointer;
 `;
