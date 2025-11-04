@@ -5,7 +5,7 @@ import MainCalendar from "./MainCalendar";
 import CalendarArrow from "./CalendarArrow";
 import SearchBar from "./SearchBar";
 
-const MainCenterSection = () => {
+const MainCenterSection = ({ selectedTag }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
 
   const handlePrevMonth = () => {
@@ -31,7 +31,7 @@ const MainCenterSection = () => {
             onNext={handleNextMonth}
           />
         </S.CenterHeader>
-        <MainCalendar currentDate={currentDate} />
+        <MainCalendar currentDate={currentDate} selectedTag={selectedTag} />
       </S.CenterSectionContainer>
     </>
   );

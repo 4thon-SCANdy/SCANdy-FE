@@ -4,7 +4,7 @@ import GOOGLE from "@/assets/main/google.svg";
 import ANDY from "@/assets/main/andy.svg";
 import PlanTag from "./PlanTag";
 
-const MainRightSection = () => {
+const MainRightSection = ({ selectedTag }) => {
   // 오늘을 기준으로 일주일 단위 생성
   const today = new Date();
   const weekDates = Array.from({ length: 7 }, (_, i) => {
@@ -34,12 +34,16 @@ const MainRightSection = () => {
     {
       id: 3,
       date: "2025-11-06",
-      tag: " 개인 일정",
+      tag: "개인 일정",
       color: "#A0D4FF",
     },
   ];
 
-  const hasSchedule = schedules.length > 0;
+  const filteredSchedules = selectedTag
+    ? schedules.filter((s) => s.tag === selectedTag)
+    : schedules;
+
+  const hasSchedule = filteredSchedules.length > 0;
 
   const formatDateKey = (date) =>
     `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
@@ -71,7 +75,7 @@ const MainRightSection = () => {
             const dateKey = formatDateKey(dateObj);
             const { text, dayIndex } = formatDisplayDate(dateObj);
             const isWeekend = dayIndex === 0 || dayIndex === 6;
-            const daySchedules = schedules.filter(
+            const daySchedules = filteredSchedules.filter(
               (item) => item.date === dateKey
             );
 

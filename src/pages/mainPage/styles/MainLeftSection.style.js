@@ -168,6 +168,10 @@ export const CheckBox = styled.div`
   height: ${vw(25)};
   border-radius: ${vw(8)};
   border: ${vw(1.5)} solid #b4bfff;
+  cursor: pointer;
+
+  background-color: ${({ $isSelected, $color }) =>
+    $isSelected ? $color : "transparent"};
 `;
 
 export const TodoText = styled.p`

@@ -16,7 +16,7 @@ const days = [
   "토요일",
 ];
 
-const MainLeftSection = () => {
+const MainLeftSection = ({ setSelectedTag, selectedTag }) => {
   const today = new Date();
 
   const year = today.getFullYear();
@@ -25,9 +25,9 @@ const MainLeftSection = () => {
   const day = days[today.getDay()];
 
   const tags = [
-    { id: 1, name: "개인 일정" },
-    { id: 2, name: "회의" },
-    { id: 3, name: "프로젝트" },
+    { id: 1, name: "개인 일정", color: "#A0D4FF" },
+    { id: 2, name: "회의", color: "#FFEBB5" },
+    { id: 3, name: "프로젝트", color: "#D9C9FF" },
   ];
 
   return (
@@ -59,7 +59,15 @@ const MainLeftSection = () => {
           <S.TagBottom>
             {tags.map((tag) => (
               <S.TodoList key={tag.id}>
-                <S.CheckBox />
+                <S.CheckBox
+                  $isSelected={selectedTag === tag.name}
+                  $color={tag.color}
+                  onClick={() =>
+                    setSelectedTag((prev) =>
+                      prev === tag.name ? null : tag.name
+                    )
+                  }
+                />{" "}
                 <S.TodoText>{tag.name}</S.TodoText>
               </S.TodoList>
             ))}

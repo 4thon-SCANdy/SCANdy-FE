@@ -4,7 +4,7 @@ import * as S from "../styles/MainCalendar.style";
 import { vw } from "@/utils/units";
 import PlanTag from "./PlanTag";
 
-const MainCalendar = ({ currentDate }) => {
+const MainCalendar = ({ currentDate, selectedTag }) => {
   const schedules = [
     {
       id: 1,
@@ -21,10 +21,14 @@ const MainCalendar = ({ currentDate }) => {
     {
       id: 3,
       date: "2025-11-06",
-      tag: " 개인 일정",
+      tag: "개인 일정",
       color: "#A0D4FF",
     },
   ];
+
+  const visibleSchedules = selectedTag
+    ? schedules.filter((s) => s.tag.trim() === selectedTag.trim())
+    : schedules;
 
   const formatDateKey = (date) =>
     `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
@@ -103,7 +107,9 @@ const MainCalendar = ({ currentDate }) => {
             if (view !== "month") return null;
 
             const dayKey = formatDateKey(date);
-            const dailySchedules = schedules.filter((s) => s.date === dayKey);
+            const dailySchedules = visibleSchedules.filter(
+              (s) => s.date === dayKey
+            );
 
             return dailySchedules.map((schedule) => (
               <div
