@@ -32,11 +32,6 @@ export const MainCalendarContainer = styled.div`
     padding: 0;
   }
 
-  .react-calendar__tile {
-    padding: 0; /* 내부 패딩 완전 제거 */
-    margin: 0; /* 혹시 있을 여백도 제거 */
-  }
-
   .react-calendar__tile:hover {
     background: transparent;
     cursor: pointer;
@@ -59,6 +54,7 @@ export const MainCalendarContainer = styled.div`
     flex-direction: column;
     align-items: flex-start;
     justify-content: flex-start;
+    padding: 0; /* 내부 패딩 완전 제거 */
   }
 
   .react-calendar__tile::after {
