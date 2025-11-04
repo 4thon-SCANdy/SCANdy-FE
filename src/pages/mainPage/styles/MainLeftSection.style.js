@@ -128,13 +128,30 @@ export const TagBottom = styled.div`
   display: flex;
   width: ${vw(355)};
   height: ${vw(354)};
-  padding: ${vw(24)} ${vw(236)} 0 ${vw(19)};
+  padding: ${vw(24)} ${vw(19)} 0 ${vw(19)};
   flex-direction: column;
   align-items: flex-start;
   gap: ${vw(23)};
   flex-shrink: 0;
   border-radius: 0 ${vw(20)} ${vw(20)} ${vw(20)};
   background: #fdfdfd;
+
+  overflow-y: overlay;
+
+  &::-webkit-scrollbar {
+    width: ${vw(6)};
+    flex-shrink: 0;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #7e8df5;
+    border-radius: ${vw(10)};
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #eaedff;
+    border-radius: ${vw(10)};
+  }
 `;
 
 export const TodoList = styled.p`

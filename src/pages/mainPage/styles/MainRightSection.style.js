@@ -136,6 +136,8 @@ export const TodayContent = styled.div`
   margin-top: ${vw(-12)};
   gap: ${vw(18)};
   z-index: 0;
+  overflow-y: auto;
+  scrollbar-gutter: stable overlay;
 `;
 
 export const AndyImg = styled.img`
