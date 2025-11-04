@@ -3,12 +3,12 @@ import { vw } from "../../utils/units";
 
 export const MainContainer = styled.div`
   width: ${vw(1920)};
-  height: ${vw(1080)};
+  height: 100vh;
   flex-shrink: 0;
   background: #fdfdfd;
   display: flex;
   align-items: flex-start;
   gap: ${vw(38)};
-
-  overflow-x: overlay;
+  overflow-y: auto;
+  overflow-x: hidden;
 `;
