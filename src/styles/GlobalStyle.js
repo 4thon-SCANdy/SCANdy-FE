@@ -11,13 +11,29 @@ const GlobalStyle = createGlobalStyle`
       'Malgun Gothic', sans-serif;
   }
 
-  html, body, #root {
+html, body, #root {
     height: 100%;
     width: 100%;
     background-color: #fff;
     color: #000;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+
+    overflow: hidden;
+    -ms-overflow-style: none; 
+    scrollbar-width: none;     
+  }
+
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
+    display: none; 
+  }
+
+  .scroll-visible {
+    overflow-y: auto !important;
+  }
+  .scroll-visible::-webkit-scrollbar {
+    display: block !important;
   }
 
   a {

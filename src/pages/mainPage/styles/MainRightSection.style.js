@@ -6,6 +6,7 @@ export const RightSectionContainer = styled.div`
   flex-direction: column;
   align-items: center;
   gap: ${vw(44)};
+  padding-top: ${vw(60)};
 `;
 
 export const GoogleBox = styled.div`
@@ -39,7 +40,7 @@ export const GoogleText = styled.p`
 `;
 
 export const PlanBox = styled.div`
-  height: ${vw(922)};
+  height: 100%;
 `;
 
 export const BoxTop = styled.div`
@@ -128,13 +129,31 @@ export const TodayContent = styled.div`
   height: ${vw(322)};
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-end;
+  border-radius: 0 0 0 20px;
+  background: linear-gradient(180deg, #fdfdfd 0%, #eaedff 215.1%);
+  gap: ${vw(17)};
+  z-index: 0;
+  overflow-y: auto;
+  scrollbar-gutter: stable overlay;
+  padding-top: ${vw(18)};
+`;
+
+export const ImgContent = styled.div`
+  width: ${vw(331)};
+  height: ${vw(322)};
+  display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   border-radius: 0 0 0 20px;
   background: linear-gradient(180deg, #fdfdfd 0%, #eaedff 215.1%);
-  margin-top: ${vw(-12)};
   gap: ${vw(18)};
   z-index: 0;
+  overflow-y: auto;
+  scrollbar-gutter: stable overlay;
+  padding-top: ${vw(18)};
 `;
 
 export const AndyImg = styled.img`
@@ -144,7 +163,7 @@ export const AndyImg = styled.img`
 `;
 
 export const PlusText = styled.p`
-  color: #7e8df5;
+  color: #606060;
   font-family: Pretendard;
   font-size: ${vw(20)};
   font-style: normal;

@@ -2,10 +2,10 @@ import * as S from "../styles/MainCenterSection.style";
 import { useState } from "react";
 
 import MainCalendar from "./MainCalendar";
-import MainCalendarArrow from "./MainCalendarArrow";
+import CalendarArrow from "./CalendarArrow";
 import SearchBar from "./SearchBar";
 
-const MainCenterSection = () => {
+const MainCenterSection = ({ selectedTag }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
 
   const handlePrevMonth = () => {
@@ -25,13 +25,13 @@ const MainCenterSection = () => {
       <S.CenterSectionContainer>
         <S.CenterHeader>
           <SearchBar />
-          <MainCalendarArrow
+          <CalendarArrow
             currentDate={currentDate}
             onPrev={handlePrevMonth}
             onNext={handleNextMonth}
           />
         </S.CenterHeader>
-        <MainCalendar currentDate={currentDate} />
+        <MainCalendar currentDate={currentDate} selectedTag={selectedTag} />
       </S.CenterSectionContainer>
     </>
   );

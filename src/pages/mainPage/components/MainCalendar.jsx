@@ -2,8 +2,40 @@ import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import * as S from "../styles/MainCalendar.style";
 import { vw } from "@/utils/units";
+import PlanTag from "./PlanTag";
 
-const MainCalendar = ({ currentDate }) => {
+const MainCalendar = ({ currentDate, selectedTag }) => {
+  const schedules = [
+    {
+      id: 1,
+      date: "2025-11-04",
+      tag: "회의",
+      color: "#FFEBB5",
+    },
+    {
+      id: 2,
+      date: "2025-11-04",
+      tag: "프로젝트",
+      color: "#D9C9FF",
+    },
+    {
+      id: 3,
+      date: "2025-11-06",
+      tag: "개인 일정",
+      color: "#A0D4FF",
+    },
+  ];
+
+  const visibleSchedules = selectedTag
+    ? schedules.filter((s) => s.tag.trim() === selectedTag.trim())
+    : schedules;
+
+  const formatDateKey = (date) =>
+    `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+      2,
+      "0"
+    )}-${String(date.getDate()).padStart(2, "0")}`;
+
   return (
     <S.MainCalendarContainer>
       <S.CalendarTop>
@@ -44,7 +76,8 @@ const MainCalendar = ({ currentDate }) => {
               <div
                 style={{
                   display: "flex",
-                  alignItems: "flex-end",
+                  justifyContent: "flex-end",
+                  alignItems: "flex-start",
                   height: `${vw(24)}`,
                   gap: `${vw(1)}`,
                 }}
@@ -53,6 +86,7 @@ const MainCalendar = ({ currentDate }) => {
                   style={{
                     fontSize: `${vw(12)}`,
                     color: monthColor,
+                    marginLeft: `${vw(7)} ${vw(10)} 0 ${vw(2)}`,
                   }}
                 >
                   {date.getMonth() + 1}월
@@ -68,6 +102,30 @@ const MainCalendar = ({ currentDate }) => {
                 </p>
               </div>
             );
+          }}
+          tileContent={({ date, view }) => {
+            if (view !== "month") return null;
+
+            const dayKey = formatDateKey(date);
+            const dailySchedules = visibleSchedules.filter(
+              (s) => s.date === dayKey
+            );
+
+            return dailySchedules.map((schedule) => (
+              <div
+                key={schedule.id}
+                style={{
+                  position: "relative",
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  backgroundColor: "#FDFDFD",
+                }}
+              >
+                <PlanTag size="small" color={schedule.color}>
+                  {schedule.tag}
+                </PlanTag>
+              </div>
+            ));
           }}
         />
       </S.CalendarBottom>

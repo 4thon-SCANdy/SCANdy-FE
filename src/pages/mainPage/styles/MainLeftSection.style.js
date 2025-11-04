@@ -3,10 +3,11 @@ import { vw } from "../../../utils/units";
 
 export const LeftSectionContainer = styled.div`
   display: flex;
+  height: auto;
   width: ${vw(427)};
   padding: ${vw(60)} ${vw(36)} ${vw(33)} ${vw(36)};
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: flex-start;
   align-items: center;
   gap: ${vw(27)};
   background: linear-gradient(180deg, #fdfdfd 0%, #eaedff 100%);
@@ -127,13 +128,30 @@ export const TagBottom = styled.div`
   display: flex;
   width: ${vw(355)};
   height: ${vw(354)};
-  padding: ${vw(24)} ${vw(236)} 0 ${vw(19)};
+  padding: ${vw(24)} ${vw(19)} 0 ${vw(19)};
   flex-direction: column;
   align-items: flex-start;
   gap: ${vw(23)};
   flex-shrink: 0;
   border-radius: 0 ${vw(20)} ${vw(20)} ${vw(20)};
   background: #fdfdfd;
+
+  overflow-y: overlay;
+
+  &::-webkit-scrollbar {
+    width: ${vw(6)};
+    flex-shrink: 0;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #7e8df5;
+    border-radius: ${vw(10)};
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #eaedff;
+    border-radius: ${vw(10)};
+  }
 `;
 
 export const TodoList = styled.p`
@@ -146,10 +164,25 @@ export const TodoList = styled.p`
 `;
 
 export const CheckBox = styled.div`
+  position: relative;
   width: ${vw(25)};
   height: ${vw(25)};
   border-radius: ${vw(8)};
   border: ${vw(1.5)} solid #b4bfff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &::after {
+    content: "";
+    width: ${vw(17)};
+    height: ${vw(17)};
+    border-radius: ${vw(5)};
+    background-color: ${({ $isSelected, $color }) =>
+      $isSelected ? $color : "transparent"};
+    transition: background-color 0.2s ease;
+  }
 `;
 
 export const TodoText = styled.p`
