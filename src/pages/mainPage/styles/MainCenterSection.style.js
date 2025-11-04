@@ -6,6 +6,7 @@ export const CenterSectionContainer = styled.div`
   flex-direction: column;
   align-items: center;
   z-index: 100;
+  padding-top: ${vw(60)};
 `;
 
 export const CenterHeader = styled.div`

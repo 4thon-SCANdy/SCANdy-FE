@@ -4,9 +4,8 @@ import { vw } from "@/utils/units";
 
 export const CalendarContainer = styled.div`
   width: ${vw(355)};
-  height: 100%;
   border-radius: ${vw(20)};
-  overflow: hidden;
+  overflow: visible;
   background: #fcfcfc;
 
   .react-calendar {
@@ -134,6 +133,7 @@ export const CalendarHeader = styled.div`
   background: linear-gradient(90deg, #eaedff 0%, #b4bfff 147.61%);
   padding-left: ${vw(13)};
   padding-right: ${vw(25)};
+  border-radius: ${vw(20)} ${vw(20)} 0 0;
 `;
 
 export const DateTextBox = styled.div`

@@ -3,6 +3,7 @@ import { vw } from "../../../utils/units";
 
 export const LeftSectionContainer = styled.div`
   display: flex;
+  height: auto;
   width: ${vw(427)};
   padding: ${vw(60)} ${vw(36)} ${vw(33)} ${vw(36)};
   flex-direction: column;

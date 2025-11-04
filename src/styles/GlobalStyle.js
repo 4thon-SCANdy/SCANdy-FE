@@ -20,6 +20,10 @@ const GlobalStyle = createGlobalStyle`
     -moz-osx-font-smoothing: grayscale;
   }
 
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
   a {
     text-decoration: none;
     color: inherit;

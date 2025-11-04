@@ -6,6 +6,7 @@ export const RightSectionContainer = styled.div`
   flex-direction: column;
   align-items: center;
   gap: ${vw(44)};
+  padding-top: ${vw(60)};
 `;
 
 export const GoogleBox = styled.div`
