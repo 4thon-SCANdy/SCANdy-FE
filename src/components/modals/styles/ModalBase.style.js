@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { vw } from "@/utils/units";
 
 export const Overlay = styled.div`
@@ -53,9 +53,16 @@ export const CloseButton = styled.button`
 `;
 
 export const Body = styled.div`
-  padding: ${vw(24)} ${vw(28)};
+  padding: ${({ $noPadding }) => ($noPadding ? 0 : css`${vw(24)} ${vw(28)}`)};
   flex: 1;
   overflow: auto;
+  ${({ $center }) =>
+    $center &&
+    css`
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    `}
 `;
 
 export const Footer = styled.div`
