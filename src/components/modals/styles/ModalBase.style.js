@@ -18,6 +18,7 @@ export const Container = styled.div`
   border-radius: ${vw(32)};
   box-shadow: 0 ${vw(8)} ${vw(32)} rgba(0, 0, 0, 0.08);
   border: ${vw(2)} solid rgba(126, 141, 245, 0.6);
+  position: relative;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -53,7 +54,7 @@ export const CloseButton = styled.button`
 `;
 
 export const Body = styled.div`
-  padding: ${({ $noPadding }) => ($noPadding ? 0 : css`${vw(24)} ${vw(28)}`)};
+  padding: ${({ $noPadding }) => ($noPadding ? 0 : css`${vw(43)} ${vw(28)}`)};
   flex: 1;
   overflow: auto;
   ${({ $center }) =>
