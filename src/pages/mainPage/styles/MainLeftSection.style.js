@@ -164,14 +164,25 @@ export const TodoList = styled.p`
 `;
 
 export const CheckBox = styled.div`
+  position: relative;
   width: ${vw(25)};
   height: ${vw(25)};
   border-radius: ${vw(8)};
   border: ${vw(1.5)} solid #b4bfff;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-  background-color: ${({ $isSelected, $color }) =>
-    $isSelected ? $color : "transparent"};
+  &::after {
+    content: "";
+    width: ${vw(17)};
+    height: ${vw(17)};
+    border-radius: ${vw(5)};
+    background-color: ${({ $isSelected, $color }) =>
+      $isSelected ? $color : "transparent"};
+    transition: background-color 0.2s ease;
+  }
 `;
 
 export const TodoText = styled.p`
