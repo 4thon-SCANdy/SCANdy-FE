@@ -1,5 +1,4 @@
 import * as S from "../styles/MainLeftSection.style";
-import { vw } from "@/utils/units";
 
 import MiniCalendar from "./MiniCalendar";
 
