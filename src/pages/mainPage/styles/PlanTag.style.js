@@ -1,10 +1,18 @@
 import styled from "styled-components";
 import { vw } from "@/utils/units";
 
+export const TagWrapper = styled.div`
+  background: ${({ $size }) =>
+    $size === "large"
+      ? "linear-gradient(180deg, #FDFDFD 0%, #EAEDFF 215.1%)"
+      : "#fdfdfd"};
+
+  padding-top: ${({ $size }) => ($size === "large" ? "0" : vw(6))};
+  padding-left: ${({ $size }) => ($size === "large" ? "0" : vw(6))};
+`;
+
 export const TagContainer = styled.div`
-  position: absolute;
   left: 50%;
-  transform: translateX(-50%); /* 가운데 정렬 */
   z-index: 10;
 
   display: flex;
@@ -18,12 +26,12 @@ export const TagContainer = styled.div`
       ? `
           width: ${vw(320)};
           height: ${vw(40)};
-          border-radius: ${vw(10)} 0 0 ${vw(10)}
+          border-radius: ${vw(10)} 0 0 ${vw(10)};
         `
       : `
           width: ${vw(146)};
           height: ${vw(28)};
-          border-radius: ${vw(5)} 0 0 ${vw(5)}
+          border-radius: ${vw(5)} 0 0 ${vw(5)};
         `};
 `;
 
