@@ -34,7 +34,7 @@ const MainRightSection = () => {
     {
       id: 3,
       date: "2025-11-06",
-      tag: "디자인",
+      tag: " 개인 일정",
       color: "#A0D4FF",
     },
   ];
