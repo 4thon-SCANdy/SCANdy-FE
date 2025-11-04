@@ -9,4 +9,6 @@ export const MainContainer = styled.div`
   display: flex;
   align-items: flex-start;
   gap: ${vw(38)};
+
+  overflow-x: overlay;
 `;
