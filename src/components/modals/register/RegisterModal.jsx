@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import ModalBase from "../ModalBase";
 import * as S from "./RegisterModal.style";
 import IMAGE_PREVIEW from "@/assets/modal/Image.svg";
@@ -37,10 +37,64 @@ function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
   const [newTagColor, setNewTagColor] = useState("#E3E8FF");
   const [addingNewTag, setAddingNewTag] = useState(false);
 
+  // 이미지 업로드 및 슬라이더 상태
+  const [selectedImages, setSelectedImages] = useState([]); // [{file, url}]
+  const [currentImageIdx, setCurrentImageIdx] = useState(0);
+  const fileInputRef = useRef(null);
+  const replaceIdxRef = useRef(null);
+
+  const openFilePicker = () => {
+    if (fileInputRef.current) fileInputRef.current.click();
+  };
+
+  const openFilePickerForReplace = (idx) => {
+    replaceIdxRef.current = idx;
+    openFilePicker();
+  };
+
+  const handleFilesSelected = (e) => {
+    const files = Array.from(e.target.files || []).filter(f => f.type.startsWith("image/"));
+    if (!files.length) return;
+    // If replacing a specific index (double-click case)
+    if (replaceIdxRef.current !== null && replaceIdxRef.current !== undefined) {
+      const f = files[0];
+      if (!f) return;
+      const newObj = { file: f, url: URL.createObjectURL(f) };
+      setSelectedImages(prev => {
+        const next = [...prev];
+        const idx = Math.min(Math.max(replaceIdxRef.current, 0), next.length - 1);
+        if (next[idx]) {
+          try { URL.revokeObjectURL(next[idx].url); } catch {}
+          next[idx] = newObj;
+        }
+        setCurrentImageIdx(idx);
+        return next;
+      });
+      replaceIdxRef.current = null;
+    } else {
+      // Append mode
+      const mapped = files.slice(0, 5).map(f => ({ file: f, url: URL.createObjectURL(f) }));
+      setSelectedImages(prev => {
+        const remain = Math.max(0, 5 - prev.length);
+        const toAdd = mapped.slice(0, remain);
+        const merged = [...prev, ...toAdd];
+        if (prev.length === 0 && merged.length > 0) {
+          setCurrentImageIdx(0);
+        }
+        return merged;
+      });
+    }
+    // allow selecting the same file again later
+    if (e.target) try { e.target.value = ""; } catch {}
+  };
+
   // 모달이 열릴 때마다 초기 화면으로 리셋 (업로드 가이드가 다른 화면에 보이지 않도록)
   useEffect(() => {
     if (open) {
       setView("choice");
+      // 초기화
+      setSelectedImages([]);
+      setCurrentImageIdx(0);
     }
   }, [open]);
   const modalHeightPx = view === "manual" ? (repeatOn ? 740 : 600) : 600;
@@ -74,13 +128,58 @@ function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
           ) : view === "upload" ? (
             <>
               <S.UploadWrap>
-                <S.UploadBox>
-                  <S.UploadInner>
-                    <img src={UPLOAD_ICON} alt="upload" width={96} height={96} />
-                    
-                  </S.UploadInner>
-                </S.UploadBox>
-                <S.UploadButton onClick={onOpenAI}>이미지 등록하기</S.UploadButton>
+                {selectedImages.length === 0 ? (
+                  <>
+                    <S.UploadBox onClick={openFilePicker} style={{ cursor: 'pointer' }}>
+                      <S.UploadInner>
+                        <img src={UPLOAD_ICON} alt="upload" width={96} height={96} />
+                      </S.UploadInner>
+                    </S.UploadBox>
+                    <S.UploadButton onClick={openFilePicker}>이미지 등록하기</S.UploadButton>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      style={{ display: 'none' }}
+                      onChange={handleFilesSelected}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <S.Carousel>
+                      <S.SideSlide
+                        onClick={() => setCurrentImageIdx((idx) => (idx - 1 + selectedImages.length) % selectedImages.length)}
+                        onDoubleClick={() => openFilePickerForReplace((currentImageIdx - 1 + selectedImages.length) % selectedImages.length)}
+                      >
+                        <img src={selectedImages[(currentImageIdx - 1 + selectedImages.length) % selectedImages.length].url} alt="prev" />
+                      </S.SideSlide>
+                      <S.MainSlide onClick={openFilePicker} onDoubleClick={() => openFilePickerForReplace(currentImageIdx)} style={{ cursor: 'pointer' }}>
+                        <img src={selectedImages[currentImageIdx].url} alt={`selected-${currentImageIdx + 1}`} />
+                      </S.MainSlide>
+                      <S.SideSlide
+                        onClick={() => setCurrentImageIdx((idx) => (idx + 1) % selectedImages.length)}
+                        onDoubleClick={() => openFilePickerForReplace((currentImageIdx + 1) % selectedImages.length)}
+                      >
+                        <img src={selectedImages[(currentImageIdx + 1) % selectedImages.length].url} alt="next" />
+                      </S.SideSlide>
+                    </S.Carousel>
+                    <S.Dots>
+                      {selectedImages.map((_, i) => (
+                        <S.Dot key={i} $active={i === currentImageIdx} />
+                      ))}
+                    </S.Dots>
+                    <S.UploadButton onClick={() => onOpenAI && onOpenAI(selectedImages.map((i) => i.file))}>이미지 등록하기</S.UploadButton>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      style={{ display: 'none' }}
+                      onChange={handleFilesSelected}
+                    />
+                  </>
+                )}
               </S.UploadWrap>
             </>
           ) : (

@@ -125,6 +125,57 @@ export const UploadInner = styled.div`
   font-size: ${vw(28)};
 `;
 
+// 간단한 이미지 슬라이더
+export const Carousel = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: ${vw(24)};
+  width: 100%;
+`;
+
+export const SideSlide = styled.div`
+  width: ${vw(220)};
+  height: ${vw(240)};
+  border: ${vw(2)} solid rgba(126, 141, 245, 0.45);
+  border-radius: ${vw(16)};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.7;
+  overflow: hidden;
+  cursor: pointer;
+  img { width: 100%; height: 100%; object-fit: contain; }
+`;
+
+export const MainSlide = styled.div`
+  width: ${vw(520)};
+  height: ${vw(300)};
+  border: ${vw(2)} solid #7e8df5;
+  border-radius: ${vw(16)};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  overflow: hidden;
+  img { width: 100%; height: 100%; object-fit: contain; }
+`;
+
+export const Dots = styled.div`
+  display: flex;
+  gap: ${vw(8)};
+  align-items: center;
+  justify-content: center;
+`;
+
+export const Dot = styled.span`
+  width: ${vw(10)};
+  height: ${vw(10)};
+  border-radius: 50%;
+  border: ${vw(2)} solid #c7cffd;
+  background: ${({ $active }) => ($active ? '#7e8df5' : '#eef2ff')};
+`;
+
 // 직접 일정 등록 폼 모양(정적 UI)
 export const FormWrap = styled.div`
   width: 100%;
