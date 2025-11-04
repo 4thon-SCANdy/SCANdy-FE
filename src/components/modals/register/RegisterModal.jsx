@@ -6,9 +6,10 @@ import DIRECT_PREVIEW from "@/assets/modal/Direct.svg";
 
 function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
   return (
-    <ModalBase open={open} onClose={onClose} title="" hideHeader closeOnOverlayClick widthPx={960} heightPx={600}>
+    <ModalBase open={open} onClose={onClose} title="" hideHeader closeOnOverlayClick widthPx={960} heightPx={600} noBodyPadding>
       <S.CloseFloating onClick={onClose} aria-label="close">×</S.CloseFloating>
-      <S.Content>
+      <S.Padding>
+        <S.Content>
         <S.TopLabel>
           일정 등록하기
         </S.TopLabel>
@@ -26,7 +27,8 @@ function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
           <S.LargeButton onClick={onOpenAI}>이미지 등록하기 (AI 인식)</S.LargeButton>
           <S.LargeButton onClick={onOpenManual}>직접 등록하기</S.LargeButton>
         </S.BottomRow>
-      </S.Content>
+        </S.Content>
+      </S.Padding>
     </ModalBase>
   );
 }

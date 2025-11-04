@@ -4,7 +4,12 @@ import { vw } from "@/utils/units";
 export const Content = styled.div`
   display: flex;
   flex-direction: column;
-  row-gap: ${vw(43)}; /* 섹션 간 세로 간격 */
+  row-gap: 2.125vw;
+`;
+
+// 모달 본문 커스텀 패딩 (상하 3.24vw, 좌우 2.458vw)
+export const Padding = styled.div`
+  padding: 3.24vw 2.458vw;
 `;
 
 export const TopLabel = styled.div`
@@ -81,6 +86,19 @@ export const LargeButton = styled.button`
   font-size: ${vw(20)}; 
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.06s ease;
+  &:hover {
+    background: rgba(126, 141, 245, 0.08);
+    box-shadow: 0 ${vw(6)} ${vw(20)} rgba(126, 141, 245, 0.12);
+  }
+  &:active {
+    transform: translateY(${vw(1)});
+  }
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 ${vw(3)} rgba(126, 141, 245, 0.35);
+  }
 `;
 
 export const CloseFloating = styled.button`
