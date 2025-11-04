@@ -2,6 +2,7 @@ import * as S from "../styles/MainRightSection.style";
 
 import GOOGLE from "@/assets/main/google.svg";
 import ANDY from "@/assets/main/andy.svg";
+import PlanTag from "./PlanTag";
 
 const MainRightSection = () => {
   // 오늘을 기준으로 일주일 단위 생성
@@ -17,7 +18,27 @@ const MainRightSection = () => {
   const date = today.getDate();
   const day = ["일", "월", "화", "수", "목", "금", "토"][today.getDay()];
 
-  const schedules = [];
+  const schedules = [
+    {
+      id: 1,
+      date: "2025-11-04",
+      tag: "회의",
+      color: "#FFEBB5",
+    },
+    {
+      id: 2,
+      date: "2025-11-04",
+      tag: "프로젝트",
+      color: "#D9C9FF",
+    },
+    {
+      id: 3,
+      date: "2025-11-06",
+      tag: "디자인",
+      color: "#A0D4FF",
+    },
+  ];
+
   const hasSchedule = schedules.length > 0;
 
   const formatDateKey = (date) =>
@@ -51,7 +72,7 @@ const MainRightSection = () => {
             const { text, dayIndex } = formatDisplayDate(dateObj);
             const isWeekend = dayIndex === 0 || dayIndex === 6;
             const daySchedules = schedules.filter(
-              (item) => item.start_date === dateKey
+              (item) => item.date === dateKey
             );
 
             return (
@@ -62,13 +83,27 @@ const MainRightSection = () => {
 
                 {daySchedules.length > 0 ? (
                   <S.TodayContent>
-                    <S.PlusText>일정 있음</S.PlusText>
+                    {daySchedules.map((schedule) => (
+                      <div
+                        key={schedule.id}
+                        style={{
+                          position: "relative",
+                          display: "flex",
+                          justifyContent: "flex-end",
+                          backgroundColor: "#FDFDFD",
+                        }}
+                      >
+                        <PlanTag size="large" color={schedule.color}>
+                          {schedule.tag}
+                        </PlanTag>
+                      </div>
+                    ))}
                   </S.TodayContent>
                 ) : (
-                  <S.TodayContent>
+                  <S.ImgContent>
                     <S.AndyImg src={ANDY} />
                     <S.PlusText>캘린더에서 일정을 추가해 주세요!</S.PlusText>
-                  </S.TodayContent>
+                  </S.ImgContent>
                 )}
               </S.TodayBox>
             );
