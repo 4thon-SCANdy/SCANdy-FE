@@ -10,29 +10,6 @@ export const Empty = styled.div`
   font-weight: 600;
 `;
 
-export const List = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${vw(12)};
-`;
-
-export const Item = styled.div`
-  display: grid;
-  grid-template-columns: ${vw(120)} 1fr;
-  align-items: center;
-  border: ${vw(1)} solid rgba(126, 141, 245, 0.35);
-  border-radius: ${vw(12)};
-  padding: ${vw(12)} ${vw(16)};
-`;
-
-export const Time = styled.span`
-  color: #4842b2;
-  font-weight: 700;
-`;
-
-export const Title = styled.span`
-  color: #6a6a6a;
-`;
 
 // 추가: RegisterModal과 동일한 헤더/레이아웃 요소
 export const Content = styled.div`

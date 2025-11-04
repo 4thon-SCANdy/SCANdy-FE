@@ -22,27 +22,9 @@ export const TopLabel = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
   color: #7e8df5;
   font-weight: 800;
   font-size: ${vw(20)};
-`;
-
-export const TopX = styled.button`
-  position: absolute;
-  top: 50%;
-  right: ${vw(18)};
-  transform: translateY(-50%);
-  width: ${vw(32)};
-  height: ${vw(32)};
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: ${vw(20)};
-  color: #7e8df5;
-  background: transparent;
-  border: none;
-  cursor: pointer;
 `;
 
 export const CardRow = styled.div`
