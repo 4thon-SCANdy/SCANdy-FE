@@ -4,6 +4,7 @@ import { vw } from "@/utils/units";
 export const LoginContainer = styled.div`
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: ${vw(228)};
   width: ${vw(1920)};
   height: ${vw(1080)};
@@ -11,18 +12,37 @@ export const LoginContainer = styled.div`
   padding: 0 ${vw(196)} 0 ${vw(167)};
 `;
 
-export const ScrollCalendar = styled.div``;
+export const ScrollCalendar = styled.div`
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+  gap: ${vw(65)};
+
+  overflow: hidden;
+  overflow-y: auto;
+  scroll-behavior: auto;
+
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  padding-top: calc(50vh - ${vw(300)});
+  padding-bottom: calc(50vh - ${vw(300)});
+`;
 
 export const LoginRight = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
   gap: ${vw(80)};
   margin-top: ${vw(89)};
 `;
 
 export const Logo = styled.img`
-  widht: ${vw(366)};
+  width: ${vw(366)};
   height: ${vw(160)};
 `;
 
