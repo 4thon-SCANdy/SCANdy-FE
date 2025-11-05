@@ -90,7 +90,7 @@ export const MainCalendarContainer = styled.div`
 
   }
 
-  .react-calendar__tile::after {
+  .MainCalendar .react-calendar__tile::after {
     content: "";
     display: block;
     width: 100%;

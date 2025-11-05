@@ -37,7 +37,7 @@ const MainCalendar = ({ currentDate, selectedTag }) => {
     )}-${String(date.getDate()).padStart(2, "0")}`;
 
   return (
-    <S.MainCalendarContainer>
+    <S.MainCalendarContainer className="MainCalendar">
       <S.CalendarTop>
         <S.MonthText>{currentDate.getMonth() + 1}월</S.MonthText>
       </S.CalendarTop>
