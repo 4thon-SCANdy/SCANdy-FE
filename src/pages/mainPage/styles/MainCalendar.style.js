@@ -44,6 +44,7 @@ export const MainCalendarContainer = styled.div`
 
   /* 날짜 칸 */
   .react-calendar__tile {
+    position: relative;
     width: ${vw(152)};
     height: ${vw(169)};
     font-size: ${vw(12)};
@@ -55,6 +56,38 @@ export const MainCalendarContainer = styled.div`
     align-items: flex-start;
     justify-content: flex-start;
     padding: 0; /* 내부 패딩 완전 제거 */
+
+     &:hover::before {
+      bottom: ${vw(13)};         
+      right: ${vw(10)};
+      width: ${vw(40)};
+      height: ${vw(40)};
+      content: "";
+      position: absolute;
+      background-image: url("/src/assets/calendar/plus.svg"); /* ✅ 수정 */
+      background-size: cover;
+      background-position: center;
+      opacity: 1;
+      transition: opacity 0.3s ease-in-out;
+    }
+
+    /* 기본 상태에서 이미지 숨김 */
+    &::before {
+      content: "";
+      position: absolute;
+      bottom: ${vw(13)};         
+      right: ${vw(10)};
+      width: ${vw(40)};
+      height: ${vw(40)};
+      background-image: url("/src/assets/calendar/plus.svg");
+      background-size: cover;
+      background-position: center;
+      opacity: 0;
+      transition: opacity 0.3s ease-in-out;
+      pointer-events: none;
+    }
+  }
+
   }
 
   .react-calendar__tile::after {
