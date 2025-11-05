@@ -1,7 +1,7 @@
 import React from "react";
 import * as S from "./styles/ModalBase.style";
 
-function ModalBase({ open, title, onClose, widthPx = 1040, heightPx = 640, children, footer, hideHeader = false, closeOnOverlayClick = false, centerBody = false, noBodyPadding = false }) {
+function ModalBase({ open, title, onClose, widthPx = 1040, heightPx = 640, children, footer, hideHeader = false, closeOnOverlayClick = false, centerBody = false, noBodyPadding = false, noScroll = false }) {
   if (!open) return null;
 
   return (
@@ -21,7 +21,7 @@ function ModalBase({ open, title, onClose, widthPx = 1040, heightPx = 640, child
             <S.CloseButton onClick={onClose} aria-label="close">×</S.CloseButton>
           </S.Header>
         )}
-        <S.Body $center={centerBody} $noPadding={noBodyPadding}>{children}</S.Body>
+        <S.Body $center={centerBody} $noPadding={noBodyPadding} $noScroll={noScroll}>{children}</S.Body>
         {footer ? <S.Footer>{footer}</S.Footer> : null}
       </S.Container>
     </S.Overlay>
