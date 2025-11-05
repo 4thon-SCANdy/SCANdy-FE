@@ -55,34 +55,38 @@ function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
   const handleFilesSelected = (e) => {
     const files = Array.from(e.target.files || []).filter(f => f.type.startsWith("image/"));
     if (!files.length) return;
+    const wasEmpty = selectedImages.length === 0;
+    let finalImages = selectedImages;
     // If replacing a specific index (double-click case)
     if (replaceIdxRef.current !== null && replaceIdxRef.current !== undefined) {
       const f = files[0];
       if (!f) return;
       const newObj = { file: f, url: URL.createObjectURL(f) };
-      setSelectedImages(prev => {
-        const next = [...prev];
-        const idx = Math.min(Math.max(replaceIdxRef.current, 0), next.length - 1);
-        if (next[idx]) {
-          try { URL.revokeObjectURL(next[idx].url); } catch {}
-          next[idx] = newObj;
-        }
-        setCurrentImageIdx(idx);
-        return next;
-      });
+      const next = [...selectedImages];
+      const idx = Math.min(Math.max(replaceIdxRef.current, 0), next.length - 1);
+      if (next[idx]) {
+        try { URL.revokeObjectURL(next[idx].url); } catch {}
+        next[idx] = newObj;
+      }
+      setCurrentImageIdx(idx);
+      finalImages = next;
+      setSelectedImages(next);
       replaceIdxRef.current = null;
     } else {
       // Append mode
       const mapped = files.slice(0, 5).map(f => ({ file: f, url: URL.createObjectURL(f) }));
-      setSelectedImages(prev => {
-        const remain = Math.max(0, 5 - prev.length);
-        const toAdd = mapped.slice(0, remain);
-        const merged = [...prev, ...toAdd];
-        if (prev.length === 0 && merged.length > 0) {
-          setCurrentImageIdx(0);
-        }
-        return merged;
-      });
+      const remain = Math.max(0, 5 - selectedImages.length);
+      const toAdd = mapped.slice(0, remain);
+      const merged = [...selectedImages, ...toAdd];
+      if (selectedImages.length === 0 && merged.length > 0) {
+        setCurrentImageIdx(0);
+      }
+      finalImages = merged;
+      setSelectedImages(merged);
+    }
+    // 자동 이동: 첫 업로드 직후 바로 분석 모달 열기
+    if (wasEmpty && finalImages.length > 0 && onOpenAI) {
+      onOpenAI(finalImages.map((i) => i.file));
     }
     // allow selecting the same file again later
     if (e.target) try { e.target.value = ""; } catch {}

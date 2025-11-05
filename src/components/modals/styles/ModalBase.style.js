@@ -56,7 +56,7 @@ export const CloseButton = styled.button`
 export const Body = styled.div`
   padding: ${({ $noPadding }) => ($noPadding ? 0 : css`${vw(43)} ${vw(28)}`)};
   flex: 1;
-  overflow: auto;
+  overflow: ${({ $noScroll }) => ($noScroll ? 'hidden' : 'auto')};
   ${({ $center }) =>
     $center &&
     css`
