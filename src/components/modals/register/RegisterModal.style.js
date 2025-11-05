@@ -4,7 +4,7 @@ import { vw } from "@/utils/units";
 export const Content = styled.div`
   display: flex;
   flex-direction: column;
-  row-gap: 1.8vw;
+  row-gap: 2.8vw;
 `;
 
 // 모달 본문 커스텀 패딩 (상하 3.24vw, 좌우 2.458vw)
@@ -62,13 +62,13 @@ export const BottomRow = styled.div`
 `;
 
 export const LargeButton = styled.button`
-  height: ${vw(56)}; 
+  height: ${vw(52)}; 
   border-radius: ${vw(32)}; 
   border: ${vw(2)} solid #7e8df5;
   background: #ffffff;
   color: #7e8df5;
   font-weight: 800;
-  font-size: ${vw(20)}; 
+  font-size: ${vw(19)}; 
   align-items: center;
   justify-content: center;
   cursor: pointer;
@@ -88,7 +88,8 @@ export const LargeButton = styled.button`
 
 // 직접 등록 하단 버튼을 조금 더 넓게
 export const WideButton = styled(LargeButton)`
-  min-width: ${vw(300)};
+  min-width: ${vw(280)};
+  height: ${vw(46)};
 `;
 
 // 업로드 화면의 하단 버튼을 더 넓게
@@ -102,7 +103,13 @@ export const UploadWrap = styled.div`
   flex-direction: column;
   align-items: center;
   gap: ${vw(36)};
+  /* 버튼 위치가 변하지 않도록 업로드 영역의 최소 높이를 고정 */
+  min-height: ${vw(460)};
+  justify-content: flex-start;
 `;
+
+// 업로드 콘텐츠 뷰포트(빈 상태/선택 상태 모두 같은 높이 유지)
+/* UploadViewport (reverted) 제거 */
 
 export const UploadBox = styled.div`
   width: 92%;
@@ -183,10 +190,10 @@ export const FormWrap = styled.div`
   border-radius: ${vw(24)};
   border: ${vw(2)} solid rgba(126, 141, 245, 0.45);
   background: linear-gradient(180deg, #f7f8ff 0%, #ffffff 100%);
-  padding: ${vw(16)};
+  padding: ${vw(20)};
   display: flex;
   flex-direction: column;
-  gap: ${vw(16)};
+  gap: ${vw(26)};
 `;
 
 export const FormRow = styled.div`
@@ -199,6 +206,8 @@ export const FormRow = styled.div`
 export const Label = styled.div`
   color: #6a6a6a;
   font-weight: 800;
+  white-space: nowrap;
+  margin: 0 ${vw(8)} 0 0;
 `;
 
 export const Pill = styled.div`
@@ -263,13 +272,23 @@ export const RepeatWrap = styled.div`
   align-items: flex-start;
 `;
 
+// 반복 상세 영역(아래로만 펼쳐짐)
+export const RepeatArea = styled.div`
+  overflow: hidden;
+  max-height: ${({ $open }) => ($open ? vw(240) : 0)};
+  transition: max-height 0.25s ease, margin-top 0.25s ease, padding 0.25s ease;
+  margin-top: ${({ $open }) => ($open ? vw(8) : 0)};
+  padding: ${({ $open }) => ($open ? `${vw(4)} 0` : 0)};
+`;
+
 export const RepeatLabel = styled.div`
   color: #6a6a6a;
   font-weight: 800;
+  white-space: nowrap;
 `;
 
 export const Toggle = styled.button`
-  width: ${vw(44)};
+  width: ${vw(50)};
   height: ${vw(24)};
   border-radius: ${vw(24)};
   background: ${({ $on }) => ($on ? '#7e8df5' : '#d6dbff')};
@@ -280,7 +299,7 @@ export const Toggle = styled.button`
 export const ToggleKnob = styled.span`
   position: absolute;
   top: ${vw(3)};
-  left: ${({ $on }) => ($on ? vw(23) : vw(3))};
+  left: ${({ $on }) => ($on ? vw(35) : vw(3))};
   width: ${vw(18)};
   height: ${vw(18)};
   background: #fff;
@@ -294,8 +313,8 @@ export const MutedText = styled.div`
 
 // 태그/장소 행
 export const SmallChip = styled.div`
-  width: ${vw(52)};
-  height: ${vw(28)};
+  width: ${vw(58)};
+  height: ${vw(30)};
   border-radius: ${vw(16)};
   border: ${vw(2)} solid #b4bfff;
   display: flex;
@@ -306,8 +325,8 @@ export const SmallChip = styled.div`
 `;
 
 export const SmallInput = styled.div`
-  width: ${vw(220)};
-  height: ${vw(32)};
+  width: ${vw(240)};
+  height: ${vw(36)};
   border-radius: ${vw(16)};
   border: ${vw(2)} solid #e0e5ff;
   color: #7e8df5;
@@ -319,12 +338,12 @@ export const SmallInput = styled.div`
 // 태그 셀렉터
 export const TagSelect = styled.div`
   position: relative;
-  width: ${vw(220)};
+  width: ${vw(240)};
 `;
 
 export const TagButton = styled.button`
   width: 100%;
-  height: ${vw(32)};
+  height: ${vw(36)};
   border-radius: ${vw(16)};
   border: ${vw(2)} solid #e0e5ff;
   background: #fff;
@@ -427,8 +446,9 @@ export const ColorDot = styled.button`
 export const TimeWrap = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: ${vw(48)};
+  gap: ${vw(20)};
   align-items: center;
+  width: 100%;
 `;
 
 export const TimeCol = styled.div`
@@ -454,6 +474,7 @@ export const TimeBig = styled.div`
 
 export const TimeEl = styled.input`
   width: ${vw(200)};
+  max-width: 100%;
   height: ${vw(48)};
   border-radius: ${vw(24)};
   border: ${vw(2)} solid #b4bfff;
@@ -461,6 +482,7 @@ export const TimeEl = styled.input`
   color: #7e8df5;
   font-weight: 800;
   text-align: center;
+  box-sizing: border-box;
 `;
 
 export const OptionGroup = styled.div`
@@ -479,10 +501,49 @@ export const OptionBtn = styled.button`
   font-weight: 800;
 `;
 
+// 반복 설정 on 상태의 카드 레이아웃
+export const RepeatPanel = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: ${vw(20)};
+  margin-top: ${vw(8)};
+  width: 100%;
+  max-width: calc(100% - ${vw(16)});
+  box-sizing: border-box;
+  padding-right: ${vw(40)};
+  overflow: hidden;
+`;
+
+export const RepeatCard = styled.div`
+  padding: 0;
+  border: none;
+  background: transparent;
+  display: contents; /* allow chip to control sizing */
+`;
+
+export const RepeatChip = styled.button`
+  padding: 0 ${vw(16)};
+  height: ${vw(32)};
+  border-radius: ${vw(18)};
+  border: ${vw(2)} solid ${({ $active }) => ($active ? '#7e8df5' : '#b4bfff')};
+  background: ${({ $active }) => ($active ? '#eef2ff' : '#ffffff')};
+  color: ${({ $active }) => ($active ? '#5e81f4' : '#7e8df5')};
+  font-weight: 800;
+  font-size: ${vw(14)};
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  &:hover { box-shadow: 0 ${vw(2)} ${vw(8)} rgba(126,141,245,0.18); }
+  &:focus-visible { outline: none; box-shadow: 0 0 0 ${vw(3)} rgba(126,141,245,0.35); }
+`;
+
 export const InlineRow = styled.div`
   display: flex;
   align-items: center;
-  gap: ${vw(10)};
+  gap: ${vw(1)};
+  flex-wrap: nowrap;
 `;
 
 export const TagNameRow = styled(InlineRow)`

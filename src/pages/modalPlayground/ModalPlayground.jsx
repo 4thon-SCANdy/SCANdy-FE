@@ -7,6 +7,7 @@ function ModalPlayground() {
   const [openCon, setOpenCon] = useState(false);
   const [openSearch, setOpenSearch] = useState(false);
   const [openAnalyze, setOpenAnalyze] = useState(false);
+  const [analyzeImages, setAnalyzeImages] = useState([]); // object URLs
 
   return (
     <S.Wrapper>
@@ -21,7 +22,13 @@ function ModalPlayground() {
         open={openReg}
         onClose={() => setOpenReg(false)}
         onOpenAI={(files) => {
-          // files: File[] from upload step (optional for now)
+          try {
+            const urls = (files || []).map((f) => URL.createObjectURL(f));
+            setAnalyzeImages((prev) => {
+              prev.forEach((u) => { try { URL.revokeObjectURL(u); } catch {} });
+              return urls;
+            });
+          } catch {}
           setOpenReg(false);
           setOpenAnalyze(true);
         }}
@@ -29,6 +36,7 @@ function ModalPlayground() {
 
       <AnalyzeModal
         open={openAnalyze}
+        images={analyzeImages}
         onClose={() => setOpenAnalyze(false)}
         onReupload={() => {
           setOpenAnalyze(false);

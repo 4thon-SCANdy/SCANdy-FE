@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { vw } from "@/utils/units";
 
 export const Padding = styled.div`
@@ -184,20 +184,10 @@ export const PreviewArea = styled.div`
   flex: 0 0 ${vw(385)};
   height: ${vw(385)};
   border-radius: ${vw(12)};
-  background: #ddd;
+  background: transparent; /* match parent (box) background */
   position: relative;
   overflow: hidden;
-  &:after, &:before {
-    content: "";
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: linear-gradient( to bottom right, transparent 49%, #000 50%, transparent 51% );
-    opacity: 0.2;
-    pointer-events: none;
-  }
-  &:before {
-    transform: scaleX(-1);
-  }
+  img { width: 100%; height: 100%; object-fit: contain; display: block; border-radius: inherit; }
 `;
 
 export const CarouselBar = styled.div`

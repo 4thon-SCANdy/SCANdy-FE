@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import ModalBase from "../ModalBase";
+import AnalyzeModal from "../analysis/AnalyzeModal";
 import * as S from "./RegisterModal.style";
 import IMAGE_PREVIEW from "@/assets/modal/Image.svg";
 import DIRECT_PREVIEW from "@/assets/modal/Direct.svg";
@@ -19,6 +20,7 @@ function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
   const [repeatType, setRepeatType] = useState("daily"); // daily | weekly
   const [repeatEnd, setRepeatEnd] = useState("");
   const [repeatWeekday, setRepeatWeekday] = useState("월");
+  const [allDay, setAllDay] = useState(false);
   const [tagOpen, setTagOpen] = useState(false);
   const [selectedTagId, setSelectedTagId] = useState("");
   const [tagList, setTagList] = useState([
@@ -42,6 +44,10 @@ function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
   const [currentImageIdx, setCurrentImageIdx] = useState(0);
   const fileInputRef = useRef(null);
   const replaceIdxRef = useRef(null);
+
+  // 내부 분석 모달 (부모에서 onOpenAI를 넘기지 않은 경우 대비)
+  const [internalAnalyzeOpen, setInternalAnalyzeOpen] = useState(false);
+  const [internalAnalyzeImages, setInternalAnalyzeImages] = useState([]); // string URLs
 
   const openFilePicker = () => {
     if (fileInputRef.current) fileInputRef.current.click();
@@ -84,10 +90,7 @@ function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
       finalImages = merged;
       setSelectedImages(merged);
     }
-    // 자동 이동: 첫 업로드 직후 바로 분석 모달 열기
-    if (wasEmpty && finalImages.length > 0 && onOpenAI) {
-      onOpenAI(finalImages.map((i) => i.file));
-    }
+    // 자동 이동 제거: 사용자가 버튼을 눌렀을 때만 분석 진행
     // allow selecting the same file again later
     if (e.target) try { e.target.value = ""; } catch {}
   };
@@ -101,8 +104,9 @@ function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
       setCurrentImageIdx(0);
     }
   }, [open]);
-  const modalHeightPx = view === "manual" ? (repeatOn ? 740 : 600) : 600;
+  const modalHeightPx = view === "manual" ? 600 : 600;
   return (
+    <>
     <ModalBase open={open} onClose={onClose} title="" hideHeader closeOnOverlayClick widthPx={960} heightPx={modalHeightPx} noBodyPadding>
       <S.CloseFloating onClick={onClose} aria-label="close">×</S.CloseFloating>
       <S.Padding>
@@ -173,7 +177,20 @@ function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
                         <S.Dot key={i} $active={i === currentImageIdx} />
                       ))}
                     </S.Dots>
-                    <S.UploadButton onClick={() => onOpenAI && onOpenAI(selectedImages.map((i) => i.file))}>이미지 등록하기</S.UploadButton>
+                    <S.UploadButton
+                      onClick={() => {
+                        const files = selectedImages.map((i) => i.file);
+                        if (onOpenAI) {
+                          onOpenAI(files);
+                        } else {
+                          // 내부 분석 모달 오픈 (이미 생성된 object URL 사용)
+                          setInternalAnalyzeImages(selectedImages.map((i) => i.url).filter(Boolean));
+                          setInternalAnalyzeOpen(true);
+                        }
+                      }}
+                    >
+                      이미지 등록하기
+                    </S.UploadButton>
                     <input
                       ref={fileInputRef}
                       type="file"
@@ -194,7 +211,7 @@ function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
                   <S.Pill>
                     <S.InputEl type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
                   </S.Pill>
-                  <S.Label>끝나는 날</S.Label>
+                  <S.Label>종료</S.Label>
                   <S.Pill>
                     <S.InputEl type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
                   </S.Pill>
@@ -209,51 +226,40 @@ function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
                     />
                   </S.TextInput>
                   <S.RepeatWrap>
-                    <S.RepeatLabel>반복 설정</S.RepeatLabel>
-                    <S.InlineRow>
-                      <S.Toggle aria-label="repeat-toggle" onClick={() => setRepeatOn((v) => !v)} $on={repeatOn}>
-                        <S.ToggleKnob $on={repeatOn} />
-                      </S.Toggle>
-                      <S.MutedText>{repeatOn ? "반복 설정 켜짐" : "반복 설정 안함"}</S.MutedText>
+                    <S.InlineRow style={{ gap: '1vw' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4vw' }}>
+                        <S.RepeatLabel>반복 </S.RepeatLabel>
+                        <S.Toggle aria-label="repeat-toggle" onClick={() => setRepeatOn((v) => !v)} $on={repeatOn}>
+                          <S.ToggleKnob $on={repeatOn} />
+                        </S.Toggle>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4vw' }}>
+                        <S.RepeatLabel>종일</S.RepeatLabel>
+                        <S.Toggle aria-label="allday-toggle" onClick={() => {
+                          setAllDay((v) => {
+                            const next = !v;
+                            if (next) { setStartTime('00:00'); setEndTime('00:00'); }
+                            return next;
+                          });
+                        }} $on={allDay}>
+                          <S.ToggleKnob $on={allDay} />
+                        </S.Toggle>
+                      </div>
                     </S.InlineRow>
-                    {repeatOn && (
-                      <>
-                        <S.OptionGroup>
-                          <S.OptionBtn $active={repeatType === "daily"} onClick={() => setRepeatType("daily")}>매일</S.OptionBtn>
-                          <S.OptionBtn $active={repeatType === "weekly"} onClick={() => setRepeatType("weekly")}>매주</S.OptionBtn>
-                        </S.OptionGroup>
-                        <S.InlineRow>
-                          <S.Label>끝나는 날</S.Label>
-                          <S.Pill style={{ minWidth: "unset" }}>
-                            <S.InputEl type="date" value={repeatEnd} onChange={(e) => setRepeatEnd(e.target.value)} />
-                          </S.Pill>
-                          {repeatType === "weekly" && (
-                            <>
-                              <S.Label>요일</S.Label>
-                              <S.Pill style={{ minWidth: "unset" }}>
-                                <S.SelectEl value={repeatWeekday} onChange={(e) => setRepeatWeekday(e.target.value)}>
-                                  {['일','월','화','수','목','금','토'].map((d) => (
-                                    <option key={d} value={d}>{d}</option>
-                                  ))}
-                                </S.SelectEl>
-                              </S.Pill>
-                            </>
-                          )}
-                        </S.InlineRow>
-                      </>
-                    )}
                   </S.RepeatWrap>
                 </S.FormRow>
+                
                 <S.FormRow style={{ justifyContent: "space-between" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.6vw" }}>
-                    <S.SmallChip>태그</S.SmallChip>
-                    <S.TagSelect>
-                      <S.TagButton onClick={() => { setTagOpen((v) => !v); setAddingNewTag(false); }}>
-                        {tagList.find((t) => t.id === selectedTagId)?.name || '태그 설정하기'}
-                        <S.Caret />
-                      </S.TagButton>
-                      {tagOpen && (
-                        <S.TagMenu>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.6vw", flexDirection: 'column', alignItems: 'flex-start' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6vw' }}>
+                      <S.SmallChip>태그</S.SmallChip>
+                      <S.TagSelect>
+                        <S.TagButton onClick={() => { setTagOpen((v) => !v); setAddingNewTag(false); }}>
+                          {tagList.find((t) => t.id === selectedTagId)?.name || '태그 설정하기'}
+                          <S.Caret />
+                        </S.TagButton>
+                        {tagOpen && (
+                          <S.TagMenu>
                           <S.TagMenuHeader>태그 설정하기</S.TagMenuHeader>
                           {tagList.map((t) => (
                             <S.TagRow key={t.id} onClick={() => { setSelectedTagId(t.id); setTag(t.name); setEditingTagName(t.name); setAddingNewTag(false); }}>
@@ -319,37 +325,60 @@ function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
                               </S.TagNameRow>
                             </>
                           )}
-                        </S.TagMenu>
-                      )}
-                    </S.TagSelect>
+                          </S.TagMenu>
+                        )}
+                      </S.TagSelect>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6vw' }}>
+                      <S.SmallChip>장소</S.SmallChip>
+                      <S.SmallInput>
+                        <S.InputEl
+                          type="text"
+                          placeholder="장소 입력하기"
+                          value={location}
+                          onChange={(e) => setLocation(e.target.value)}
+                        />
+                      </S.SmallInput>
+                    </div>
                   </div>
-                  <S.TimeWrap>
-                    <S.TimeCol>
-                      <S.MeridiemCol>
-                        <div>AM</div>
-                        <div>PM</div>
-                      </S.MeridiemCol>
-                      <S.TimeEl type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
-                    </S.TimeCol>
-                    <S.TimeCol>
-                      <S.MeridiemCol>
-                        <div>AM</div>
-                        <div>PM</div>
-                      </S.MeridiemCol>
-                      <S.TimeEl type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
-                    </S.TimeCol>
-                  </S.TimeWrap>
-                </S.FormRow>
-                <S.FormRow style={{ justifyContent: "flex-start", gap: "0.6vw" }}>
-                  <S.SmallChip>장소</S.SmallChip>
-                  <S.SmallInput>
-                    <S.InputEl
-                      type="text"
-                      placeholder="장소 입력하기"
-                      value={location}
-                      onChange={(e) => setLocation(e.target.value)}
-                    />
-                  </S.SmallInput>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.6vw', width: '100%' }}>
+                    {repeatOn && (
+                      <S.RepeatPanel>
+                        <S.RepeatCard $active={repeatType === "daily"}>
+                          <S.RepeatChip
+                            $active={repeatType === "daily"}
+                            aria-pressed={repeatType === "daily"}
+                            onClick={() => setRepeatType("daily")}
+                          >
+                            매일
+                          </S.RepeatChip>
+                        </S.RepeatCard>
+                        <S.RepeatCard $active={repeatType === "weekly"}>
+                          <S.RepeatChip
+                            $active={repeatType === "weekly"}
+                            aria-pressed={repeatType === "weekly"}
+                            onClick={() => setRepeatType("weekly")}
+                          >
+                            매주
+                          </S.RepeatChip>
+                        </S.RepeatCard>
+                      </S.RepeatPanel>
+                    )}
+                    <S.TimeWrap>
+                      <S.TimeCol>
+                        <S.InlineRow>
+                          <S.Label>시작</S.Label>
+                          <S.TimeEl type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} disabled={allDay} />
+                        </S.InlineRow>
+                      </S.TimeCol>
+                      <S.TimeCol>
+                        <S.InlineRow>
+                          <S.Label>종료</S.Label>
+                          <S.TimeEl type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} disabled={allDay} />
+                        </S.InlineRow>
+                      </S.TimeCol>
+                    </S.TimeWrap>
+                  </div>
                 </S.FormRow>
                 <S.ActionsRow>
                   <S.WideButton onClick={() => setView("choice")}>취소하기</S.WideButton>
@@ -361,6 +390,17 @@ function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
         </S.Content>
       </S.Padding>
     </ModalBase>
+    {internalAnalyzeOpen && (
+      <AnalyzeModal
+        open={internalAnalyzeOpen}
+        images={internalAnalyzeImages}
+        onClose={() => setInternalAnalyzeOpen(false)}
+        onReupload={() => { setInternalAnalyzeOpen(false); setView("upload"); }}
+        onEdit={() => { setInternalAnalyzeOpen(false); setView("manual"); }}
+        onSubmit={() => { setInternalAnalyzeOpen(false); }}
+      />
+    )}
+    </>
   );
 }
 
