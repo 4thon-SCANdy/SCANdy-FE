@@ -1,13 +1,13 @@
 import { useState } from "react";
 import * as S from "../styles/CalendarArrow.style";
 
-import PREV_DEFAULT from "@/assets/calendar/prev.svg";
-import PREV_HOVER from "@/assets/calendar/prev-hover.svg";
-import PREV_ACTIVE from "@/assets/calendar/prev-click.svg";
+import PREV_DEFAULT from "@/assets/Calendar/prev.svg";
+import PREV_HOVER from "@/assets/Calendar/prev-hover.svg";
+import PREV_ACTIVE from "@/assets/Calendar/prev-click.svg";
 
-import NEXT_DEFAULT from "@/assets/calendar/next.svg";
-import NEXT_HOVER from "@/assets/calendar/next-hover.svg";
-import NEXT_ACTIVE from "@/assets/calendar/next-click.svg";
+import NEXT_DEFAULT from "@/assets/Calendar/next.svg";
+import NEXT_HOVER from "@/assets/Calendar/next-hover.svg";
+import NEXT_ACTIVE from "@/assets/Calendar/next-click.svg";
 
 const CalendarArrow = ({
   onPrev,
