@@ -9,7 +9,6 @@ import NEXT_DEFAULT from "../../../assets/Calendar/next.svg";
 import NEXT_HOVER from "../../../assets/Calendar/next-hover.svg";
 import NEXT_ACTIVE from "../../../assets/Calendar/next-click.svg";
 
-
 const CalendarArrow = ({
   onPrev,
   onNext,
