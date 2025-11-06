@@ -12,14 +12,12 @@ function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [title, setTitle] = useState("");
-  const [tag, setTag] = useState("");
   const [location, setLocation] = useState("");
   const [startTime, setStartTime] = useState("00:00");
   const [endTime, setEndTime] = useState("00:00");
   const [repeatOn, setRepeatOn] = useState(false);
   const [repeatType, setRepeatType] = useState("daily"); // daily | weekly
   const [repeatEnd, setRepeatEnd] = useState("");
-  const [repeatWeekday, setRepeatWeekday] = useState("월");
   const [allDay, setAllDay] = useState(false);
   const [tagOpen, setTagOpen] = useState(false);
   const [selectedTagId, setSelectedTagId] = useState("");
@@ -33,7 +31,6 @@ function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
     "#5E81F4","#7E8DF5","#A6D8FF","#C8E9FF","#FFE28C","#FFD966","#FFAFCC","#E0C3FF",
     "#B3F5D0","#9AE6B4","#FFD1DC","#FFDEA0","#90CDF4","#63B3ED","#CBD5E0","#A0AEC0"
   ];
-  const [editingTagName, setEditingTagName] = useState("");
   const MAX_TAGS = 5;
   const [newTagName, setNewTagName] = useState("");
   const [newTagColor, setNewTagColor] = useState("#E3E8FF");
@@ -246,15 +243,39 @@ function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
                         </S.Toggle>
                       </div>
                     </S.InlineRow>
+                    {repeatOn && (
+                      <S.RepeatCompact>
+                        <S.RepeatChipSm
+                          $active={repeatType === "daily"}
+                          aria-pressed={repeatType === "daily"}
+                          onClick={() => setRepeatType("daily")}
+                        >
+                          매일
+                        </S.RepeatChipSm>
+                        <S.RepeatChipSm
+                          $active={repeatType === "weekly"}
+                          aria-pressed={repeatType === "weekly"}
+                          onClick={() => setRepeatType("weekly")}
+                        >
+                          매주
+                        </S.RepeatChipSm>
+                        <S.InlineRow>
+                          <S.RepeatLabelSm>종료</S.RepeatLabelSm>
+                          <S.MiniPill>
+                            <S.MiniInputEl type="date" value={repeatEnd} onChange={(e) => setRepeatEnd(e.target.value)} />
+                          </S.MiniPill>
+                        </S.InlineRow>
+                      </S.RepeatCompact>
+                    )}
                   </S.RepeatWrap>
                 </S.FormRow>
                 
                 <S.FormRow style={{ justifyContent: "space-between" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.6vw", flexDirection: 'column', alignItems: 'flex-start' }}>
+                  <div style={{ display: "flex", gap: "0.6vw", flexDirection: 'column', alignItems: 'flex-start' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.6vw' }}>
                       <S.SmallChip>태그</S.SmallChip>
                       <S.TagSelect>
-                        <S.TagButton onClick={() => { setTagOpen((v) => !v); setAddingNewTag(false); }}>
+                      <S.TagButton onClick={() => { setTagOpen((v) => !v); setAddingNewTag(false); }}>
                           {tagList.find((t) => t.id === selectedTagId)?.name || '태그 설정하기'}
                           <S.Caret />
                         </S.TagButton>
@@ -262,7 +283,7 @@ function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
                           <S.TagMenu>
                           <S.TagMenuHeader>태그 설정하기</S.TagMenuHeader>
                           {tagList.map((t) => (
-                            <S.TagRow key={t.id} onClick={() => { setSelectedTagId(t.id); setTag(t.name); setEditingTagName(t.name); setAddingNewTag(false); }}>
+                            <S.TagRow key={t.id} onClick={() => { setSelectedTagId(t.id); setAddingNewTag(false); }}>
                               <S.TagRowLeft>
                                 <S.Swatch $color={t.color} />
                                 {t.name}
@@ -315,7 +336,6 @@ function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
                                         const newId = `t${Date.now()}`;
                                         setTagList([...tagList, { id: newId, name, color: newTagColor }]);
                                         setSelectedTagId(newId);
-                                        setTag(name);
                                         setNewTagName("");
                                         setAddingNewTag(false);
                                       }
@@ -342,28 +362,6 @@ function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
                     </div>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.6vw', width: '100%' }}>
-                    {repeatOn && (
-                      <S.RepeatPanel>
-                        <S.RepeatCard $active={repeatType === "daily"}>
-                          <S.RepeatChip
-                            $active={repeatType === "daily"}
-                            aria-pressed={repeatType === "daily"}
-                            onClick={() => setRepeatType("daily")}
-                          >
-                            매일
-                          </S.RepeatChip>
-                        </S.RepeatCard>
-                        <S.RepeatCard $active={repeatType === "weekly"}>
-                          <S.RepeatChip
-                            $active={repeatType === "weekly"}
-                            aria-pressed={repeatType === "weekly"}
-                            onClick={() => setRepeatType("weekly")}
-                          >
-                            매주
-                          </S.RepeatChip>
-                        </S.RepeatCard>
-                      </S.RepeatPanel>
-                    )}
                     <S.TimeWrap>
                       <S.TimeCol>
                         <S.InlineRow>
