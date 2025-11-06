@@ -287,6 +287,10 @@ export const RepeatLabel = styled.div`
   white-space: nowrap;
 `;
 
+export const RepeatLabelSm = styled(RepeatLabel)`
+  font-size: ${vw(12)};
+`;
+
 export const Toggle = styled.button`
   width: ${vw(50)};
   height: ${vw(24)};
@@ -537,6 +541,34 @@ export const RepeatChip = styled.button`
   transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
   &:hover { box-shadow: 0 ${vw(2)} ${vw(8)} rgba(126,141,245,0.18); }
   &:focus-visible { outline: none; box-shadow: 0 0 0 ${vw(3)} rgba(126,141,245,0.35); }
+`;
+
+// 토글 아래에 작게 보이는 반복 설정 행
+export const RepeatCompact = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${vw(8)};
+  margin-top: ${vw(6)};
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+`;
+
+export const RepeatChipSm = styled(RepeatChip)`
+  height: ${vw(26)};
+  padding: 0 ${vw(12)};
+  font-size: ${vw(12)};
+  border-radius: ${vw(14)};
+`;
+
+export const MiniPill = styled(Pill)`
+  height: ${vw(26)};
+  min-width: unset;
+  padding: 0 ${vw(12)};
+  border-radius: ${vw(14)};
+`;
+
+export const MiniInputEl = styled(InputEl)`
+  font-size: ${vw(12)};
 `;
 
 export const InlineRow = styled.div`
