@@ -13,7 +13,7 @@ export const Overlay = styled.div`
 
 export const Container = styled.div`
   width: ${({ $widthPx }) => vw($widthPx)};
-  min-height: ${({ $heightPx }) => vw($heightPx)};
+  height: ${({ $heightPx }) => vw($heightPx)}; /* 고정 높이로 통일 */
   background: #fff;
   border-radius: ${vw(32)};
   box-shadow: 0 ${vw(8)} ${vw(32)} rgba(0, 0, 0, 0.08);
@@ -56,7 +56,7 @@ export const CloseButton = styled.button`
 export const Body = styled.div`
   padding: ${({ $noPadding }) => ($noPadding ? 0 : css`${vw(43)} ${vw(28)}`)};
   flex: 1;
-  overflow: auto;
+  overflow: ${({ $noScroll }) => ($noScroll ? 'hidden' : 'auto')};
   ${({ $center }) =>
     $center &&
     css`
