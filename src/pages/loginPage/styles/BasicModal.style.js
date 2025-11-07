@@ -23,6 +23,10 @@ export const Icon = styled.img`
   height: ${vw(184)};
 `;
 
+export const HeaderTextWrapper = styled.div`
+  display: flex;
+`;
+
 export const HeaderText = styled.p`
   color: #7e8df5;
   text-align: center;
@@ -37,6 +41,13 @@ export const HeaderText = styled.p`
     font-size: ${vw(60)};
     font-weight: 300;
   }
+`;
+
+export const HeaderIcon = styled.img`
+  width: ${vw(24)};
+  height: ${vw(24)};
+  flex-shrink: 0;
+  transform: translateX(450%);
 `;
 
 export const ButtonWrapper = styled.div`

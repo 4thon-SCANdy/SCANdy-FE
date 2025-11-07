@@ -1,7 +1,6 @@
 import * as S from "../styles/GoogleModal.style";
 import LoginModal from "./LoginModal";
 
-import CLOSE from "@/assets/login/close.svg";
 import STAR from "@/assets/login/star.svg";
 import GOOGLE from "@/assets/main/google.svg";
 
