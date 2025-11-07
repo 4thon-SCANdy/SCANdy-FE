@@ -57,16 +57,18 @@ export const MailBox = styled.div`
   display: flex;
   width: ${vw(752)};
   height: ${vw(78)};
-  padding: ${vw(25)} ${vw(217.5)};
   justify-content: center;
   align-items: center;
   flex-shrink: 0;
   border-radius: 100px;
   background: #fff;
+  border: ${({ $isSuccess }) => ($isSuccess ? "none" : "2px solid #606060")};
+  background: ${({ $isSuccess }) =>
+    $isSuccess ? "#fff" : "rgba(229, 229, 229, 0.5)"};
 `;
 
 export const MailText = styled.p`
-  color: #7e8df5;
+  color: ${({ $isSuccess }) => ($isSuccess ? "#7e8df5" : "#606060")};
   font-family: Pretendard;
   font-size: ${vw(28)};
   font-style: normal;

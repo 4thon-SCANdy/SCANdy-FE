@@ -2,6 +2,7 @@ import * as S from "../styles/GoogleModal.style";
 import LoginModal from "./LoginModal";
 
 import STAR from "@/assets/login/star.svg";
+import CLOSE from "@/assets/login/close.svg";
 import GOOGLE from "@/assets/main/google.svg";
 
 const GoogleModal = ({ onClose }) => {

@@ -6,6 +6,7 @@ import LoginCalendar from "./components/LoginCalendar";
 import { useLayoutEffect, useRef, useState } from "react";
 import BasicModal from "./components/BasicModal";
 import GoogleModal from "./components/GoogleModal";
+import GoogleSuccessModal from "./components/GoogleSuccessModal";
 
 const LoginPage = () => {
   const [modalType, setModalType] = useState(null);
@@ -72,7 +73,9 @@ const LoginPage = () => {
       </S.LoginContainer>
 
       {modalType === "basic" && <BasicModal onClose={handleCloseModal} />}
-      {modalType === "google" && <GoogleModal onClose={handleCloseModal} />}
+      {modalType === "google" && (
+        <GoogleSuccessModal onClose={handleCloseModal} />
+      )}
     </>
   );
 };
