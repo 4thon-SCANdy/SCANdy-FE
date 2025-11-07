@@ -46,11 +46,11 @@ export const ButtonWrapper = styled.div`
 
 export const GoogleBtn = styled.button`
   display: flex;
-  width: 414px;
-  padding: 15px 30px;
+  width: ${vw(414)};
+  padding: ${vw(15)} ${vw(30)};
   justify-content: center;
   align-items: center;
-  gap: 10px;
+  gap: ${vw(10)};
   border-radius: 50px;
   border: 3px solid #b4bfff;
   background: #f4f6ff;
@@ -58,12 +58,12 @@ export const GoogleBtn = styled.button`
 
 export const ContiBtn = styled.button`
   display: flex;
-  width: 414px;
-  padding: 15px 30px;
+  width: ${vw(414)};
+  padding: ${vw(15)} ${vw(30)};
   justify-content: center;
   align-items: center;
-  gap: 10px;
-  border-radius: 50px;
+  gap: ${vw(10)};
+  border-radius: ${vw(50)};
   border: 3px solid #b4bfff;
   background: #eaedff;
 `;
@@ -71,7 +71,7 @@ export const ContiBtn = styled.button`
 export const BtnText = styled.p`
   color: #7e8df5;
   font-family: Pretendard;
-  font-size: 28px;
+  font-size: ${vw(28)};
   font-style: normal;
   font-weight: 500;
   line-height: 100%; /* 28px */
