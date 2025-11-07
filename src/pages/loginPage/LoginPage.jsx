@@ -4,8 +4,16 @@ import LOGO from "@/assets/main/logo.svg";
 import GOOGLE from "@/assets/main/google.svg";
 import LoginCalendar from "./components/LoginCalendar";
 import { useLayoutEffect, useRef, useState } from "react";
+import BasicModal from "./components/BasicModal";
+import GoogleModal from "./components/GoogleModal";
 
 const LoginPage = () => {
+  const [modalType, setModalType] = useState(null);
+
+  const handleGoogleOpenModal = () => setModalType("google");
+  const handleBasicOpenModal = () => setModalType("basic");
+  const handleCloseModal = () => setModalType(null);
+
   const scrollRef = useRef(null);
   const [nowMonth, setNowMonth] = useState(18); // 3(년)*12(달) / 2 = 이번 달
   const isScrolling = useRef(false); // 스크롤 중복 방지
@@ -42,25 +50,30 @@ const LoginPage = () => {
   }, []);
 
   return (
-    <S.LoginContainer>
-      <S.ScrollCalendar ref={scrollRef} onWheel={handleWheel}>
-        {Array.from({ length: 36 }, (_, i) => (
-          <LoginCalendar key={i} monthOffset={i - 18} />
-        ))}
-      </S.ScrollCalendar>
-      <S.LoginRight>
-        <S.Logo src={LOGO} />
-        <S.LoginBtn>
-          <S.GoogleBtn>
-            <S.GoogleImg src={GOOGLE} />
-            <p>구글로 시작하기</p>
-          </S.GoogleBtn>
-          <S.BasicBtn>
-            <p>가입 없이 사용하기</p>
-          </S.BasicBtn>
-        </S.LoginBtn>
-      </S.LoginRight>
-    </S.LoginContainer>
+    <>
+      <S.LoginContainer>
+        <S.ScrollCalendar ref={scrollRef} onWheel={handleWheel}>
+          {Array.from({ length: 36 }, (_, i) => (
+            <LoginCalendar key={i} monthOffset={i - 18} />
+          ))}
+        </S.ScrollCalendar>
+        <S.LoginRight>
+          <S.Logo src={LOGO} />
+          <S.LoginBtn>
+            <S.GoogleBtn onClick={handleGoogleOpenModal}>
+              <S.GoogleImg src={GOOGLE} />
+              <p>구글로 시작하기</p>
+            </S.GoogleBtn>
+            <S.BasicBtn onClick={handleBasicOpenModal}>
+              <p>가입 없이 사용하기</p>
+            </S.BasicBtn>
+          </S.LoginBtn>
+        </S.LoginRight>
+      </S.LoginContainer>
+
+      {modalType === "basic" && <BasicModal onClose={handleCloseModal} />}
+      {modalType === "google" && <GoogleModal onClose={handleCloseModal} />}
+    </>
   );
 };
 
