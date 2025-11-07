@@ -17,6 +17,7 @@ export const CalendarContainer = styled.div`
 
   .react-calendar__month-view {
     padding: ${vw(28)} ${vw(28)} ${vw(36)} ${vw(28)};
+    box-shadow: 0 0 40px 0 rgba(180, 191, 255, 0.3);
 
     abbr {
       color: #7e8df5;
@@ -134,6 +135,7 @@ export const CalendarHeader = styled.div`
   height: ${vw(148)};
   flex-shrink: 0;
   background: linear-gradient(90deg, #eaedff 0%, #b4bfff 147.61%);
+  box-shadow: 0 0 40px 0 rgba(180, 191, 255, 0.3);
   padding-left: ${vw(26)};
   padding-right: ${vw(50)};
   border-radius: ${vw(40)} ${vw(40)} 0 0;
