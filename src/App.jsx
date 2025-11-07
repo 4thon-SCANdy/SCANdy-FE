@@ -2,6 +2,7 @@ import MainPage from "./pages/mainPage/MainPage";
 import GlobalStyle from "./styles/GlobalStyle";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ModalPlayground from "@/pages/modalPlayground/ModalPlayground";
+import LoginPage from "./pages/loginPage/LoginPage";
 
 function App() {
   return (
@@ -10,6 +11,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<MainPage />} />
+          <Route path="/login" element={<LoginPage />} />
           <Route path="/playground" element={<ModalPlayground />} />
         </Routes>
       </BrowserRouter>
