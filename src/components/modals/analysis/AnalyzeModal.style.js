@@ -6,6 +6,10 @@ export const Padding = styled.div`
   height: 100%;
   display: flex;
   flex-direction: column;
+  background: linear-gradient(0deg, #FDFDFD 3.85%, #EAEDFF 100%);
+
+box-shadow: 0 0 20px 0 rgba(180, 191, 255, 0.30);
+
 `;
 
 export const TopLabel = styled.div`
@@ -25,7 +29,7 @@ export const TopLabel = styled.div`
 
 export const Layout = styled.div`
   display: grid;
-  grid-template-columns: ${vw(420)} 1fr ${vw(260)}; /* left | preview | right */
+  grid-template-columns: ${vw(420)} 1fr ${vw(420)}; /* left | preview | right */
   grid-template-rows: 1fr auto; /* top (preview + info) | bottom (recommend + buttons) */
   column-gap: ${vw(24)};
   row-gap: ${vw(24)};
@@ -40,26 +44,45 @@ export const LeftCol = styled.div`
   min-height: 0;
   grid-column: 1 / 2;
   grid-row: 1 / 2;
+  margin-top: ${vw(60)}
 `;
 
-// Common box
-export const Box = styled.div`
-  border-radius: ${vw(16)};
-  border: ${vw(2)} solid rgba(126, 141, 245, 0.45);
-  background: linear-gradient(180deg, #fafbff 0%, #ffffff 100%);
-  padding: ${vw(16)};
+export const CardBox = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: ${vw(0)};
 `;
 
-export const SectionTitle = styled.div`
-  color: #7e8df5;
-  font-weight: 800;
-  font-size: ${vw(18)};
-  letter-spacing: -0.015em;
-  margin: ${vw(8)} 0 ${vw(12)} 0; /* push titles slightly down and add a bit more bottom gap */
+export const CardTop = styled.div`
+  align-self: flex-start;
+  border-radius: ${vw(24)} ${vw(24)} 0 0;
+background: #FDFDFD;
+  color: #4842b2;
+  font-family: Pretendard;
+  font-weight: 700;
+  font-size: ${({ $fontSize }) => $fontSize || `${vw(18)}`};
+  letter-spacing: -0.02em;
+  padding: ${({ $padding }) => $padding || `${vw(12)} ${vw(28)}`};
+`;
+
+export const CardBottom = styled.div`
+  width: 100%;
+  border-radius: ${({ $radius }) => $radius || `0 ${vw(40)} ${vw(40)} ${vw(24)}`};
+  background:rgb(255, 255, 255);
+  padding: ${({ $padding }) => $padding || `${vw(24)} ${vw(28)}`};
+  display: flex;
+  flex-direction: column;
+  gap: ${({ $gap }) => $gap || `${vw(16)}`};
 `;
 
 // Left column
-export const OcrBox = styled(Box)``;
+export const OcrBox = styled(CardBottom)`
+  padding: ${vw(20)} ${vw(22)};
+  gap: ${vw(10)};
+  max-width: ${vw(360)};
+  width: 100%;
+`;
 
 export const OcrList = styled.ul`
   margin: 0;
@@ -67,34 +90,39 @@ export const OcrList = styled.ul`
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: ${vw(8)};
-  li { color: #5d647f; line-height: 1.5; }
+  gap: ${vw(6)};
+  li {
+    color: #5d647f;
+    line-height: 1.4;
+    font-size: ${vw(15)};
+  }
 `;
 
 export const OcrItem = styled.li`
   display: flex;
   align-items: center;
-  gap: ${vw(10)};
+  gap: ${vw(8)};
   &:before {
     content: "";
-    width: ${vw(8)};
-    height: ${vw(8)};
+    width: ${vw(6)};
+    height: ${vw(6)};
     border-radius: 50%;
     background: #c7cffd;
     display: inline-block;
   }
 `;
 
-export const AiBox = styled(Box)`
-  display: flex;
-  flex-direction: column;
-  gap: ${vw(10)};
+export const AiBox = styled(CardBottom)`
+  gap: ${vw(6)};
+  padding: ${vw(20)} ${vw(22)};
+  max-width: ${vw(360)};
+  width: 100%;
 `;
 
 export const FieldRow = styled.div`
   display: flex;
   align-items: center;
-  gap: ${vw(10)};
+  gap: ${vw(6)};
 `;
 
 export const Chip = styled.div`
@@ -113,66 +141,94 @@ export const Chip = styled.div`
 `;
 
 export const Pill = styled.div`
-  height: ${vw(36)};
-  border-radius: ${vw(18)};
-  border: ${vw(2)} solid #d6dbff;
+  height: ${vw(26)};
+  color: #606060;
   background: #ffffff;
-  color: #7e8df5;
   display: inline-flex;
   align-items: center;
   padding: 0 ${vw(14)};
-  font-weight: 800;
-  box-shadow: 0 ${vw(2)} ${vw(10)} rgba(126, 141, 245, 0.12);
-`;
+  font-weight: 600;
+  font-size: ${vw(14)};
 
-export const RecommendHeader = styled.div`
-  height: ${vw(44)};
-  border-radius: ${vw(24)};
-  border: ${vw(2)} solid rgba(126, 141, 245, 0.45);
-  background: linear-gradient(180deg, #f7f8ff 0%, #ffffff 100%);
-  display: flex;
-  align-items: center;
-  padding: 0 ${vw(16)};
-  color: #7e8df5;
-  font-weight: 800;
 `;
 
 export const CardsRow = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: ${vw(10)};
+  gap: ${vw(6)};
 `;
 
-export const SuggestCard = styled(Box)`
-  padding: ${vw(10)} ${vw(12)};
+export const SuggestCard = styled(CardBox)`
+  width: 100%;
+  gap: ${vw(0)};
 `;
 
-export const SuggestTitle = styled.div`
-  color: #7e8df5;
-  font-weight: 800;
-  margin-bottom: ${vw(6)};
+export const BottomCardTop = styled(CardTop)`
+  border-radius: 0 ${vw(50)} ${vw(50)} 0;
+  background: linear-gradient(90deg, #b4bfff 0%, #eaedff 100%);
+  box-shadow: 0 0 ${vw(20)} rgba(180, 191, 255, 0.3);
+  min-width: ${vw(440)};
+  max-width: 100%;
+  padding: ${vw(12)} ${vw(36)} ${vw(12)} ${vw(28)};
+`;
+
+export const SuggestTitle = styled(CardTop)`
   font-size: ${vw(16)};
+  min-width: ${vw(26)};
+  max-width: 100%;
+  padding: ${vw(10)} ${vw(20)};
+  box-shadow: 0 0 ${vw(20)} rgba(180, 191, 255, 0.3);
+`;
+
+export const SuggestBody = styled(CardBottom)`
+  border-radius: 0 ${vw(28)} ${vw(28)} ${vw(16)};
+  padding: ${vw(18)} ${vw(25)};
+  gap: ${vw(10)};
+  width: 100%;
+  max-width: ${vw(250)};
+`;
+
+export const BottomCardBody = styled(CardBottom)`
+  background: transparent;
+  box-shadow: none;
+  padding: ${vw(16)} ${vw(8)};
+  border-radius: 0;
 `;
 
 export const Meta = styled.div`
   display: grid;
-  grid-template-columns: ${vw(52)} 1fr;
+  grid-template-columns: ${vw(70)} 1fr;
   row-gap: ${vw(6)};
-  column-gap: ${vw(8)};
+  column-gap: ${vw(10)};
+  align-items: center;
   color: #5d647f;
-  font-size: ${vw(14)};
+  font-size: ${vw(13)};
+`;
+
+export const MetaLabel = styled.span`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: ${vw(28)};
+  padding: 0 ${vw(12)};
+  border-radius: ${vw(18)};
+  border: ${vw(2)} solid rgba(126, 141, 245, 0.45);
+  background: linear-gradient(180deg, #f4f6ff 0%, #eaedff 100%);
+  color: #59608c;
+  font-weight: 700;
+  font-size: ${vw(13)};
 `;
 
 // Preview center
-export const PreviewWrap = styled(Box)`
+export const PreviewWrap = styled(CardBottom)`
   grid-column: 2 / 4; /* span center + right on top row to make image wider */
   grid-row: 1 / 2;
   position: relative; /* for absolute controls */
-  border: ${vw(1)} solid rgba(126, 141, 245, 0.45);
+  border-radius: ${vw(28)};
   /* Align preview top with left OCR box top, and bottom near AI box end */
   margin-top: ${vw(60)};
   margin-bottom: ${vw(35)};
-  padding: ${vw(12)}; /* reduce overall box height */
+  padding: ${vw(18)}; /* reduce overall box height */
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -247,20 +303,22 @@ export const BottomLeft = styled.div`
 `;
 
 export const Button = styled.button`
-  height: ${vw(56)};
-  border-radius: ${vw(32)};
-  border: ${vw(2)} solid #7e8df5;
-  background: #ffffff;
+  height: ${vw(64)};
+  width: 100%;
+  border-radius: ${vw(80)};
+  border: ${vw(3)} solid #b4bfff;
+  background: linear-gradient(180deg, #f4f6ff 0%, #eaedff 100%);
   color: #7e8df5;
   font-weight: 800;
-  font-size: ${vw(18)};
+  font-size: ${vw(20)};
+  box-shadow: 0 0 ${vw(20)} rgba(180, 191, 255, 0.3);
 `;
 
 export const Primary = styled(Button)`
   margin-top: auto;
-  background: linear-gradient(90deg, #7e8df5 0%, #6aa6ff 100%);
+  border: ${vw(3)} solid #7e8df5;
+  background: linear-gradient(90deg, #b4bfff 0%, #7e8df5 100%);
   color: #fff;
-  border: none;
 `;
 
 export const CloseFloating = styled.button`

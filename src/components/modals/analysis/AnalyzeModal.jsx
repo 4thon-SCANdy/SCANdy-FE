@@ -53,34 +53,39 @@ function AnalyzeModal({ open, onClose, onReupload, onEdit, onSubmit, images = []
         <S.Layout>
           {/* Left column (stacked sections) */}
           <S.LeftCol>
-            <S.SectionTitle>OCR 추출 결과</S.SectionTitle>
-            <S.OcrBox>
-              <S.OcrList>
-                {ocrSamples.map((t, i) => (
-                  <S.OcrItem key={i}>{t}</S.OcrItem>
-                ))}
-              </S.OcrList>
-            </S.OcrBox>
+            <S.CardBox>
+              <S.CardTop>OCR 추출 결과</S.CardTop>
+              <S.OcrBox>
+                <S.OcrList>
+                  {ocrSamples.map((t, i) => (
+                    <S.OcrItem key={i}>{t}</S.OcrItem>
+                  ))}
+                </S.OcrList>
+              </S.OcrBox>
+            </S.CardBox>
 
-            <S.SectionTitle>AI 앤디가 인식한 일정</S.SectionTitle>
-            <S.AiBox>
-              <S.FieldRow>
-                <S.Chip>제목</S.Chip>
-                <S.Pill>일정을 입력해주세요</S.Pill>
-              </S.FieldRow>
-              <S.FieldRow>
-                <S.Chip>날짜</S.Chip>
-                <S.Pill>2025.10.26</S.Pill>
-              </S.FieldRow>
-              <S.FieldRow>
-                <S.Chip>시간</S.Chip>
-                <S.Pill>00:00</S.Pill>
-              </S.FieldRow>
-              <S.FieldRow>
-                <S.Chip>장소</S.Chip>
-                <S.Pill>회의실</S.Pill>
-              </S.FieldRow>
-            </S.AiBox>
+
+              <S.CardBox>
+                <S.CardTop>AI 앤디가 인식한 일정</S.CardTop>
+                <S.AiBox>
+                  <S.FieldRow>
+                    <S.Chip>제목</S.Chip>
+                    <S.Pill>일정을 입력해주세요</S.Pill>
+                  </S.FieldRow>
+                  <S.FieldRow>
+                    <S.Chip>날짜</S.Chip>
+                    <S.Pill>2025.10.26</S.Pill>
+                  </S.FieldRow>
+                  <S.FieldRow>
+                    <S.Chip>시간</S.Chip>
+                    <S.Pill>00:00</S.Pill>
+                  </S.FieldRow>
+                  <S.FieldRow>
+                    <S.Chip>장소</S.Chip>
+                    <S.Pill>회의실</S.Pill>
+                  </S.FieldRow>
+                </S.AiBox>
+              </S.CardBox>
 
           </S.LeftCol>
 
@@ -110,33 +115,43 @@ function AnalyzeModal({ open, onClose, onReupload, onEdit, onSubmit, images = []
 
           {/* Bottom-left recommendations spanning left + center */}
           <S.BottomLeft>
-            <S.RecommendHeader>AI앤디의 일정 대안 추천</S.RecommendHeader>
-            <S.CardsRow>
-              <S.SuggestCard>
-                <S.SuggestTitle>이 시간을 추천해요!</S.SuggestTitle>
-                <S.Meta>
-                  <div>날짜</div><div>2025.10.26</div>
-                  <div>시간</div><div>00:00</div>
-                  <div>장소</div><div>회의실</div>
-                </S.Meta>
-              </S.SuggestCard>
-              <S.SuggestCard>
-                <S.SuggestTitle>이런 날짜는 어때요?</S.SuggestTitle>
-                <S.Meta>
-                  <div>날짜</div><div>2025.10.26</div>
-                  <div>시간</div><div>00:00</div>
-                  <div>장소</div><div>회의실</div>
-                </S.Meta>
-              </S.SuggestCard>
-              <S.SuggestCard>
-                <S.SuggestTitle>이 시간은 어떠신가요?</S.SuggestTitle>
-                <S.Meta>
-                  <div>날짜</div><div>2025.10.26</div>
-                  <div>시간</div><div>00:00</div>
-                  <div>장소</div><div>회의실</div>
-                </S.Meta>
-              </S.SuggestCard>
-            </S.CardsRow>
+            <S.CardBox>
+              <S.BottomCardTop>AI앤디의 일정 대안 추천</S.BottomCardTop>
+              <S.BottomCardBody>
+                <S.CardsRow>
+                  <S.SuggestCard>
+                    <S.SuggestTitle>이 시간을 추천해요!</S.SuggestTitle>
+                    <S.SuggestBody>
+                      <S.Meta>
+                        <S.MetaLabel>날짜</S.MetaLabel><div>2025.10.26</div>
+                        <S.MetaLabel>시간</S.MetaLabel><div>00:00</div>
+                        <S.MetaLabel>장소</S.MetaLabel><div>회의실</div>
+                      </S.Meta>
+                    </S.SuggestBody>
+                  </S.SuggestCard>
+                  <S.SuggestCard>
+                    <S.SuggestTitle>이런 날짜는 어때요?</S.SuggestTitle>
+                    <S.SuggestBody>
+                      <S.Meta>
+                        <S.MetaLabel>날짜</S.MetaLabel><div>2025.10.26</div>
+                        <S.MetaLabel>시간</S.MetaLabel><div>00:00</div>
+                        <S.MetaLabel>장소</S.MetaLabel><div>회의실</div>
+                      </S.Meta>
+                    </S.SuggestBody>
+                  </S.SuggestCard>
+                  <S.SuggestCard>
+                    <S.SuggestTitle>이 시간은 어떠신가요?</S.SuggestTitle>
+                    <S.SuggestBody>
+                      <S.Meta>
+                        <S.MetaLabel>날짜</S.MetaLabel><div>2025.10.26</div>
+                        <S.MetaLabel>시간</S.MetaLabel><div>00:00</div>
+                        <S.MetaLabel>장소</S.MetaLabel><div>회의실</div>
+                      </S.Meta>
+                    </S.SuggestBody>
+                  </S.SuggestCard>
+                </S.CardsRow>
+              </S.BottomCardBody>
+            </S.CardBox>
           </S.BottomLeft>
 
           {/* Right column buttons */}
