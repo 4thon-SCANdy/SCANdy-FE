@@ -1,6 +1,6 @@
 import { useState } from "react";
 import * as S from "./ModalPlayground.style";
-import { RegisterModal, ConflictModal, SearchModal, AnalyzeModal } from "@/components/modals";
+import { RegisterModal, ConflictModal, SearchModal, AnalyzeModal, ScheduleListModal } from "@/components/modals";
 
 function ModalPlayground() {
   const [openReg, setOpenReg] = useState(false);
@@ -8,6 +8,21 @@ function ModalPlayground() {
   const [openSearch, setOpenSearch] = useState(false);
   const [openAnalyze, setOpenAnalyze] = useState(false);
   const [analyzeImages, setAnalyzeImages] = useState([]); // object URLs
+  const [openListCombined, setOpenListCombined] = useState(false);
+
+  const demoItemsNoOriginal = [
+    { id: "no-1", ampm: "AM", time: "10:30", title: "가나다라마바사", tagLabel: "개인 일정" },
+  ];
+
+  const demoItemsWithOriginal = [
+    {
+      id: "with-1",
+      ampm: "PM",
+      time: "03:00",
+      title: "업무 미팅",
+      tagLabel: "업무",
+    },
+  ];
 
   return (
     <S.Wrapper>
@@ -16,6 +31,7 @@ function ModalPlayground() {
         <S.Button onClick={() => setOpenReg(true)}>일정 등록 모달</S.Button>
         <S.Button onClick={() => setOpenCon(true)}>일정 충돌 모달</S.Button>
         <S.Button onClick={() => setOpenSearch(true)}>일정 검색 모달</S.Button>
+        <S.Button onClick={() => setOpenListCombined(true)}>일정 리스트 (혼합)</S.Button>
       </S.ButtonRow>
 
       <RegisterModal
@@ -63,6 +79,15 @@ function ModalPlayground() {
         open={openSearch}
         onClose={() => setOpenSearch(false)}
         onSelect={(item) => console.log("선택:", item)}
+      />
+
+      <ScheduleListModal
+        open={openListCombined}
+        onClose={() => setOpenListCombined(false)}
+        itemsNoOriginal={demoItemsNoOriginal}
+        itemsWithOriginal={demoItemsWithOriginal}
+        onEdit={(it) => alert(`수정: ${it.title}`)}
+        onViewOriginal={(it) => alert(`원본 이미지 확인: ${it.title}`)}
       />
     </S.Wrapper>
   );
