@@ -13,7 +13,7 @@ export const CloseBtn = styled.img`
   height: ${vw(40)};
   margin-left: ${vw(880)};
   transform: translateX(${vw(50)});
-  transform: translateY(${vw(-90)});
+  transform: translateY(${vw(-70)});
   cursor: pointer;
 `;
 
