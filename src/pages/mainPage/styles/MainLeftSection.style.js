@@ -224,7 +224,6 @@ export const TodoContainer = styled.div`
   position: relative;
   display: flex;
   height: ${vw(25)};
-  justify-content: center;
   align-items: center;
   gap: ${vw(10)};
   flex-shrink: 0;
