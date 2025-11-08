@@ -154,13 +154,12 @@ export const TagBottom = styled.div`
   }
 `;
 
-export const TodoList = styled.p`
+export const TodoList = styled.div`
+  position: relative;
   display: flex;
-  height: ${vw(25)};
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  gap: ${vw(10)};
-  flex-shrink: 0;
+  width: 100%;
 `;
 
 export const CheckBox = styled.div`
@@ -181,7 +180,6 @@ export const CheckBox = styled.div`
     border-radius: ${vw(5)};
     background-color: ${({ $isSelected, $color }) =>
       $isSelected ? $color : "transparent"};
-    transition: background-color 0.2s ease;
   }
 `;
 
@@ -193,4 +191,67 @@ export const TodoText = styled.p`
   font-weight: 500;
   line-height: 100%; /* 18px */
   letter-spacing: -0.45px;
+`;
+
+export const TagHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
+export const SettingBox = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: ${vw(32)};
+  height: ${vw(32)};
+  flex-shrink: 0;
+  background: #fdfdfd;
+  border-radius: ${vw(50)};
+  cursor: pointer;
+
+  &:active {
+    border: 0.5px solid #b4bfff;
+  }
+`;
+
+export const SettingIcon = styled.img`
+  width: ${vw(18)};
+  height: ${vw(19)};
+  flex-shrink: 0;
+`;
+
+export const TodoContainer = styled.div`
+  position: relative;
+  display: flex;
+  height: ${vw(25)};
+  align-items: center;
+  gap: ${vw(10)};
+  flex-shrink: 0;
+`;
+
+export const TagEdit = styled.img`
+  width: ${vw(17)};
+  height: ${vw(19)};
+  flex-shrink: 0;
+  aspect-ratio: 17/19;
+  cursor: pointer;
+`;
+
+export const EditInput = styled.input`
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: ${vw(18)};
+  color: #333333;
+  width: 80%;
+  transition: 0.2s;
+`;
+
+export const ColorChipWrapper = styled.div`
+  position: absolute;
+  top: calc(100% + ${vw(10)});
+  left: ${vw(30)};
+  z-index: 1000;
+  transform: translateY(-4px);
+  overflow: visible;
 `;
