@@ -155,6 +155,7 @@ export const TagBottom = styled.div`
 `;
 
 export const TodoList = styled.div`
+  position: relative;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -179,7 +180,6 @@ export const CheckBox = styled.div`
     border-radius: ${vw(5)};
     background-color: ${({ $isSelected, $color }) =>
       $isSelected ? $color : "transparent"};
-    transition: background-color 0.2s ease;
   }
 `;
 
@@ -221,6 +221,7 @@ export const SettingIcon = styled.img`
 `;
 
 export const TodoContainer = styled.div`
+  position: relative;
   display: flex;
   height: ${vw(25)};
   justify-content: center;
@@ -245,4 +246,13 @@ export const EditInput = styled.input`
   color: #333333;
   width: 80%;
   transition: 0.2s;
+`;
+
+export const ColorChipWrapper = styled.div`
+  position: absolute;
+  top: calc(100% + ${vw(10)});
+  left: ${vw(30)};
+  z-index: 1000;
+  transform: translateY(-4px);
+  overflow: visible;
 `;

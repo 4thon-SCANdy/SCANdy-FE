@@ -1,7 +1,7 @@
 import { useState } from "react";
 import * as S from "./ColorChip.style";
 
-const ColorChip = () => {
+const ColorChip = ({ onSelect }) => {
   const [colors] = useState([
     "#2BE99A",
     "#50B0FF",
@@ -20,11 +20,23 @@ const ColorChip = () => {
     "#FFEBB5",
   ]);
 
+  const [selectedColor, setSelectedColor] = useState(null);
+
+  const handleColorClick = (color) => {
+    setSelectedColor(color);
+    if (onSelect) onSelect(color);
+  };
+
   return (
     <>
       <S.ColorChipContainer>
         {colors.map((color, index) => (
-          <S.Color key={index} $color={color} />
+          <S.Color
+            key={index}
+            $color={color}
+            $isSelected={selectedColor === color}
+            onClick={() => handleColorClick(color)}
+          />
         ))}
       </S.ColorChipContainer>
     </>

@@ -9,6 +9,7 @@ import EDIT from "@/assets/main/tagedit.svg";
 import EDITING from "@/assets/main/tagediting.svg";
 
 import { useState } from "react";
+import ColorChip from "../../../components/colorchip/ColorChip";
 
 const days = [
   "일요일",
@@ -23,6 +24,10 @@ const days = [
 const MainLeftSection = ({ setSelectedTag, selectedTag }) => {
   const [isSettingActive, setIsSettingActive] = useState(false);
   const [isEditActive, setIsEditActive] = useState(null);
+  const [activeColorTag, setActiveColorTag] = useState(null);
+
+  const [selectedTagId, setSelectedTagId] = useState(null);
+
   const [editedTags, setEditedTags] = useState({
     1: "개인 일정",
     2: "회의",
@@ -36,17 +41,25 @@ const MainLeftSection = ({ setSelectedTag, selectedTag }) => {
   const date = today.getDate();
   const day = days[today.getDay()];
 
-  const tags = [
+  const [tags, setTags] = useState([
     { id: 1, color: "#A0D4FF" },
     { id: 2, color: "#FFEBB5" },
     { id: 3, color: "#D9C9FF" },
-  ];
+  ]);
 
   const handleTagChange = (id, value) => {
     setEditedTags((prev) => ({
       ...prev,
       [id]: value,
     }));
+  };
+
+  const handleCheckClick = (tag) => {
+    if (isEditActive === tag.id) {
+      setActiveColorTag((prev) => (prev === tag.id ? null : tag.id));
+    } else {
+      setSelectedTagId((prev) => (prev === tag.id ? null : tag.id));
+    }
   };
 
   return (
@@ -85,24 +98,34 @@ const MainLeftSection = ({ setSelectedTag, selectedTag }) => {
               <S.TodoList key={tag.id}>
                 <S.TodoContainer>
                   <S.CheckBox
-                    $isSelected={selectedTag === tag.name}
+                    $isSelected={selectedTagId === tag.id}
                     $color={tag.color}
-                    onClick={() =>
-                      setSelectedTag((prev) =>
-                        prev === tag.name ? null : tag.name
-                      )
-                    }
+                    onClick={() => handleCheckClick(tag)}
                   />
+                  {activeColorTag === tag.id && (
+                    <S.ColorChipWrapper>
+                      <ColorChip
+                        onSelect={(color) => {
+                          setTags((prev) =>
+                            prev.map((t) =>
+                              t.id === tag.id ? { ...t, color } : t
+                            )
+                          );
+                          setActiveColorTag(null);
+                        }}
+                      />
+                    </S.ColorChipWrapper>
+                  )}
+
                   {isEditActive === tag.id ? (
                     <S.EditInput
                       type="text"
                       value={editedTags[tag.id]}
                       autoFocus
                       onChange={(e) => handleTagChange(tag.id, e.target.value)}
-                      onBlur={() => setIsEditActive(null)} // 포커스 아웃 시 종료
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") setIsEditActive(null);
-                      }}
+                      onKeyDown={(e) =>
+                        e.key === "Enter" && setIsEditActive(null)
+                      }
                     />
                   ) : (
                     <S.TodoText>{editedTags[tag.id]}</S.TodoText>
