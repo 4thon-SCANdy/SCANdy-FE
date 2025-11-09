@@ -13,6 +13,9 @@ export const Padding = styled.div`
   height: 100%;
   display: flex;
   flex-direction: column;
+  background: ${({ $upload }) => ($upload ? "linear-gradient(0deg, #FDFDFD 3.85%, #EAEDFF 100%)" : "transparent")};
+  box-shadow: ${({ $upload }) => ($upload ? "0 0 20px 0 rgba(180, 191, 255, 0.30)" : "none")};
+  border-radius: ${vw(32)};
 `;
 
 export const TopLabel = styled.div`
@@ -93,6 +96,9 @@ export const WideButton = styled(LargeButton)`
 // 업로드 화면의 하단 버튼을 더 넓게
 export const UploadButton = styled(LargeButton)`
   width: ${vw(420)};
+  border: ${vw(3)} solid #B4BFFF;
+  background: #F4F6FF;
+  color: #7e8df5;
 `;
 
 // 업로드 단계 전용 스타일
@@ -104,7 +110,7 @@ export const UploadWrap = styled.div`
   width: 100%;
   min-height: ${vw(380)};
   justify-content: center;
-  padding: ${vw(24)} 0;
+  padding: 0;
 `;
 
 // 업로드 콘텐츠 뷰포트(빈 상태/선택 상태 모두 같은 높이 유지)
@@ -119,6 +125,7 @@ export const UploadBox = styled.div`
   align-items: center;
   justify-content: center;
   margin: 0 auto;
+  background: #ffffff;
 `;
 
 export const UploadInner = styled.div`

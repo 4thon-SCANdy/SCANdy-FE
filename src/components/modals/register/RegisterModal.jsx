@@ -110,7 +110,7 @@ function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
     <>
     <ModalBase open={open} onClose={onClose} title="" hideHeader closeOnOverlayClick widthPx={960} heightPx={modalHeightPx} noBodyPadding>
       <S.CloseFloating onClick={onClose} aria-label="close">×</S.CloseFloating>
-      <S.Padding>
+      <S.Padding $upload={view === "upload"}>
         <S.Content>
           <S.TopLabel>
             {view === "choice" && "일정 등록하기"}
