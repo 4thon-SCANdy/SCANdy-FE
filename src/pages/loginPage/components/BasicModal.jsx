@@ -5,8 +5,13 @@ import ANDY from "@/assets/main/andy.svg";
 import STAR from "@/assets/login/star.svg";
 import guestRegisterApi from "../../../apis/auth/guestRegisterApi";
 import guestLoginApi from "../../../apis/auth/guestLoginApi";
+import googleLoginApi from "../../../apis/auth/googleLoginApi";
 
 const BasicModal = () => {
+  const handleGoogleLogin = async () => {
+    await googleLoginApi();
+  };
+
   const handleGuestContinue = async () => {
     try {
       // 로그인 먼저 시도
@@ -43,7 +48,7 @@ const BasicModal = () => {
           </S.HeaderTextWrapper>
         </S.Header>
         <S.ButtonWrapper>
-          <S.GoogleBtn>
+          <S.GoogleBtn onClick={handleGoogleLogin}>
             <S.BtnText>구글 연동하기</S.BtnText>
           </S.GoogleBtn>
           <S.ContiBtn onClick={handleGuestContinue}>
