@@ -1,12 +1,22 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import ModalBase from "../ModalBase";
 import AnalyzeModal from "../analysis/AnalyzeModal";
 import * as S from "./RegisterModal.style";
 import IMAGE_PREVIEW from "@/assets/modal/Image.svg";
 import DIRECT_PREVIEW from "@/assets/modal/Direct.svg";
 import UPLOAD_ICON from "@/assets/modal/img.svg";
+import REPEAT_ICON from "@/assets/modal/repeat.svg";
+import ALLDAY_ICON from "@/assets/modal/allday.svg";
 
-function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
+function RegisterModal({
+  open,
+  onClose,
+  onOpenAI,
+  onOpenManual,
+  editSchedule = null,
+  onSaveEdit,
+  onDeleteEdit,
+}) {
   const [view, setView] = useState("choice"); // choice | upload | manual
   // manual form state
   const [startDate, setStartDate] = useState("");
@@ -27,6 +37,7 @@ function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
     { id: "t3", name: "개인 일정", color: "#A6D8FF" },
     { id: "t4", name: "운동하기", color: "#C8E9FF" },
   ]);
+  const tagListRef = useRef(tagList);
   const COLOR_OPTIONS = [
     "#5E81F4","#7E8DF5","#A6D8FF","#C8E9FF","#FFE28C","#FFD966","#FFAFCC","#E0C3FF",
     "#B3F5D0","#9AE6B4","#FFD1DC","#FFDEA0","#90CDF4","#63B3ED","#CBD5E0","#A0AEC0"
@@ -36,6 +47,10 @@ function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
   const [newTagColor, setNewTagColor] = useState("#E3E8FF");
   const [addingNewTag, setAddingNewTag] = useState(false);
   const [manualConfirmed, setManualConfirmed] = useState(false);
+  const [mode, setMode] = useState("create"); // create | edit
+  const [currentEdit, setCurrentEdit] = useState(null);
+
+  const isEditMode = mode === "edit";
 
   // 이미지 업로드 및 슬라이더 상태
   const [selectedImages, setSelectedImages] = useState([]); // [{file, url}]
@@ -94,20 +109,177 @@ function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
   };
 
   // 모달이 열릴 때마다 초기 화면으로 리셋 (업로드 가이드가 다른 화면에 보이지 않도록)
+  const resetForm = useCallback(() => {
+    setStartDate("");
+    setEndDate("");
+    setTitle("");
+    setLocation("");
+    setStartTime("00:00");
+    setEndTime("00:00");
+    setRepeatOn(false);
+    setRepeatType("daily");
+    setRepeatEnd("");
+    setAllDay(false);
+    setSelectedTagId("");
+    setTagOpen(false);
+    setAddingNewTag(false);
+    setNewTagName("");
+    setNewTagColor("#E3E8FF");
+    setManualConfirmed(false);
+  }, []);
+
+  const applyFormData = useCallback((data = {}) => {
+    setStartDate(data.startDate || "");
+    setEndDate(data.endDate || data.startDate || "");
+    setTitle(data.title || "");
+    setLocation(data.location || "");
+    setStartTime(data.startTime || "00:00");
+    setEndTime(data.endTime || data.startTime || "00:00");
+    setRepeatOn(!!data.repeatOn);
+    setRepeatType(data.repeatType || "daily");
+    setRepeatEnd(data.repeatEnd || "");
+    setAllDay(!!data.allDay);
+    setSelectedTagId(data.tagId || "");
+    setTagOpen(false);
+    setAddingNewTag(false);
+    setManualConfirmed(false);
+  }, []);
+
+  const to24Hour = useCallback((timeValue, ampmValue) => {
+    if (!timeValue) return "00:00";
+    const [rawHour, rawMinute] = `${timeValue}`.split(":");
+    if (rawHour === undefined) return "00:00";
+    let hour = parseInt(rawHour, 10);
+    const minute = parseInt(rawMinute || "0", 10);
+    if (Number.isNaN(hour) || Number.isNaN(minute)) return "00:00";
+    if (ampmValue === "PM" && hour < 12) {
+      hour += 12;
+    } else if (ampmValue === "AM" && hour === 12) {
+      hour = 0;
+    }
+    return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+  }, []);
+
+  const collectFormData = useCallback(
+    () => ({
+      id: currentEdit?.id,
+      startDate,
+      endDate,
+      title,
+      location,
+      startTime,
+      endTime,
+      repeatOn,
+      repeatType,
+      repeatEnd,
+      allDay,
+      tagId: selectedTagId,
+    }),
+    [
+      currentEdit?.id,
+      startDate,
+      endDate,
+      title,
+      location,
+      startTime,
+      endTime,
+      repeatOn,
+      repeatType,
+      repeatEnd,
+      allDay,
+      selectedTagId,
+    ]
+  );
+
   useEffect(() => {
-    if (open) {
-      setView("choice");
-      // 초기화
+    tagListRef.current = tagList;
+  }, [tagList]);
+
+  useEffect(() => {
+    if (!open) return;
+    if (editSchedule) {
+      setMode("edit");
+      setCurrentEdit(editSchedule);
+      const tagId =
+        editSchedule.tagId ||
+        (editSchedule.tagLabel
+          ? (tagListRef.current.find((t) => t.name === editSchedule.tagLabel) ||
+              {}).id
+          : "");
+      applyFormData({
+        id: editSchedule.id,
+        startDate: editSchedule.startDate || editSchedule.date || "",
+        endDate: editSchedule.endDate || editSchedule.date || "",
+        title: editSchedule.title || "",
+        location: editSchedule.location || "",
+        startTime:
+          editSchedule.startTime || to24Hour(editSchedule.time, editSchedule.ampm),
+        endTime:
+          editSchedule.endTime ||
+          editSchedule.startTime ||
+          to24Hour(editSchedule.time, editSchedule.ampm),
+        repeatOn: !!editSchedule.repeatOn,
+        repeatType: editSchedule.repeatType || "daily",
+        repeatEnd: editSchedule.repeatEnd || "",
+        allDay: !!editSchedule.allDay,
+        tagId: tagId || "",
+      });
+      setView("manual");
+    } else {
+      setMode("create");
+      setCurrentEdit(null);
       setSelectedImages([]);
       setCurrentImageIdx(0);
-      setManualConfirmed(false);
+      resetForm();
+      setView("choice");
     }
-  }, [open]);
+  }, [open, editSchedule, applyFormData, resetForm, to24Hour]);
   const isManualView = view === "manual";
-  const isManualReadOnly = isManualView && manualConfirmed;
+  const isManualReadOnly = isManualView && manualConfirmed && !isEditMode;
   const modalHeightPx = view === "manual" ? 600 : 600;
 
+  const manualTitle = isManualView
+    ? manualConfirmed && !isEditMode
+      ? "일정 등록 확인"
+      : isEditMode
+      ? "일정 수정하기"
+      : "직접 일정 등록하기"
+    : "";
+
+  const handlePrimaryAction = () => {
+    if (isEditMode) {
+      onSaveEdit?.(collectFormData());
+      return;
+    }
+    if (isManualReadOnly) {
+      onOpenManual?.();
+      return;
+    }
+    setManualConfirmed(true);
+    setTagOpen(false);
+    setAddingNewTag(false);
+  };
+
+  const handleSecondaryAction = () => {
+    if (isEditMode) {
+      onDeleteEdit?.(currentEdit || collectFormData());
+      return;
+    }
+    setManualConfirmed(false);
+    setView("choice");
+  };
+
+  const showSecondaryButton = isEditMode || !isManualReadOnly;
+  const primaryButtonLabel = isEditMode
+    ? "저장하기"
+    : isManualReadOnly
+    ? "확인"
+    : "등록하기";
+  const secondaryButtonLabel = isEditMode ? "삭제하기" : "취소하기";
+
   const openManualConfirmationFromAI = () => {
+    setMode("create");
+    setCurrentEdit(null);
     setTitle("일정을 입력해주세요");
     setStartDate("2025-10-26");
     setEndDate("2025-10-26");
@@ -133,7 +305,7 @@ function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
           <S.TopLabel>
             {view === "choice" && "일정 등록하기"}
             {view === "upload" && "이미지 등록하기 (AI 인식)"}
-          {view === "manual" && (manualConfirmed ? "일정 등록 확인" : "직접 일정 등록하기")}
+          {view === "manual" && manualTitle}
           </S.TopLabel>
 
           {view === "choice" ? (
@@ -151,7 +323,9 @@ function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
                 <S.LargeButton onClick={() => setView("upload")}>이미지 등록하기 (AI 인식)</S.LargeButton>
                 <S.LargeButton
                   onClick={() => {
-                    setManualConfirmed(false);
+                    setMode("create");
+                    setCurrentEdit(null);
+                    resetForm();
                     setView("manual");
                   }}
                 >
@@ -232,38 +406,41 @@ function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
           ) : (
             <>
               <S.FormWrap>
-                <S.FormRow>
-                  <S.Label>시작하는 날</S.Label>
-                  <S.Pill>
-                    <S.InputEl
-                      type="date"
-                      value={startDate}
-                      onChange={(e) => {
-                        if (isManualReadOnly) return;
-                        setStartDate(e.target.value);
-                      }}
-                      disabled={isManualReadOnly}
-                    />
-                  </S.Pill>
-                  <S.Label>종료</S.Label>
-                  <S.Pill>
-                    <S.InputEl
-                      type="date"
-                      value={endDate}
-                      onChange={(e) => {
-                        if (isManualReadOnly) return;
-                        setEndDate(e.target.value);
-                      }}
-                      disabled={isManualReadOnly}
-                    />
-                  </S.Pill>
-                </S.FormRow>
-                <S.FormRow style={{ justifyContent: "space-between" }}>
+                <S.DateRow>
+                  <S.DateFieldGroup>
+                    <S.DateLabelBox>시작하는 날</S.DateLabelBox>
+                    <S.DateInputBox>
+                      <S.DateInput
+                        type="date"
+                        value={startDate}
+                        onChange={(e) => {
+                          if (isManualReadOnly) return;
+                          setStartDate(e.target.value);
+                        }}
+                        disabled={isManualReadOnly}
+                      />
+                    </S.DateInputBox>
+                    <S.DateLabelBox>끝나는 날</S.DateLabelBox>
+                    <S.DateInputBox>
+                      <S.DateInput
+                        type="date"
+                        value={endDate}
+                        onChange={(e) => {
+                          if (isManualReadOnly) return;
+                          setEndDate(e.target.value);
+                        }}
+                        disabled={isManualReadOnly}
+                      />
+                    </S.DateInputBox>
+                  </S.DateFieldGroup>
+                </S.DateRow>
+                <S.ScheduleRow>
                   <S.TextInput>
-                    <S.InputEl
-                      type="text"
+                    <S.TextArea
                       placeholder="일정을 입력해 주세요!"
                       value={title}
+                      maxLength={200}
+                      rows={2}
                       onChange={(e) => {
                         if (isManualReadOnly) return;
                         setTitle(e.target.value);
@@ -272,9 +449,12 @@ function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
                     />
                   </S.TextInput>
                   <S.RepeatWrap>
-                    <S.InlineRow style={{ gap: '1vw' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4vw' }}>
-                        <S.RepeatLabel>반복 </S.RepeatLabel>
+                    <S.RepeatControlCard>
+                      <S.RepeatControlHeader>
+                        <S.RepeatControlTitle>
+                          <S.RepeatControlIcon src={REPEAT_ICON} alt="반복 설정" />
+                          반복 설정
+                        </S.RepeatControlTitle>
                         <S.Toggle
                           aria-label="repeat-toggle"
                           onClick={() => {
@@ -285,65 +465,96 @@ function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
                         >
                           <S.ToggleKnob $on={repeatOn} />
                         </S.Toggle>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4vw' }}>
-                        <S.RepeatLabel>종일</S.RepeatLabel>
+                      </S.RepeatControlHeader>
+                      {repeatOn && (
+                        <S.RepeatControlBody>
+                          <S.RepeatChipRow>
+                            <S.RepeatChipSm
+                              $active={repeatType === "daily"}
+                              aria-pressed={repeatType === "daily"}
+                              onClick={() => {
+                                if (isManualReadOnly) return;
+                                setRepeatType("daily");
+                              }}
+                            >
+                              매일
+                            </S.RepeatChipSm>
+                           
+                          </S.RepeatChipRow>
+                          <S.RepeatEndRow>
+                            <S.RepeatEndLabel>끝나는 날</S.RepeatEndLabel>
+                            <S.MiniPill>
+                              <S.MiniInputEl
+                                type="date"
+                                value={repeatEnd}
+                                onChange={(e) => {
+                                  if (isManualReadOnly) return;
+                                  setRepeatEnd(e.target.value);
+                                }}
+                                disabled={isManualReadOnly}
+                              />
+                            </S.MiniPill>
+                          </S.RepeatEndRow>
+                        </S.RepeatControlBody>
+                      )}
+                    </S.RepeatControlCard>
+                    <S.RepeatControlCard>
+                      <S.RepeatControlHeader>
+                        <S.RepeatControlTitle>
+                          <S.RepeatControlIcon src={ALLDAY_ICON} alt="하루 종일" />
+                          하루 종일
+                        </S.RepeatControlTitle>
                         <S.Toggle
                           aria-label="allday-toggle"
                           onClick={() => {
                             if (isManualReadOnly) return;
-                            setAllDay((v) => {
-                              const next = !v;
-                              if (next) { setStartTime('00:00'); setEndTime('00:00'); }
-                              return next;
-                            });
+    setAllDay((v) => {
+      const next = !v;
+      if (next) {
+        setStartTime("00:00");
+        setEndTime("00:00");
+      }
+      return next;
+    });
                           }}
                           $on={allDay}
                         >
                           <S.ToggleKnob $on={allDay} />
                         </S.Toggle>
-                      </div>
-                    </S.InlineRow>
-                    {repeatOn && (
-                      <S.RepeatCompact>
-                        <S.RepeatChipSm
-                          $active={repeatType === "daily"}
-                          aria-pressed={repeatType === "daily"}
-                          onClick={() => {
-                            if (isManualReadOnly) return;
-                            setRepeatType("daily");
-                          }}
-                        >
-                          매일
-                        </S.RepeatChipSm>
-                        <S.RepeatChipSm
-                          $active={repeatType === "weekly"}
-                          aria-pressed={repeatType === "weekly"}
-                          onClick={() => {
-                            if (isManualReadOnly) return;
-                            setRepeatType("weekly");
-                          }}
-                        >
-                          매주
-                        </S.RepeatChipSm>
-                        <S.InlineRow>
-                          <S.RepeatLabelSm>종료</S.RepeatLabelSm>
-                          <S.MiniPill>
-                            <S.MiniInputEl
-                              type="date"
-                              value={repeatEnd}
-                              onChange={(e) => {
+                      </S.RepeatControlHeader>
+                      {repeatOn && (
+                        <S.RepeatControlBody>
+                          <S.RepeatChipRow>
+                            <S.RepeatChipSm
+                              $active={repeatType === "weekly"}
+                              aria-pressed={repeatType === "weekly"}
+                              onClick={() => {
                                 if (isManualReadOnly) return;
-                                setRepeatEnd(e.target.value);
+                                setRepeatType("weekly");
                               }}
-                              disabled={isManualReadOnly}
-                            />
-                          </S.MiniPill>
-                        </S.InlineRow>
-                      </S.RepeatCompact>
-                    )}
+                            >
+                              매주
+                            </S.RepeatChipSm>
+                          </S.RepeatChipRow>
+                          <S.RepeatEndRow>
+                            <S.RepeatEndLabel>끝나는 날</S.RepeatEndLabel>
+                            <S.MiniPill>
+                              <S.MiniInputEl
+                                type="date"
+                                value={repeatEnd}
+                                onChange={(e) => {
+                                  if (isManualReadOnly) return;
+                                  setRepeatEnd(e.target.value);
+                                }}
+                                disabled={isManualReadOnly}
+                              />
+                            </S.MiniPill>
+                          </S.RepeatEndRow>
+                        </S.RepeatControlBody>
+                      )}
+                    </S.RepeatControlCard>
                   </S.RepeatWrap>
-                </S.FormRow>
+                </S.ScheduleRow>
                 
                 <S.FormRow style={{ justifyContent: "space-between" }}>
                   <div style={{ display: "flex", gap: "0.6vw", flexDirection: 'column', alignItems: 'flex-start' }}>
@@ -479,29 +690,14 @@ function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
                     </S.TimeWrap>
                   </div>
                 </S.FormRow>
-                <S.ActionsRow $single={isManualReadOnly}>
-                  {!isManualReadOnly && (
-                    <S.WideButton
-                      onClick={() => {
-                        setManualConfirmed(false);
-                        setView("choice");
-                      }}
-                    >
-                      취소하기
+                <S.ActionsRow $single={isManualReadOnly && !isEditMode}>
+                  {showSecondaryButton && (
+                    <S.WideButton onClick={handleSecondaryAction}>
+                      {secondaryButtonLabel}
                     </S.WideButton>
                   )}
-                  <S.WideButton
-                    onClick={() => {
-                      if (isManualReadOnly) {
-                        onOpenManual?.();
-                        return;
-                      }
-                      setManualConfirmed(true);
-                      setTagOpen(false);
-                      setAddingNewTag(false);
-                    }}
-                  >
-                    {isManualReadOnly ? "확인" : "등록확인"}
+                  <S.WideButton onClick={handlePrimaryAction}>
+                    {primaryButtonLabel}
                   </S.WideButton>
                 </S.ActionsRow>
               </S.FormWrap>

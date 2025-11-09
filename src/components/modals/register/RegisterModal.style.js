@@ -193,10 +193,7 @@ export const Dot = styled.span`
 export const FormWrap = styled.div`
   width: 100%;
   height: auto;
-  border-radius: ${vw(24)};
-  border: ${vw(2)} solid rgba(126, 141, 245, 0.45);
-  background: linear-gradient(180deg, #f7f8ff 0%, #ffffff 100%);
-  padding: ${vw(20)};
+  background: transparent;
   display: flex;
   flex-direction: column;
   gap: ${vw(26)};
@@ -207,6 +204,7 @@ export const FormRow = styled.div`
   align-items: center;
   justify-content: center;
   gap: ${vw(16)};
+  flex-wrap: wrap;
 `;
 
 export const Label = styled.div`
@@ -230,26 +228,114 @@ export const Pill = styled.div`
   padding: 0 ${vw(12)};
 `;
 
+export const DateRow = styled.div`
+  display: flex;
+  justify-content: center;
+  width: 100%;
+`;
+
+// 일정 시작/종료 날짜 입력 행
+export const DateFieldGroup = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: ${vw(20)};
+  width: 100%;
+  max-width: ${vw(960)};
+  padding: 0 ${vw(12)};
+`;
+
+export const DateLabelBox = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 ${vw(4)};
+  color: #4842b2;
+  text-align: center;
+  font-family: Pretendard, sans-serif;
+  font-size: ${vw(32)};
+  font-style: normal;
+  font-weight: 500;
+  line-height: 100%;
+  letter-spacing: ${vw(-0.8)};
+  white-space: nowrap;
+`;
+
+export const DateInputBox = styled.div`
+  display: flex;
+  width: ${vw(260)};
+  height: ${vw(60)};
+  padding: ${vw(12)} ${vw(26)} ${vw(14)} ${vw(26)};
+  justify-content: center;
+  align-items: flex-start;
+  gap: ${vw(14)};
+  flex-shrink: 0;
+  border-radius: ${vw(50)};
+  background: #b4bfff;
+  box-shadow: inset 0 ${vw(4)} ${vw(16)} rgba(94, 129, 244, 0.25);
+`;
+
+export const DateInput = styled.input`
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #4842B2;
+  font-weight: 800;
+  font-size: ${vw(18)};
+  text-align: center;
+  letter-spacing: 0.02em;
+
+  &::-webkit-calendar-picker-indicator {
+    filter: brightness(0) invert(1);
+    cursor: pointer;
+  }
+
+  &:disabled {
+    color: rgba(255, 255, 255, 0.7);
+    cursor: not-allowed;
+  }
+`;
+
 export const TextInput = styled.div`
   width: 100%;
-  height: ${vw(48)};
-  border-radius: ${vw(24)};
+  min-height: ${vw(48)};
+  border-radius: ${vw(60)};
   border: ${vw(2)} solid #b4bfff;
   display: flex;
   align-items: center;
-  padding: 0 ${vw(16)};
+  padding: ${vw(12)} ${vw(20)};
   color: #7e8df5;
+  background: #ffffff;
+  flex: 1;
 `;
 
 export const InputEl = styled.input`
   width: 100%;
-  height: 100%;
+  min-height: ${vw(24)};
   border: none;
   outline: none;
   background: transparent;
   color: #7e8df5;
   font-weight: 800;
   font-size: ${vw(18)};
+  line-height: 1.4;
+`;
+
+export const TextArea = styled.textarea`
+  width: 100%;
+  min-height: ${vw(48)};
+  max-height: ${vw(96)};
+  border: none;
+  outline: none;
+  resize: none;
+  background: transparent;
+  color: #7e8df5;
+  font-weight: 800;
+  font-size: ${vw(18)};
+  line-height: 1.4;
+  overflow: hidden;
 `;
 
 export const SelectEl = styled.select`
@@ -271,31 +357,92 @@ export const ActionsRow = styled.div`
   gap: ${vw(24)};
 `;
 
-// 반복 설정 토글
 export const RepeatWrap = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: ${vw(14)};
+  align-items: stretch;
+`;
+
+export const ScheduleRow = styled(FormRow)`
+  width: 100%;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: ${vw(0)};
+  flex-wrap: nowrap;
+
+  ${TextInput} {
+    flex: 1 1 auto;
+    max-width: 100%;
+  }
+
+  ${RepeatWrap} {
+    flex: 0 0 ${vw(420)};
+    display: flex;
+    gap: ${vw(12)};
+    justify-content: flex-end;
+  }
+`;
+
+export const RepeatControlCard = styled.div`
+  flex: 0 0 ${vw(200)};
+  min-width: ${vw(190)};
+  border-radius: ${vw(20)};
+
+  background: transparent;
+  padding: ${vw(12)} ${vw(16)};
   display: flex;
   flex-direction: column;
   gap: ${vw(6)};
-  align-items: flex-start;
+ 
 `;
 
-// 반복 상세 영역(아래로만 펼쳐짐)
-export const RepeatArea = styled.div`
-  overflow: hidden;
-  max-height: ${({ $open }) => ($open ? vw(240) : 0)};
-  transition: max-height 0.25s ease, margin-top 0.25s ease, padding 0.25s ease;
-  margin-top: ${({ $open }) => ($open ? vw(8) : 0)};
-  padding: ${({ $open }) => ($open ? `${vw(4)} 0` : 0)};
+export const RepeatControlHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: ${vw(1)};
 `;
 
-export const RepeatLabel = styled.div`
+export const RepeatControlTitle = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${vw(6)};
+  color: #4842b2;
+  font-size: ${vw(16)};
+  font-weight: 700;
+`;
+
+export const RepeatControlIcon = styled.img`
+  width: ${vw(16)};
+  height: ${vw(16)};
+`;
+
+export const RepeatControlBody = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${vw(10)};
+  padding-left: ${vw(2)};
+  opacity: ${({ $disabled }) => ($disabled ? 0.45 : 1)};
+  pointer-events: ${({ $disabled }) => ($disabled ? "none" : "auto")};
+`;
+
+export const RepeatChipRow = styled.div`
+  display: flex;
+  gap: ${vw(8)};
+`;
+
+export const RepeatEndRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${vw(8)};
+`;
+
+export const RepeatEndLabel = styled.div`
   color: #6a6a6a;
-  font-weight: 800;
+  font-weight: 700;
+  font-size: ${vw(13)};
   white-space: nowrap;
-`;
-
-export const RepeatLabelSm = styled(RepeatLabel)`
-  font-size: ${vw(12)};
 `;
 
 export const Toggle = styled.button`
@@ -565,6 +712,8 @@ export const RepeatChipSm = styled(RepeatChip)`
   padding: 0 ${vw(12)};
   font-size: ${vw(12)};
   border-radius: ${vw(14)};
+  opacity: ${({ disabled }) => (disabled ? 0.6 : 1)};
+  pointer-events: ${({ disabled }) => (disabled ? "none" : "auto")};
 `;
 
 export const MiniPill = styled(Pill)`
