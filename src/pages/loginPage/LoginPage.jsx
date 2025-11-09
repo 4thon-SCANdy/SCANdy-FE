@@ -73,9 +73,7 @@ const LoginPage = () => {
       </S.LoginContainer>
 
       {modalType === "basic" && <BasicModal onClose={handleCloseModal} />}
-      {modalType === "google" && (
-        <GoogleSuccessModal onClose={handleCloseModal} />
-      )}
+      {modalType === "google" && <GoogleModal onClose={handleCloseModal} />}
     </>
   );
 };
