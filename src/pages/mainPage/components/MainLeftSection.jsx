@@ -21,7 +21,13 @@ const days = [
   "토요일",
 ];
 
-const MainLeftSection = ({ setSelectedTag, selectedTag }) => {
+const MainLeftSection = ({
+  tags,
+  setTags,
+  setSelectedTag,
+  selectedTag,
+  onRenameTag,
+}) => {
   const [isSettingActive, setIsSettingActive] = useState(false);
   const [isEditActive, setIsEditActive] = useState(null);
   const [activeColorTag, setActiveColorTag] = useState(null);
@@ -41,12 +47,6 @@ const MainLeftSection = ({ setSelectedTag, selectedTag }) => {
   const date = today.getDate();
   const day = days[today.getDay()];
 
-  const [tags, setTags] = useState([
-    { id: 1, color: "#A0D4FF" },
-    { id: 2, color: "#FFEBB5" },
-    { id: 3, color: "#D9C9FF" },
-  ]);
-
   useEffect(() => {
     if (isEditActive === null) {
       setActiveColorTag(null);
@@ -54,10 +54,14 @@ const MainLeftSection = ({ setSelectedTag, selectedTag }) => {
   }, [isEditActive]);
 
   const handleTagChange = (id, value) => {
-    setEditedTags((prev) => ({
-      ...prev,
-      [id]: value,
-    }));
+    const oldName = tags.find((t) => t.id === id)?.name;
+    setEditedTags((prev) => ({ ...prev, [id]: value }));
+
+    setTags((prev) =>
+      prev.map((tag) => (tag.id === id ? { ...tag, name: value } : tag))
+    );
+
+    onRenameTag?.(oldName, value);
   };
 
   const handleCheckClick = (tag) => {
@@ -65,6 +69,7 @@ const MainLeftSection = ({ setSelectedTag, selectedTag }) => {
       setActiveColorTag((prev) => (prev === tag.id ? null : tag.id));
     } else {
       setSelectedTagId((prev) => (prev === tag.id ? null : tag.id));
+      setSelectedTag((prev) => (prev === tag.name ? null : tag.name));
     }
   };
 
