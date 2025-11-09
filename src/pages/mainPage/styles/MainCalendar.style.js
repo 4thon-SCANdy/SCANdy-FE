@@ -149,3 +149,21 @@ export const CalendarBottom = styled.div`
   background: #f4f6ff;
   box-shadow: 0 0 ${vw(32)} 0 rgba(126, 141, 245, 0.2);
 `;
+
+export const PlusHitArea = styled.button`
+  position: absolute;
+  bottom: ${vw(13)};
+  right: ${vw(10)};
+  width: ${vw(40)};
+  height: ${vw(40)};
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  appearance: none;
+
+  &:focus-visible {
+    outline: 2px solid rgba(126, 141, 245, 0.6);
+    border-radius: 50%;
+  }
+`;

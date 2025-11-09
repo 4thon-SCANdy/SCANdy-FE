@@ -4,7 +4,7 @@ import * as S from "../styles/MainCalendar.style";
 import { vw } from "@/utils/units";
 import PlanTag from "./PlanTag";
 
-const MainCalendar = ({ currentDate, selectedTag }) => {
+const MainCalendar = ({ currentDate, selectedTag, onOpenRegister }) => {
   const schedules = [
     {
       id: 1,
@@ -111,21 +111,34 @@ const MainCalendar = ({ currentDate, selectedTag }) => {
               (s) => s.date === dayKey
             );
 
-            return dailySchedules.map((schedule) => (
-              <div
-                key={schedule.id}
-                style={{
-                  position: "relative",
-                  display: "flex",
-                  justifyContent: "flex-end",
-                  backgroundColor: "#FDFDFD",
-                }}
-              >
-                <PlanTag size="small" color={schedule.color}>
-                  {schedule.tag}
-                </PlanTag>
-              </div>
-            ));
+            return (
+              <>
+                {dailySchedules.map((schedule) => (
+                  <div
+                    key={schedule.id}
+                    style={{
+                      position: "relative",
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      backgroundColor: "#FDFDFD",
+                    }}
+                  >
+                    <PlanTag size="small" color={schedule.color}>
+                      {schedule.tag}
+                    </PlanTag>
+                  </div>
+                ))}
+                <S.PlusHitArea
+                  type="button"
+                  aria-label="일정 등록하기"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onOpenRegister?.(date);
+                  }}
+                />
+              </>
+            );
           }}
         />
       </S.CalendarBottom>

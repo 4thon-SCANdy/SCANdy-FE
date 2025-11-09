@@ -4,7 +4,7 @@ import { vw } from "@/utils/units";
 export const Overlay = styled.div`
   position: fixed;
   inset: 0;
-  background: rgba(78, 90, 213, 0.18);
+  background: rgba(96, 96, 96, 0.15);
   display: flex;
   align-items: center;
   justify-content: center;
