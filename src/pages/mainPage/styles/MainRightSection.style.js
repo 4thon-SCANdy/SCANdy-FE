@@ -22,6 +22,7 @@ export const GoogleBox = styled.div`
   border: ${vw(1)} solid #e5e5e5;
   background: #fdfdfd;
   box-shadow: ${vw(4)} ${vw(4)} ${vw(10)} 0 rgba(229, 229, 229, 0.2);
+  cursor: pointer;
 `;
 
 export const GoogleImg = styled.img`
