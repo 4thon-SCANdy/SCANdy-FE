@@ -9,6 +9,7 @@ function ModalPlayground() {
   const [openAnalyze, setOpenAnalyze] = useState(false);
   const [analyzeImages, setAnalyzeImages] = useState([]); // object URLs
   const [openListCombined, setOpenListCombined] = useState(false);
+  const [editingSchedule, setEditingSchedule] = useState(null);
 
   const demoItemsNoOriginal = [
     { id: "no-1", ampm: "AM", time: "10:30", title: "가나다라마바사", tagLabel: "개인 일정" },
@@ -36,7 +37,11 @@ function ModalPlayground() {
 
       <RegisterModal
         open={openReg}
-        onClose={() => setOpenReg(false)}
+        editSchedule={editingSchedule}
+        onClose={() => {
+          setOpenReg(false);
+          setEditingSchedule(null);
+        }}
         onOpenAI={(files) => {
           try {
             const urls = (files || []).map((f) => URL.createObjectURL(f));
@@ -47,6 +52,16 @@ function ModalPlayground() {
           } catch {}
           setOpenReg(false);
           setOpenAnalyze(true);
+        }}
+        onSaveEdit={(form) => {
+          setOpenReg(false);
+          setEditingSchedule(null);
+          alert(`저장 완료: ${form?.title || ""}`);
+        }}
+        onDeleteEdit={(item) => {
+          setOpenReg(false);
+          alert(`삭제 요청: ${item?.title || ""}`);
+          setEditingSchedule(null);
         }}
       />
 
@@ -86,7 +101,15 @@ function ModalPlayground() {
         onClose={() => setOpenListCombined(false)}
         itemsNoOriginal={demoItemsNoOriginal}
         itemsWithOriginal={demoItemsWithOriginal}
-        onEdit={(it) => alert(`수정: ${it.title}`)}
+        onEdit={(it) => {
+          setOpenListCombined(false);
+          setEditingSchedule({
+            ...it,
+            startDate: "2025-11-09",
+            endDate: "2025-11-09",
+          });
+          setOpenReg(true);
+        }}
         onViewOriginal={(it) => alert(`원본 이미지 확인: ${it.title}`)}
       />
     </S.Wrapper>

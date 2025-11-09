@@ -129,12 +129,20 @@ const MainCalendar = ({ currentDate, selectedTag, onOpenRegister }) => {
                   </div>
                 ))}
                 <S.PlusHitArea
-                  type="button"
+                  role="button"
+                  tabIndex={0}
                   aria-label="일정 등록하기"
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     onOpenRegister?.(date);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      onOpenRegister?.(date);
+                    }
                   }}
                 />
               </>

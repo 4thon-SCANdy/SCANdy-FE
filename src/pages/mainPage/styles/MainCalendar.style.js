@@ -150,7 +150,7 @@ export const CalendarBottom = styled.div`
   box-shadow: 0 0 ${vw(32)} 0 rgba(126, 141, 245, 0.2);
 `;
 
-export const PlusHitArea = styled.button`
+export const PlusHitArea = styled.div`
   position: absolute;
   bottom: ${vw(13)};
   right: ${vw(10)};
@@ -160,7 +160,6 @@ export const PlusHitArea = styled.button`
   background: transparent;
   padding: 0;
   cursor: pointer;
-  appearance: none;
 
   &:focus-visible {
     outline: 2px solid rgba(126, 141, 245, 0.6);
