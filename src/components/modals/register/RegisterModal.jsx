@@ -35,6 +35,7 @@ function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
   const [newTagName, setNewTagName] = useState("");
   const [newTagColor, setNewTagColor] = useState("#E3E8FF");
   const [addingNewTag, setAddingNewTag] = useState(false);
+  const [manualConfirmed, setManualConfirmed] = useState(false);
 
   // 이미지 업로드 및 슬라이더 상태
   const [selectedImages, setSelectedImages] = useState([]); // [{file, url}]
@@ -99,8 +100,11 @@ function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
       // 초기화
       setSelectedImages([]);
       setCurrentImageIdx(0);
+      setManualConfirmed(false);
     }
   }, [open]);
+  const isManualView = view === "manual";
+  const isManualReadOnly = isManualView && manualConfirmed;
   const modalHeightPx = view === "manual" ? 600 : 600;
   return (
     <>
@@ -111,7 +115,7 @@ function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
           <S.TopLabel>
             {view === "choice" && "일정 등록하기"}
             {view === "upload" && "이미지 등록하기 (AI 인식)"}
-            {view === "manual" && "직접 일정 등록하기"}
+          {view === "manual" && (manualConfirmed ? "일정 등록 확인" : "직접 일정 등록하기")}
           </S.TopLabel>
 
           {view === "choice" ? (
@@ -127,7 +131,14 @@ function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
 
               <S.BottomRow>
                 <S.LargeButton onClick={() => setView("upload")}>이미지 등록하기 (AI 인식)</S.LargeButton>
-                <S.LargeButton onClick={() => setView("manual")}>직접 등록하기</S.LargeButton>
+                <S.LargeButton
+                  onClick={() => {
+                    setManualConfirmed(false);
+                    setView("manual");
+                  }}
+                >
+                  직접 등록하기
+                </S.LargeButton>
               </S.BottomRow>
             </>
           ) : view === "upload" ? (
@@ -206,11 +217,27 @@ function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
                 <S.FormRow>
                   <S.Label>시작하는 날</S.Label>
                   <S.Pill>
-                    <S.InputEl type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+                    <S.InputEl
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => {
+                        if (isManualReadOnly) return;
+                        setStartDate(e.target.value);
+                      }}
+                      disabled={isManualReadOnly}
+                    />
                   </S.Pill>
                   <S.Label>종료</S.Label>
                   <S.Pill>
-                    <S.InputEl type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+                    <S.InputEl
+                      type="date"
+                      value={endDate}
+                      onChange={(e) => {
+                        if (isManualReadOnly) return;
+                        setEndDate(e.target.value);
+                      }}
+                      disabled={isManualReadOnly}
+                    />
                   </S.Pill>
                 </S.FormRow>
                 <S.FormRow style={{ justifyContent: "space-between" }}>
@@ -219,26 +246,42 @@ function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
                       type="text"
                       placeholder="일정을 입력해 주세요!"
                       value={title}
-                      onChange={(e) => setTitle(e.target.value)}
+                      onChange={(e) => {
+                        if (isManualReadOnly) return;
+                        setTitle(e.target.value);
+                      }}
+                      disabled={isManualReadOnly}
                     />
                   </S.TextInput>
                   <S.RepeatWrap>
                     <S.InlineRow style={{ gap: '1vw' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.4vw' }}>
                         <S.RepeatLabel>반복 </S.RepeatLabel>
-                        <S.Toggle aria-label="repeat-toggle" onClick={() => setRepeatOn((v) => !v)} $on={repeatOn}>
+                        <S.Toggle
+                          aria-label="repeat-toggle"
+                          onClick={() => {
+                            if (isManualReadOnly) return;
+                            setRepeatOn((v) => !v);
+                          }}
+                          $on={repeatOn}
+                        >
                           <S.ToggleKnob $on={repeatOn} />
                         </S.Toggle>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.4vw' }}>
                         <S.RepeatLabel>종일</S.RepeatLabel>
-                        <S.Toggle aria-label="allday-toggle" onClick={() => {
-                          setAllDay((v) => {
-                            const next = !v;
-                            if (next) { setStartTime('00:00'); setEndTime('00:00'); }
-                            return next;
-                          });
-                        }} $on={allDay}>
+                        <S.Toggle
+                          aria-label="allday-toggle"
+                          onClick={() => {
+                            if (isManualReadOnly) return;
+                            setAllDay((v) => {
+                              const next = !v;
+                              if (next) { setStartTime('00:00'); setEndTime('00:00'); }
+                              return next;
+                            });
+                          }}
+                          $on={allDay}
+                        >
                           <S.ToggleKnob $on={allDay} />
                         </S.Toggle>
                       </div>
@@ -248,21 +291,35 @@ function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
                         <S.RepeatChipSm
                           $active={repeatType === "daily"}
                           aria-pressed={repeatType === "daily"}
-                          onClick={() => setRepeatType("daily")}
+                          onClick={() => {
+                            if (isManualReadOnly) return;
+                            setRepeatType("daily");
+                          }}
                         >
                           매일
                         </S.RepeatChipSm>
                         <S.RepeatChipSm
                           $active={repeatType === "weekly"}
                           aria-pressed={repeatType === "weekly"}
-                          onClick={() => setRepeatType("weekly")}
+                          onClick={() => {
+                            if (isManualReadOnly) return;
+                            setRepeatType("weekly");
+                          }}
                         >
                           매주
                         </S.RepeatChipSm>
                         <S.InlineRow>
                           <S.RepeatLabelSm>종료</S.RepeatLabelSm>
                           <S.MiniPill>
-                            <S.MiniInputEl type="date" value={repeatEnd} onChange={(e) => setRepeatEnd(e.target.value)} />
+                            <S.MiniInputEl
+                              type="date"
+                              value={repeatEnd}
+                              onChange={(e) => {
+                                if (isManualReadOnly) return;
+                                setRepeatEnd(e.target.value);
+                              }}
+                              disabled={isManualReadOnly}
+                            />
                           </S.MiniPill>
                         </S.InlineRow>
                       </S.RepeatCompact>
@@ -275,11 +332,17 @@ function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.6vw' }}>
                       <S.SmallChip>태그</S.SmallChip>
                       <S.TagSelect>
-                      <S.TagButton onClick={() => { setTagOpen((v) => !v); setAddingNewTag(false); }}>
+                      <S.TagButton
+                        onClick={() => {
+                          if (isManualReadOnly) return;
+                          setTagOpen((v) => !v);
+                          setAddingNewTag(false);
+                        }}
+                      >
                           {tagList.find((t) => t.id === selectedTagId)?.name || '태그 설정하기'}
                           <S.Caret />
                         </S.TagButton>
-                        {tagOpen && (
+                        {tagOpen && !isManualReadOnly && (
                           <S.TagMenu>
                           <S.TagMenuHeader>태그 설정하기</S.TagMenuHeader>
                           {tagList.map((t) => (
@@ -324,7 +387,7 @@ function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
                               </S.Palette>
                               <S.TagNameRow>
                                 <S.SmallInput style={{ width: '100%' }}>
-                                  <S.InputEl
+                                <S.InputEl
                                     type="text"
                                     placeholder="태그를 입력해주세요."
                                     value={newTagName}
@@ -356,7 +419,11 @@ function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
                           type="text"
                           placeholder="장소 입력하기"
                           value={location}
-                          onChange={(e) => setLocation(e.target.value)}
+                          onChange={(e) => {
+                            if (isManualReadOnly) return;
+                            setLocation(e.target.value);
+                          }}
+                          disabled={isManualReadOnly}
                         />
                       </S.SmallInput>
                     </div>
@@ -366,21 +433,58 @@ function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
                       <S.TimeCol>
                         <S.InlineRow>
                           <S.Label>시작</S.Label>
-                          <S.TimeEl type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} disabled={allDay} />
+                          <S.TimeEl
+                            type="time"
+                            value={startTime}
+                            onChange={(e) => {
+                              if (isManualReadOnly) return;
+                              setStartTime(e.target.value);
+                            }}
+                            disabled={allDay || isManualReadOnly}
+                          />
                         </S.InlineRow>
                       </S.TimeCol>
                       <S.TimeCol>
                         <S.InlineRow>
                           <S.Label>종료</S.Label>
-                          <S.TimeEl type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} disabled={allDay} />
+                          <S.TimeEl
+                            type="time"
+                            value={endTime}
+                            onChange={(e) => {
+                              if (isManualReadOnly) return;
+                              setEndTime(e.target.value);
+                            }}
+                            disabled={allDay || isManualReadOnly}
+                          />
                         </S.InlineRow>
                       </S.TimeCol>
                     </S.TimeWrap>
                   </div>
                 </S.FormRow>
-                <S.ActionsRow>
-                  <S.WideButton onClick={() => setView("choice")}>취소하기</S.WideButton>
-                  <S.WideButton onClick={onOpenManual}>등록하기</S.WideButton>
+                <S.ActionsRow $single={isManualReadOnly}>
+                  {!isManualReadOnly && (
+                    <S.WideButton
+                      onClick={() => {
+                        setManualConfirmed(false);
+                        setView("choice");
+                      }}
+                    >
+                      취소하기
+                    </S.WideButton>
+                  )}
+                  <S.WideButton
+                    onClick={() => {
+                      if (isManualReadOnly) {
+                        onOpenManual?.();
+                        return;
+                      }
+                      setManualConfirmed(true);
+                      setTagOpen(false);
+                      setAddingNewTag(false);
+                    }}
+                  >
+                    {isManualReadOnly ? "확인" : "등록확인"}
+                  </S.WideButton>
                 </S.ActionsRow>
               </S.FormWrap>
             </>
@@ -394,7 +498,11 @@ function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
         images={internalAnalyzeImages}
         onClose={() => setInternalAnalyzeOpen(false)}
         onReupload={() => { setInternalAnalyzeOpen(false); setView("upload"); }}
-        onEdit={() => { setInternalAnalyzeOpen(false); setView("manual"); }}
+        onEdit={() => {
+          setInternalAnalyzeOpen(false);
+          setManualConfirmed(false);
+          setView("manual");
+        }}
         onSubmit={() => { setInternalAnalyzeOpen(false); }}
       />
     )}

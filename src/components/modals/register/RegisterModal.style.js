@@ -260,7 +260,8 @@ export const SelectEl = styled.select`
 export const ActionsRow = styled.div`
   margin-top: auto;
   display: flex;
-  justify-content: space-between;
+  justify-content: ${({ $single }) => ($single ? 'center' : 'space-between')};
+  align-items: center;
   gap: ${vw(24)};
 `;
 
