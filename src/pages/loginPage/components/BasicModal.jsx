@@ -3,8 +3,19 @@ import LoginModal from "./LoginModal";
 
 import ANDY from "@/assets/main/andy.svg";
 import STAR from "@/assets/login/star.svg";
+import gusetRegisterApi from "../../../apis/auth/guestRegisterApi";
 
 const BasicModal = () => {
+  const handleGuestContinue = async () => {
+    try {
+      const res = await gusetRegisterApi();
+      console.log(res.message);
+      window.location.href = "/";
+    } catch (error) {
+      console.error("게스트 이용 실패:", error);
+    }
+  };
+
   return (
     <LoginModal>
       <S.BasicContainer>
@@ -22,7 +33,7 @@ const BasicModal = () => {
           <S.GoogleBtn>
             <S.BtnText>구글 연동하기</S.BtnText>
           </S.GoogleBtn>
-          <S.ContiBtn>
+          <S.ContiBtn onClick={handleGuestContinue}>
             <S.BtnText>가입 없이 진행하기</S.BtnText>
           </S.ContiBtn>
         </S.ButtonWrapper>
