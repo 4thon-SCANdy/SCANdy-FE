@@ -110,7 +110,7 @@ export const UploadWrap = styled.div`
   width: 100%;
   min-height: ${vw(380)};
   justify-content: center;
-  padding: 0 0 ${vw(0)};
+  padding: 0;
 `;
 
 // 업로드 콘텐츠 뷰포트(빈 상태/선택 상태 모두 같은 높이 유지)
