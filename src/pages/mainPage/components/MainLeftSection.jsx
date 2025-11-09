@@ -8,7 +8,7 @@ import SETTING from "@/assets/main/setting.svg";
 import EDIT from "@/assets/main/tagedit.svg";
 import EDITING from "@/assets/main/tagediting.svg";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ColorChip from "../../../components/colorchip/ColorChip";
 
 const days = [
@@ -46,6 +46,12 @@ const MainLeftSection = ({ setSelectedTag, selectedTag }) => {
     { id: 2, color: "#FFEBB5" },
     { id: 3, color: "#D9C9FF" },
   ]);
+
+  useEffect(() => {
+    if (isEditActive === null) {
+      setActiveColorTag(null);
+    }
+  }, [isEditActive]);
 
   const handleTagChange = (id, value) => {
     setEditedTags((prev) => ({
@@ -111,7 +117,6 @@ const MainLeftSection = ({ setSelectedTag, selectedTag }) => {
                               t.id === tag.id ? { ...t, color } : t
                             )
                           );
-                          setActiveColorTag(null);
                         }}
                       />
                     </S.ColorChipWrapper>
