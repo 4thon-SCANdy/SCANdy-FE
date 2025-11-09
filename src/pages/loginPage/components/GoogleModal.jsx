@@ -4,8 +4,13 @@ import LoginModal from "./LoginModal";
 import STAR from "@/assets/login/star.svg";
 import CLOSE from "@/assets/login/close.svg";
 import GOOGLE from "@/assets/main/google.svg";
+import googleLoginApi from "../../../apis/auth/googleLoginApi";
 
 const GoogleModal = ({ onClose }) => {
+  const handleGoogleLogin = async () => {
+    await googleLoginApi();
+  };
+
   return (
     <>
       <LoginModal>
@@ -22,7 +27,7 @@ const GoogleModal = ({ onClose }) => {
                   구글 연동하기는 구글 계정으로 로그인하셔야 사용 가능합니다.
                 </S.SubText>
               </S.LoginSub>
-              <S.LoginBtn>
+              <S.LoginBtn onClick={handleGoogleLogin}>
                 <S.Google src={GOOGLE} />
                 <S.GoogleText>구글로 시작하기</S.GoogleText>
               </S.LoginBtn>
