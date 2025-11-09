@@ -63,6 +63,7 @@ export const BottomRow = styled.div`
 `;
 
 export const LargeButton = styled.button`
+  display: inline-flex;
   height: ${vw(52)}; 
   border-radius: ${vw(32)}; 
   border: ${vw(2)} solid #7e8df5;
@@ -89,8 +90,20 @@ export const LargeButton = styled.button`
 
 // 직접 등록 하단 버튼을 조금 더 넓게
 export const WideButton = styled(LargeButton)`
-  min-width: ${vw(280)};
-  height: ${vw(46)};
+  flex: 0 0 auto;
+  width: ${vw(220)};
+  height: ${vw(38)};
+  padding: 0 ${vw(28)};
+  border-radius: ${vw(80)};
+  border: ${vw(3)} solid #B4BFFF;
+  background: #F4F6FF;
+  color: #7E8DF5;
+  text-align: center;
+  font-family: Pretendard, sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  letter-spacing: -0.7px;
+  justify-content: center;
 `;
 
 // 업로드 화면의 하단 버튼을 더 넓게
@@ -309,6 +322,7 @@ export const TextInput = styled.div`
   color: #7e8df5;
   background: #ffffff;
   flex: 1;
+  align-self: flex-start;
 `;
 
 export const InputEl = styled.input`
@@ -352,9 +366,9 @@ export const SelectEl = styled.select`
 export const ActionsRow = styled.div`
   margin-top: auto;
   display: flex;
-  justify-content: ${({ $single }) => ($single ? 'center' : 'space-between')};
+  justify-content: ${({ $single }) => ($single ? 'center' : 'center')};
   align-items: center;
-  gap: ${vw(24)};
+  gap: ${vw(200)};
 `;
 
 export const RepeatWrap = styled.div`
@@ -366,7 +380,7 @@ export const RepeatWrap = styled.div`
 
 export const ScheduleRow = styled(FormRow)`
   width: 100%;
-  align-items: stretch;
+  align-items: flex-start;
   justify-content: space-between;
   gap: ${vw(0)};
   flex-wrap: nowrap;
@@ -394,6 +408,7 @@ export const RepeatControlCard = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${vw(6)};
+  position: relative;
  
 `;
 
@@ -430,6 +445,26 @@ export const RepeatControlBody = styled.div`
 export const RepeatChipRow = styled.div`
   display: flex;
   gap: ${vw(8)};
+`;
+
+export const MetaRow = styled(FormRow)`
+  width: 100%;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: ${vw(32)};
+`;
+
+export const MetaColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${vw(12)};
+  flex: 1 1 ${vw(280)};
+`;
+
+export const MetaField = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${vw(12)};
 `;
 
 export const RepeatEndRow = styled.div`
@@ -471,8 +506,8 @@ export const MutedText = styled.div`
 
 // 태그/장소 행
 export const SmallChip = styled.div`
-  width: ${vw(58)};
-  height: ${vw(30)};
+  min-width: ${vw(58)};
+  height: ${vw(36)};
   border-radius: ${vw(16)};
   border: ${vw(2)} solid #b4bfff;
   display: flex;
@@ -480,6 +515,13 @@ export const SmallChip = styled.div`
   justify-content: center;
   color: #7e8df5;
   font-weight: 800;
+  padding: 0 ${vw(12)};
+  box-sizing: border-box;
+`;
+
+// 시간 라벨 전용 칩: 두 라벨의 폭을 동일하게 유지
+export const TimeChip = styled(SmallChip)`
+  min-width: ${vw(140)};
 `;
 
 export const SmallInput = styled.div`
@@ -534,6 +576,17 @@ export const TagMenu = styled.div`
   z-index: 10;
 `;
 
+// 모달 컨테이너의 overflow에 가려지지 않도록 띄우는 버전
+export const TagMenuFloating = styled.div`
+  position: fixed;
+  width: ${vw(300)};
+  border-radius: ${vw(20)};
+  border: ${vw(2)} solid rgba(126, 141, 245, 0.35);
+  background: #fff;
+  box-shadow: 0 ${vw(10)} ${vw(30)} rgba(0,0,0,0.08);
+  padding: ${vw(12)};
+  z-index: 4000;
+`;
 export const TagMenuHeader = styled.div`
   color: #b2b8e9;
   font-weight: 800;
@@ -631,7 +684,7 @@ export const TimeBig = styled.div`
 `;
 
 export const TimeEl = styled.input`
-  width: ${vw(200)};
+  width: ${vw(240)};
   max-width: 100%;
   height: ${vw(48)};
   border-radius: ${vw(24)};
