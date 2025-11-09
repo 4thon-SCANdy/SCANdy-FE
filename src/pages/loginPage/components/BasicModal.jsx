@@ -3,16 +3,29 @@ import LoginModal from "./LoginModal";
 
 import ANDY from "@/assets/main/andy.svg";
 import STAR from "@/assets/login/star.svg";
-import gusetRegisterApi from "../../../apis/auth/guestRegisterApi";
+import guestRegisterApi from "../../../apis/auth/guestRegisterApi";
+import guestLoginApi from "../../../apis/auth/guestLoginApi";
 
 const BasicModal = () => {
   const handleGuestContinue = async () => {
     try {
-      const res = await gusetRegisterApi();
-      console.log(res.message);
+      // 로그인 먼저 시도
+      const loginRes = await guestLoginApi();
+      console.log("게스트 로그인 성공: ", loginRes.message);
+
+      sessionStorage.setItem("access_token", loginRes.token);
       window.location.href = "/";
     } catch (error) {
-      console.error("게스트 이용 실패:", error);
+      // 로그인 실패 시 회원가입 후 다시 로그인
+      console.warn("로그인 실패로 회원가입 진행");
+      await guestRegisterApi();
+      console.log("게스트 회원가입 완료");
+
+      const loginRes = await guestLoginApi();
+      console.log("게스트 로그인 성공: ", loginRes.message);
+
+      sessionStorage.setItem("access_token", loginRes.token);
+      window.location.href = "/";
     }
   };
 
