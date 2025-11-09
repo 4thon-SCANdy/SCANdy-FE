@@ -322,6 +322,7 @@ export const TextInput = styled.div`
   color: #7e8df5;
   background: #ffffff;
   flex: 1;
+  align-self: flex-start;
 `;
 
 export const InputEl = styled.input`
@@ -379,7 +380,7 @@ export const RepeatWrap = styled.div`
 
 export const ScheduleRow = styled(FormRow)`
   width: 100%;
-  align-items: stretch;
+  align-items: flex-start;
   justify-content: space-between;
   gap: ${vw(0)};
   flex-wrap: nowrap;
@@ -407,6 +408,7 @@ export const RepeatControlCard = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${vw(6)};
+  position: relative;
  
 `;
 

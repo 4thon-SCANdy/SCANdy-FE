@@ -464,11 +464,11 @@ function RegisterModal({
                 </S.DateRow>
                 <S.ScheduleRow>
                   <S.TextInput>
-                    <S.TextArea
+                    <S.InputEl
+                      type="text"
                       placeholder="일정을 입력해 주세요!"
                       value={title}
                       maxLength={200}
-                      rows={2}
                       onChange={(e) => {
                         if (isManualReadOnly) return;
                         setTitle(e.target.value);
