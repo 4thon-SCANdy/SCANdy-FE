@@ -4,30 +4,20 @@ import * as S from "../styles/MainCalendar.style";
 import { vw } from "@/utils/units";
 import PlanTag from "./PlanTag";
 
-const MainCalendar = ({ currentDate, selectedTag, onOpenRegister }) => {
-  const schedules = [
-    {
-      id: 1,
-      date: "2025-11-04",
-      tag: "회의",
-      color: "#FFEBB5",
-    },
-    {
-      id: 2,
-      date: "2025-11-04",
-      tag: "프로젝트",
-      color: "#D9C9FF",
-    },
-    {
-      id: 3,
-      date: "2025-11-06",
-      tag: "개인 일정",
-      color: "#A0D4FF",
-    },
-  ];
+const MainCalendar = ({
+  tags,
+  schedules,
+  currentDate,
+  selectedTag,
+  onOpenRegister,
+}) => {
+  const getTagColor = (tagName) => {
+    const match = tags.find((t) => t.name === tagName);
+    return match ? match.color : "#EAEAEA";
+  };
 
   const visibleSchedules = selectedTag
-    ? schedules.filter((s) => s.tag.trim() === selectedTag.trim())
+    ? schedules.filter((s) => s.tag === selectedTag)
     : schedules;
 
   const formatDateKey = (date) =>
@@ -123,7 +113,7 @@ const MainCalendar = ({ currentDate, selectedTag, onOpenRegister }) => {
                       backgroundColor: "#FDFDFD",
                     }}
                   >
-                    <PlanTag size="small" color={schedule.color}>
+                    <PlanTag size="small" color={getTagColor(schedule.tag)}>
                       {schedule.tag}
                     </PlanTag>
                   </div>

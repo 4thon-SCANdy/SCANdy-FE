@@ -5,7 +5,12 @@ import MainCalendar from "./MainCalendar";
 import CalendarArrow from "./CalendarArrow";
 import SearchBar from "./SearchBar";
 
-const MainCenterSection = ({ selectedTag, onOpenRegister }) => {
+const MainCenterSection = ({
+  tags,
+  schedules,
+  selectedTag,
+  onOpenRegister,
+}) => {
   const [currentDate, setCurrentDate] = useState(new Date());
 
   const handlePrevMonth = () => {
@@ -32,6 +37,8 @@ const MainCenterSection = ({ selectedTag, onOpenRegister }) => {
           />
         </S.CenterHeader>
         <MainCalendar
+          tags={tags}
+          schedules={schedules}
           currentDate={currentDate}
           selectedTag={selectedTag}
           onOpenRegister={onOpenRegister}
