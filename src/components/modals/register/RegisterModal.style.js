@@ -50,8 +50,6 @@ export const Preview = styled.img`
   object-fit: cover;
   object-position: center;
   display: block;
-  /* SVG 내부의 외곽 프레임/글로우를 잘라내기 위한 클리핑 */
-  clip-path: inset(${vw(12)} ${vw(12)} ${vw(12)} ${vw(12)} round ${vw(16)});
 `;
 
 export const BottomRow = styled.div`
@@ -102,10 +100,11 @@ export const UploadWrap = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: ${vw(36)};
-  /* 버튼 위치가 변하지 않도록 업로드 영역의 최소 높이를 고정 */
-  min-height: ${vw(460)};
-  justify-content: flex-start;
+  gap: ${vw(24)};
+  width: 100%;
+  min-height: ${vw(380)};
+  justify-content: center;
+  padding: ${vw(24)} 0;
 `;
 
 // 업로드 콘텐츠 뷰포트(빈 상태/선택 상태 모두 같은 높이 유지)
