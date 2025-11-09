@@ -106,6 +106,24 @@ function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
   const isManualView = view === "manual";
   const isManualReadOnly = isManualView && manualConfirmed;
   const modalHeightPx = view === "manual" ? 600 : 600;
+
+  const openManualConfirmationFromAI = () => {
+    setTitle("일정을 입력해주세요");
+    setStartDate("2025-10-26");
+    setEndDate("2025-10-26");
+    setStartTime("00:00");
+    setEndTime("00:00");
+    setLocation("회의실");
+    setRepeatOn(false);
+    setRepeatEnd("");
+    setAllDay(false);
+    setSelectedTagId("t1");
+    setManualConfirmed(true);
+    setTagOpen(false);
+    setAddingNewTag(false);
+    setInternalAnalyzeOpen(false);
+    setView("manual");
+  };
   return (
     <>
     <ModalBase open={open} onClose={onClose} title="" hideHeader closeOnOverlayClick widthPx={960} heightPx={modalHeightPx} noBodyPadding>
@@ -503,7 +521,7 @@ function RegisterModal({ open, onClose, onOpenAI, onOpenManual }) {
           setManualConfirmed(false);
           setView("manual");
         }}
-        onSubmit={() => { setInternalAnalyzeOpen(false); }}
+        onSubmit={openManualConfirmationFromAI}
       />
     )}
     </>
