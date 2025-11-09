@@ -64,7 +64,7 @@ export const MainCalendarContainer = styled.div`
       height: ${vw(40)};
       content: "";
       position: absolute;
-      background-image: url("/src/assets/calendar/plus.svg"); /* ✅ 수정 */
+      background-image: url("/assets/calendar/plus.svg");
       background-size: cover;
       background-position: center;
       opacity: 1;
@@ -79,7 +79,7 @@ export const MainCalendarContainer = styled.div`
       right: ${vw(10)};
       width: ${vw(40)};
       height: ${vw(40)};
-      background-image: url("/src/assets/calendar/plus.svg");
+      background-image: url("/assets/calendar/plus.svg");
       background-size: cover;
       background-position: center;
       opacity: 0;
