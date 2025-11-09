@@ -12,18 +12,21 @@ export const Empty = styled.div`
 
 
 // 추가: RegisterModal과 동일한 헤더/레이아웃 요소
-export const Content = styled.div`
-  display: flex;
-  flex-direction: column;
-  row-gap: 4.125vw; /* 디자인 시안 기준 간격 */
-  flex: 1; /* 버튼을 하단으로 밀기 위해 남은 영역 채움 */
-`;
-
 export const Padding = styled.div`
   padding: 3.24vw 2.458vw;
   height: 100%;
   display: flex;
   flex-direction: column;
+  background: linear-gradient(180deg, #FDFDFD 0%, #EAEDFF 100%);
+  box-shadow: 0 0 20px 0 rgba(180, 191, 255, 0.30);
+  border-radius: ${vw(32)};
+`;
+
+export const Content = styled.div`
+  display: flex;
+  flex-direction: column;
+  row-gap: 4.125vw;
+  flex: 1;
 `;
 
 export const TopLabel = styled.div`
@@ -70,24 +73,27 @@ export const Center = styled.div`
 `;
 
 export const Icon = styled.img`
-  width: ${vw(120)};
+  width: ${vw(140)};
   height: auto;
 `;
 
 export const MessageWrap = styled.div`
   text-align: center;
-  color: #666;
 `;
 
 export const MainText = styled.div`
-  font-size: ${vw(22)};
-  font-weight: 700;
-  color: #4842b2;
+  font-size: ${vw(20)};
+  font-weight: 600;
+  color: #606060;
+  font-family: Pretendard, sans-serif;
 `;
 
 export const SubText = styled.div`
-  margin-top: ${vw(6)};
-  font-size: ${vw(18)};
+  margin-top: ${vw(5)};
+  font-size: ${vw(20)};
+  font-weight: 600;
+  color: #606060;
+  font-family: Pretendard, sans-serif;
 `;
 
 export const ButtonRow = styled.div`
