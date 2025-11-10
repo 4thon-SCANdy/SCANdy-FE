@@ -1,6 +1,6 @@
 import { useState } from "react";
 import * as S from "./ModalPlayground.style";
-import { RegisterModal, ConflictModal, SearchModal, AnalyzeModal, ScheduleListModal, EditScheduleModal } from "@/components/modals";
+import { RegisterModal, ConflictModal, SearchModal, AnalyzeModal, ScheduleListModal, EditScheduleModal, OriginalImageModal } from "@/components/modals";
 
 function ModalPlayground() {
   const [openReg, setOpenReg] = useState(false);
@@ -8,6 +8,8 @@ function ModalPlayground() {
   const [openSearch, setOpenSearch] = useState(false);
   const [openAnalyze, setOpenAnalyze] = useState(false);
   const [analyzeImages, setAnalyzeImages] = useState([]); // object URLs
+  const [openOriginal, setOpenOriginal] = useState(false);
+  const [originalImages, setOriginalImages] = useState([]);
   const [openListCombined, setOpenListCombined] = useState(false);
   const [editingSchedule, setEditingSchedule] = useState(null);
   const [openEdit, setOpenEdit] = useState(false);
@@ -46,6 +48,15 @@ function ModalPlayground() {
         <S.Button onClick={() => setOpenCon(true)}>일정 충돌 모달</S.Button>
         <S.Button onClick={() => setOpenSearch(true)}>일정 검색 모달</S.Button>
         <S.Button onClick={() => setOpenListCombined(true)}>일정 리스트 (혼합)</S.Button>
+        <S.Button
+          onClick={() => {
+            // 샘플 이미지로 원본 이미지 확인 모달 오픈
+            setOriginalImages(["/assets/calendar/plus.svg", "/assets/main/logo.svg"]);
+            setOpenOriginal(true);
+          }}
+        >
+          원본 이미지 확인 모달
+        </S.Button>
         <S.Button
           onClick={() => {
             setOpenEdit(true);
@@ -145,7 +156,21 @@ function ModalPlayground() {
           });
           setOpenReg(true);
         }}
-        onViewOriginal={(it) => alert(`원본 이미지 확인: ${it.title}`)}
+        onViewOriginal={(it) => {
+          // 데모: 분석용 이미지가 있으면 재사용, 없으면 샘플 이미지
+          const imgs = (analyzeImages && analyzeImages.length > 0)
+            ? analyzeImages
+            : ["/assets/calendar/plus.svg", "/assets/main/logo.svg"];
+          setOriginalImages(imgs);
+          setOpenOriginal(true);
+        }}
+      />
+
+      <OriginalImageModal
+        open={openOriginal}
+        images={originalImages}
+        onClose={() => setOpenOriginal(false)}
+        onConfirm={() => setOpenOriginal(false)}
       />
     </S.Wrapper>
   );
