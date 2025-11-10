@@ -4,10 +4,8 @@ import LoginModal from "./LoginModal";
 
 import CLOSE from "@/assets/login/close.svg";
 
-const GoogleSuccessModal = ({ type = "success", onClose }) => {
+const GoogleSuccessModal = ({ type = "success", email = "", onClose }) => {
   const isSuccess = type === "success";
-
-  const [isAccount, setIsAccount] = useState(["구글 구글 1234@gmail.com"]);
 
   return (
     <>
@@ -23,9 +21,11 @@ const GoogleSuccessModal = ({ type = "success", onClose }) => {
 
             <S.CheckBox>
               <S.MailBox $isSuccess={isSuccess}>
-                <S.MailText $isSuccess={isSuccess}>{isAccount}</S.MailText>
+                <S.MailText $isSuccess={isSuccess}>
+                  {isSuccess ? email : "계정 알 수 없음"}
+                </S.MailText>
               </S.MailBox>
-              <S.OkBox>
+              <S.OkBox onClick={onClose}>
                 <S.OkText>확인</S.OkText>
               </S.OkBox>
             </S.CheckBox>
