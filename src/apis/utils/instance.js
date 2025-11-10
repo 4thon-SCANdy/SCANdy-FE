@@ -10,7 +10,7 @@ const defaultInstance = axios.create({
 
 defaultInstance.interceptors.request.use((config) => {
   const token = sessionStorage.getItem("access_token");
-  if (token) config.headers.token = `Bearer ${token}`;
+  if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
