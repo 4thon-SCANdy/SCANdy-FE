@@ -15,7 +15,7 @@ box-shadow: 0 0 20px 0 rgba(180, 191, 255, 0.30);
 export const TopLabel = styled.div`
   width: ${vw(640)};
   height: ${vw(56)};
-  margin: 0 auto ${vw(40)} auto;
+  margin: 0 auto ${vw(10)} auto;
   border-radius: ${vw(32)};
   border: ${vw(2)} solid rgba(126, 141, 245, 0.6);
   background: linear-gradient(180deg, #f7f8ff 0%, #ffffff 100%);
@@ -44,7 +44,7 @@ export const LeftCol = styled.div`
   min-height: 0;
   grid-column: 1 / 2;
   grid-row: 1 / 2;
-  margin-top: ${vw(36)}
+  margin-top: ${vw(60)}
 `;
 
 export const CardBox = styled.div`
@@ -230,7 +230,7 @@ export const PreviewWrap = styled(CardBottom)`
   position: relative; /* for absolute controls */
   border-radius: ${vw(28)};
   /* Align preview top with left OCR box top, and bottom near AI box end */
-  margin-top: ${vw(56)};
+  margin-top: ${vw(60)};
   margin-bottom: ${vw(60)};
   padding: ${vw(12)}; /* tighter padding to reduce white box size */
   width: 90%; /* shrink white container width */
@@ -249,7 +249,7 @@ export const PreviewArea = styled.div`
   background: transparent; /* match parent (box) background */
   position: relative;
   overflow: hidden;
-  margin-top: ${vw(16)}; /* push image slightly down */
+  margin-top: 0; /* reset for AnalyzeModal */
   img { width: 100%; height: 100%; object-fit: contain; display: block; border-radius: inherit; }
 `;
 

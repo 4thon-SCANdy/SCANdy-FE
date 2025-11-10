@@ -50,6 +50,15 @@ function ModalPlayground() {
         <S.Button onClick={() => setOpenListCombined(true)}>일정 리스트 (혼합)</S.Button>
         <S.Button
           onClick={() => {
+            // 샘플 이미지로 이미지 분석 결과 모달 오픈
+            setAnalyzeImages(["/assets/calendar/plus.svg", "/assets/main/logo.svg"]);
+            setOpenAnalyze(true);
+          }}
+        >
+          이미지 분석 결과 모달
+        </S.Button>
+        <S.Button
+          onClick={() => {
             // 샘플 이미지로 원본 이미지 확인 모달 오픈
             setOriginalImages(["/assets/calendar/plus.svg", "/assets/main/logo.svg"]);
             setOpenOriginal(true);
