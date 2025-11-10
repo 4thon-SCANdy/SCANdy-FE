@@ -322,7 +322,6 @@ export const TextInput = styled.div`
   color: #7e8df5;
   background: #ffffff;
   flex: 1;
-  align-self: flex-start;
 `;
 
 export const InputEl = styled.input`
@@ -380,7 +379,7 @@ export const RepeatWrap = styled.div`
 
 export const ScheduleRow = styled(FormRow)`
   width: 100%;
-  align-items: flex-start;
+  align-items: stretch;
   justify-content: space-between;
   gap: ${vw(0)};
   flex-wrap: nowrap;
@@ -492,7 +491,7 @@ export const Toggle = styled.button`
 export const ToggleKnob = styled.span`
   position: absolute;
   top: ${vw(3)};
-  left: ${({ $on }) => ($on ? vw(35) : vw(3))};
+  left: ${({ $on }) => ($on ? vw(29) : vw(3))};
   width: ${vw(18)};
   height: ${vw(18)};
   background: #fff;
