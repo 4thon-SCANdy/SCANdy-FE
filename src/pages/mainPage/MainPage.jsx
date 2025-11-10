@@ -81,9 +81,14 @@ const MainPage = () => {
         <GoogleSuccessModal
           type={modalInfo.type}
           email={modalInfo.email}
-          onClose={() =>
-            setModalInfo({ open: false, type: "success", email: "" })
-          }
+          onClose={() => {
+            setModalInfo({ open: false, type: "success", email: "" });
+
+            // 실패 시 로그인 페이지로 리다이렉트
+            if (modalInfo.type === "fail") {
+              window.location.href = "/login";
+            }
+          }}
         />
       )}
 
