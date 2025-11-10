@@ -85,6 +85,8 @@ const MainPage = () => {
             setModalInfo({ open: false, type: "success", email: "" })
           }
         />
+      )}
+
       {googleModalOpen && (
         <GoogleModal onClose={() => setGoogleModalOpen(false)} />
       )}
