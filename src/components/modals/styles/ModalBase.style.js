@@ -14,9 +14,10 @@ export const Overlay = styled.div`
 export const Container = styled.div`
   width: ${({ $widthPx }) => vw($widthPx)};
   height: ${({ $heightPx }) => vw($heightPx)}; /* 고정 높이로 통일 */
-  background: #fff;
+  background: ${({ $background }) => $background || "#fff"};
   border-radius: ${vw(32)};
-  box-shadow: 0 ${vw(8)} ${vw(32)} rgba(0, 0, 0, 0.08);
+  box-shadow: ${({ $boxShadow }) =>
+    $boxShadow || `0 ${vw(8)} ${vw(32)} rgba(0, 0, 0, 0.08)`};
   border: ${vw(2)} solid rgba(126, 141, 245, 0.6);
   position: relative;
   display: flex;

@@ -176,6 +176,8 @@ function ScheduleListModal({
       widthPx={1040}
       heightPx={760}
       noBodyPadding
+      containerBg={"#FFFFFF"}
+      containerShadow={"0 0 20px 0 rgba(180, 191, 255, 0.30)"}
     >
       <S.CloseFloating onClick={onClose} aria-label="close">×</S.CloseFloating>
       <S.Padding>
