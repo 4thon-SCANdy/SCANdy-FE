@@ -1,6 +1,6 @@
 import { useState } from "react";
 import * as S from "./ModalPlayground.style";
-import { RegisterModal, ConflictModal, SearchModal, AnalyzeModal, ScheduleListModal } from "@/components/modals";
+import { RegisterModal, ConflictModal, SearchModal, AnalyzeModal, ScheduleListModal, EditScheduleModal } from "@/components/modals";
 
 function ModalPlayground() {
   const [openReg, setOpenReg] = useState(false);
@@ -10,6 +10,19 @@ function ModalPlayground() {
   const [analyzeImages, setAnalyzeImages] = useState([]); // object URLs
   const [openListCombined, setOpenListCombined] = useState(false);
   const [editingSchedule, setEditingSchedule] = useState(null);
+  const [openEdit, setOpenEdit] = useState(false);
+  const [demoEdit, setDemoEdit] = useState({
+    id: "edit-1",
+    title: "일정 수정하기 예시",
+    startDate: "2025-11-10",
+    endDate: "2025-11-10",
+    startTime: "09:00",
+    endTime: "10:00",
+    location: "회의실 B",
+    tagId: "t1",
+    repeatOn: false,
+    allDay: false,
+  });
 
   const demoItemsNoOriginal = [
     { id: "no-1", ampm: "AM", time: "10:30", title: "가나다라마바사", tagLabel: "개인 일정" },
@@ -33,6 +46,13 @@ function ModalPlayground() {
         <S.Button onClick={() => setOpenCon(true)}>일정 충돌 모달</S.Button>
         <S.Button onClick={() => setOpenSearch(true)}>일정 검색 모달</S.Button>
         <S.Button onClick={() => setOpenListCombined(true)}>일정 리스트 (혼합)</S.Button>
+        <S.Button
+          onClick={() => {
+            setOpenEdit(true);
+          }}
+        >
+          일정 수정 모달
+        </S.Button>
       </S.ButtonRow>
 
       <RegisterModal
@@ -62,6 +82,21 @@ function ModalPlayground() {
           setOpenReg(false);
           alert(`삭제 요청: ${item?.title || ""}`);
           setEditingSchedule(null);
+        }}
+      />
+
+      <EditScheduleModal
+        open={openEdit}
+        onClose={() => setOpenEdit(false)}
+        schedule={demoEdit}
+        onSave={(updated) => {
+          setDemoEdit(updated || demoEdit);
+          setOpenEdit(false);
+          alert(`저장 완료: ${updated?.title || ""}`);
+        }}
+        onDelete={(item) => {
+          setOpenEdit(false);
+          alert(`삭제 요청: ${item?.title || ""}`);
         }}
       />
 

@@ -13,8 +13,8 @@ export const Padding = styled.div`
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: ${({ $upload }) => ($upload ? "linear-gradient(0deg, #FDFDFD 3.85%, #EAEDFF 100%)" : "transparent")};
-  box-shadow: ${({ $upload }) => ($upload ? "0 0 20px 0 rgba(180, 191, 255, 0.30)" : "none")};
+  background: ${({ $upload, $accent }) => ($accent || $upload ? "linear-gradient(0deg, #FDFDFD 3.85%, #EAEDFF 100%)" : "transparent")};
+  box-shadow: ${({ $upload, $accent }) => ($accent || $upload ? "0 0 20px 0 rgba(180, 191, 255, 0.30)" : "none")};
   border-radius: ${vw(32)};
 `;
 
