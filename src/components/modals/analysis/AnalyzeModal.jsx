@@ -1,6 +1,54 @@
 import React, { useMemo, useState, useEffect, useRef } from "react";
+import styled from "styled-components";
+import { vw } from "@/utils/units";
 import ModalBase from "../ModalBase";
 import * as S from "./AnalyzeModal.style";
+
+// AnalyzeModal 전용 오버라이드 (OriginalImageModal에는 영향 없음)
+const LayoutSm = styled(S.Layout)`
+  grid-template-rows: 1fr auto;            /* 상단(이미지+좌측정보) 영역을 충분히 확보 */
+  row-gap: ${vw(24)};
+`;
+const LeftColSm = styled(S.LeftCol)`
+  gap: ${vw(16)};
+  margin-top: ${vw(60)};
+`;
+const OcrBoxSm = styled(S.OcrBox)`
+  max-width: ${vw(360)};
+  min-height: ${vw(170)};
+  padding: ${vw(16)} ${vw(20)};
+  gap: ${vw(8)};
+`;
+const AiBoxSm = styled(S.AiBox)`
+  max-width: ${vw(360)};
+  min-height: ${vw(160)};
+  padding: ${vw(14)} ${vw(20)} ${vw(10)};
+  gap: ${vw(8)};
+`;
+const OcrItemSm = styled(S.OcrItem)`
+  font-size: ${vw(15)};
+  line-height: 1.4;
+  &:before {
+    width: ${vw(6)};
+    height: ${vw(6)};
+  }
+`;
+const ChipSm = styled(S.Chip)`
+  height: ${vw(26)};
+  min-width: ${vw(52)};
+  font-weight: 800;
+  font-size: ${vw(14)};
+`;
+const PillSm = styled(S.Pill)`
+  height: ${vw(24)};
+  font-size: ${vw(14)};
+`;
+const PreviewWrapSm = styled(S.PreviewWrap)`
+  margin-top: ${vw(60)};
+  margin-bottom: ${vw(35)};
+  padding: ${vw(18)};
+  justify-content: space-between;
+`;
 
 function AnalyzeModal({ open, onClose, onReupload, onEdit, onSubmit, images = [] }) {
   const ocrSamples = [
@@ -50,47 +98,47 @@ function AnalyzeModal({ open, onClose, onReupload, onEdit, onSubmit, images = []
       <S.CloseFloating onClick={onClose} aria-label="close">×</S.CloseFloating>
       <S.Padding>
         <S.TopLabel>이미지 분석 결과</S.TopLabel>
-        <S.Layout>
+        <LayoutSm>
           {/* Left column (stacked sections) */}
-          <S.LeftCol>
+          <LeftColSm>
             <S.CardBox>
               <S.CardTop>OCR 추출 결과</S.CardTop>
-              <S.OcrBox>
+              <OcrBoxSm>
                 <S.OcrList>
                   {ocrSamples.map((t, i) => (
-                    <S.OcrItem key={i}>{t}</S.OcrItem>
+                    <OcrItemSm key={i}>{t}</OcrItemSm>
                   ))}
                 </S.OcrList>
-              </S.OcrBox>
+              </OcrBoxSm>
             </S.CardBox>
 
 
               <S.CardBox>
-                <S.CardTop>AI 앤디가 인식한 일정</S.CardTop>
-                <S.AiBox>
-                  <S.FieldRow>
-                    <S.Chip>제목</S.Chip>
-                    <S.Pill>일정을 입력해주세요</S.Pill>
-                  </S.FieldRow>
-                  <S.FieldRow>
-                    <S.Chip>날짜</S.Chip>
-                    <S.Pill>2025.10.26</S.Pill>
-                  </S.FieldRow>
-                  <S.FieldRow>
-                    <S.Chip>시간</S.Chip>
-                    <S.Pill>00:00</S.Pill>
-                  </S.FieldRow>
-                  <S.FieldRow>
-                    <S.Chip>장소</S.Chip>
-                    <S.Pill>회의실</S.Pill>
-                  </S.FieldRow>
-                </S.AiBox>
+              <S.CardTop>AI 앤디가 인식한 일정</S.CardTop>
+              <AiBoxSm>
+                <S.FieldRow>
+                  <ChipSm>제목</ChipSm>
+                  <PillSm>일정을 입력해주세요</PillSm>
+                </S.FieldRow>
+                <S.FieldRow>
+                  <ChipSm>날짜</ChipSm>
+                  <PillSm>2025.10.26</PillSm>
+                </S.FieldRow>
+                <S.FieldRow>
+                  <ChipSm>시간</ChipSm>
+                  <PillSm>00:00</PillSm>
+                </S.FieldRow>
+                <S.FieldRow>
+                  <ChipSm>장소</ChipSm>
+                  <PillSm>회의실</PillSm>
+                </S.FieldRow>
+              </AiBoxSm>
               </S.CardBox>
 
-          </S.LeftCol>
+          </LeftColSm>
 
           {/* Preview center */}
-          <S.PreviewWrap>
+          <PreviewWrapSm>
             <S.PreviewArea $hasImage={sanitizedImages.length > 0}>
               {sanitizedImages.length > 0 ? (
                 <img
@@ -111,7 +159,7 @@ function AnalyzeModal({ open, onClose, onReupload, onEdit, onSubmit, images = []
                 <span onClick={() => setCurrentIdx((i) => (i + 1) % sanitizedImages.length)} style={{ cursor: 'pointer' }}>›</span>
               </S.ArrowRow>
             )}
-          </S.PreviewWrap>
+          </PreviewWrapSm>
 
           {/* Bottom-left recommendations spanning left + center */}
           <S.BottomLeft>
@@ -160,7 +208,7 @@ function AnalyzeModal({ open, onClose, onReupload, onEdit, onSubmit, images = []
             <S.Button onClick={onEdit}>수정하기</S.Button>
             <S.Primary onClick={onSubmit}>등록하기</S.Primary>
           </S.RightCol>
-        </S.Layout>
+        </LayoutSm>
       </S.Padding>
     </ModalBase>
   );
