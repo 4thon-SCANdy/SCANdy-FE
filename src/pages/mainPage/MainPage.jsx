@@ -7,12 +7,15 @@ import RegisterModal from "@/components/modals/register/RegisterModal";
 import { useLocation } from "react-router-dom";
 import GoogleSuccessModal from "../loginPage/components/GoogleSuccessModal";
 import GoogleModal from "../loginPage/components/GoogleModal";
+import googleSyncApi from "../../apis/auth/googleSyncApi";
 
 const MainPage = () => {
   const location = useLocation();
   const [selectedTag, setSelectedTag] = useState(null);
   const [registerOpen, setRegisterOpen] = useState(false);
   const [googleModalOpen, setGoogleModalOpen] = useState(false);
+
+  const [isGoogleSynced, setIsGoogleSynced] = useState(false);
 
   const [tags, setTags] = useState([
     { id: 1, name: "개인 일정", color: "#A0D4FF" },
@@ -37,6 +40,20 @@ const MainPage = () => {
     type: "success",
     email: "",
   });
+
+  useEffect(() => {
+    const checkGoogleSync = async () => {
+      try {
+        const data = await googleSyncApi();
+        console.log("구글 연동 여부: ", data.is_google_sync);
+        setIsGoogleSynced(data.is_google_sync);
+      } catch (error) {
+        console.error("구글 연동 여부 확인 실패: ", error);
+      }
+    };
+
+    checkGoogleSync();
+  }, []);
 
   useEffect(() => {
     if (location.state?.success !== undefined) {
@@ -70,6 +87,7 @@ const MainPage = () => {
           schedules={schedules}
           selectedTag={selectedTag}
           onOpenGoogle={() => setGoogleModalOpen(true)}
+          isGoogleSynced={isGoogleSynced}
         />
       </S.MainContainer>
       <RegisterModal

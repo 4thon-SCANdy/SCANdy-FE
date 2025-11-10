@@ -23,6 +23,13 @@ export const GoogleBox = styled.div`
   background: #fdfdfd;
   box-shadow: ${vw(4)} ${vw(4)} ${vw(10)} 0 rgba(229, 229, 229, 0.2);
   cursor: pointer;
+
+  ${({ $hidden }) =>
+    $hidden &&
+    `
+      opacity: 0;
+      pointer-events: none;
+    `}
 `;
 
 export const GoogleImg = styled.img`

@@ -1,3 +1,5 @@
+import "pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css";
+
 import MainPage from "./pages/mainPage/MainPage";
 import GlobalStyle from "./styles/GlobalStyle";
 import { BrowserRouter, Routes, Route } from "react-router-dom";

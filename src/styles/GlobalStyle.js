@@ -1,14 +1,12 @@
 import { createGlobalStyle } from "styled-components";
-import "pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css";
+import "pretendard/dist/web/static/pretendard.css";
 
 const GlobalStyle = createGlobalStyle`
   * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui,
-      Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR',
-      'Malgun Gothic', sans-serif;
+    font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   }
 
 html, body, #root {

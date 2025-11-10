@@ -4,7 +4,13 @@ import GOOGLE from "@/assets/main/google.svg";
 import ANDY from "@/assets/main/andy.svg";
 import PlanTag from "./PlanTag";
 
-const MainRightSection = ({ tags, schedules, selectedTag, onOpenGoogle }) => {
+const MainRightSection = ({
+  tags,
+  schedules,
+  selectedTag,
+  onOpenGoogle,
+  isGoogleSynced,
+}) => {
   // 오늘을 기준으로 일주일 단위 생성
   const today = new Date();
   const weekDates = Array.from({ length: 7 }, (_, i) => {
@@ -45,7 +51,10 @@ const MainRightSection = ({ tags, schedules, selectedTag, onOpenGoogle }) => {
 
   return (
     <S.RightSectionContainer>
-      <S.GoogleBox onClick={onOpenGoogle}>
+      <S.GoogleBox
+        onClick={!isGoogleSynced ? onOpenGoogle : undefined}
+        $hidden={isGoogleSynced}
+      >
         <S.GoogleImg src={GOOGLE} />
         <S.GoogleText>구글 연동</S.GoogleText>
       </S.GoogleBox>
