@@ -109,7 +109,9 @@ const MainLeftSection = ({
               <S.TodoList key={tag.id}>
                 <S.TodoContainer>
                   <S.CheckBox
-                    $isSelected={selectedTagId === tag.id}
+                    $isSelected={
+                      selectedTagId === null || selectedTagId === tag.id
+                    }
                     $color={tag.color}
                     onClick={() => handleCheckClick(tag)}
                   />
