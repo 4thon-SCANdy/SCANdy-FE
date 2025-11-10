@@ -22,6 +22,7 @@ export const GoogleBox = styled.div`
   border: ${vw(1)} solid #e5e5e5;
   background: #fdfdfd;
   box-shadow: ${vw(4)} ${vw(4)} ${vw(10)} 0 rgba(229, 229, 229, 0.2);
+  cursor: pointer;
 `;
 
 export const GoogleImg = styled.img`
@@ -39,9 +40,7 @@ export const GoogleText = styled.p`
   letter-spacing: -0.5px;
 `;
 
-export const PlanBox = styled.div`
-  height: 100%;
-`;
+export const PlanBox = styled.div``;
 
 export const BoxTop = styled.div`
   display: inline-flex;
@@ -66,7 +65,7 @@ export const PlanTitle = styled.p`
 
 export const BoxBottom = styled.div`
   width: ${vw(355)};
-  height: ${vw(882)};
+  height: ${vw(910)};
   flex-shrink: 0;
   display: flex;
   flex-direction: column;

@@ -4,7 +4,7 @@ import GOOGLE from "@/assets/main/google.svg";
 import ANDY from "@/assets/main/andy.svg";
 import PlanTag from "./PlanTag";
 
-const MainRightSection = ({ selectedTag }) => {
+const MainRightSection = ({ tags, schedules, selectedTag, onOpenGoogle }) => {
   // 오늘을 기준으로 일주일 단위 생성
   const today = new Date();
   const weekDates = Array.from({ length: 7 }, (_, i) => {
@@ -18,26 +18,10 @@ const MainRightSection = ({ selectedTag }) => {
   const date = today.getDate();
   const day = ["일", "월", "화", "수", "목", "금", "토"][today.getDay()];
 
-  const schedules = [
-    {
-      id: 1,
-      date: "2025-11-04",
-      tag: "회의",
-      color: "#FFEBB5",
-    },
-    {
-      id: 2,
-      date: "2025-11-04",
-      tag: "프로젝트",
-      color: "#D9C9FF",
-    },
-    {
-      id: 3,
-      date: "2025-11-06",
-      tag: "개인 일정",
-      color: "#A0D4FF",
-    },
-  ];
+  const getTagColor = (tagName) => {
+    const match = tags.find((t) => t.name === tagName);
+    return match ? match.color : "#EAEAEA";
+  };
 
   const filteredSchedules = selectedTag
     ? schedules.filter((s) => s.tag === selectedTag)
@@ -61,7 +45,7 @@ const MainRightSection = ({ selectedTag }) => {
 
   return (
     <S.RightSectionContainer>
-      <S.GoogleBox>
+      <S.GoogleBox onClick={onOpenGoogle}>
         <S.GoogleImg src={GOOGLE} />
         <S.GoogleText>구글 연동</S.GoogleText>
       </S.GoogleBox>
@@ -97,7 +81,7 @@ const MainRightSection = ({ selectedTag }) => {
                           backgroundColor: "#FDFDFD",
                         }}
                       >
-                        <PlanTag size="large" color={schedule.color}>
+                        <PlanTag size="large" color={getTagColor(schedule.tag)}>
                           {schedule.tag}
                         </PlanTag>
                       </div>

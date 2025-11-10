@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
+import { createPortal } from "react-dom";
 import ModalBase from "../ModalBase";
 import AnalyzeModal from "../analysis/AnalyzeModal";
 import * as S from "./RegisterModal.style";
@@ -49,6 +50,8 @@ function RegisterModal({
   const [manualConfirmed, setManualConfirmed] = useState(false);
   const [mode, setMode] = useState("create"); // create | edit
   const [currentEdit, setCurrentEdit] = useState(null);
+  const tagButtonRef = useRef(null);
+  const [tagMenuPos, setTagMenuPos] = useState({ top: 0, left: 0 });
 
   const isEditMode = mode === "edit";
 
@@ -194,6 +197,31 @@ function RegisterModal({
   useEffect(() => {
     tagListRef.current = tagList;
   }, [tagList]);
+
+  // 태그 메뉴 위치 계산 (포털로 띄워 overflow에 가려지지 않도록)
+  useEffect(() => {
+    if (!tagOpen) return;
+    const update = () => {
+      const el = tagButtonRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const gap = 8;
+      const menuWidth = 300; // style과 동일한 기준 폭(px)
+      let left = rect.left;
+      if (left + menuWidth > window.innerWidth - 8) {
+        left = Math.max(8, window.innerWidth - menuWidth - 8);
+      }
+      const top = rect.bottom + gap;
+      setTagMenuPos({ top, left });
+    };
+    update();
+    window.addEventListener("scroll", update, true);
+    window.addEventListener("resize", update);
+    return () => {
+      window.removeEventListener("scroll", update, true);
+      window.removeEventListener("resize", update);
+    };
+  }, [tagOpen]);
 
   useEffect(() => {
     if (!open) return;
@@ -436,11 +464,11 @@ function RegisterModal({
                 </S.DateRow>
                 <S.ScheduleRow>
                   <S.TextInput>
-                    <S.TextArea
+                    <S.InputEl
+                      type="text"
                       placeholder="일정을 입력해 주세요!"
                       value={title}
                       maxLength={200}
-                      rows={2}
                       onChange={(e) => {
                         if (isManualReadOnly) return;
                         setTitle(e.target.value);
@@ -555,93 +583,103 @@ function RegisterModal({
                     </S.RepeatControlCard>
                   </S.RepeatWrap>
                 </S.ScheduleRow>
-                
-                <S.FormRow style={{ justifyContent: "space-between" }}>
-                  <div style={{ display: "flex", gap: "0.6vw", flexDirection: 'column', alignItems: 'flex-start' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6vw' }}>
+                <S.MetaRow>
+                  <S.MetaColumn>
+                    <S.MetaField>
                       <S.SmallChip>태그</S.SmallChip>
-                      <S.TagSelect>
-                      <S.TagButton
-                        onClick={() => {
-                          if (isManualReadOnly) return;
-                          setTagOpen((v) => !v);
-                          setAddingNewTag(false);
-                        }}
-                      >
-                          {tagList.find((t) => t.id === selectedTagId)?.name || '태그 설정하기'}
+                    <S.TagSelect>
+                        <S.TagButton
+                        ref={tagButtonRef}
+                          onClick={() => {
+                            if (isManualReadOnly) return;
+                            setTagOpen((v) => !v);
+                            setAddingNewTag(false);
+                          }}
+                        >
+                          {tagList.find((t) => t.id === selectedTagId)?.name || "태그 설정하기"}
                           <S.Caret />
                         </S.TagButton>
-                        {tagOpen && !isManualReadOnly && (
-                          <S.TagMenu>
-                          <S.TagMenuHeader>태그 설정하기</S.TagMenuHeader>
-                          {tagList.map((t) => (
-                            <S.TagRow key={t.id} onClick={() => { setSelectedTagId(t.id); setAddingNewTag(false); }}>
-                              <S.TagRowLeft>
-                                <S.Swatch $color={t.color} />
-                                {t.name}
-                              </S.TagRowLeft>
-                              <S.Radio $active={selectedTagId === t.id} />
-                            </S.TagRow>
-                          ))}
-                          {tagList.length < MAX_TAGS && (
-                            <S.TagAddRow
-                              onClick={() => {
-                                setAddingNewTag(true);
-                                setSelectedTagId("");
-                                setNewTagName("");
-                                setNewTagColor("#E3E8FF");
-                              }}
-                            >
-                              <S.TagRowLeft>
-                                <S.Swatch $color="#ffffff" />
-                                태그 추가하기
-                              </S.TagRowLeft>
-                              <S.Radio $active={false} />
-                            </S.TagAddRow>
-                          )}
-                          {addingNewTag && (
-                            <>
-                              <S.Palette>
-                                {COLOR_OPTIONS.map((c) => (
-                                  <S.ColorDot
-                                    key={c}
-                                    $color={c}
-                                    $active={newTagColor === c}
-                                    onClick={(e) => {
+                      {/* 기존 메뉴는 overflow 영향을 받으므로 포털로 띄움 */}
+                      {tagOpen && !isManualReadOnly && createPortal(
+                        <S.TagMenuFloating style={{ top: `${tagMenuPos.top}px`, left: `${tagMenuPos.left}px` }}>
+                            <S.TagMenuHeader>태그 설정하기</S.TagMenuHeader>
+                            {tagList.map((t) => (
+                              <S.TagRow
+                                key={t.id}
+                                onClick={() => {
+                                  setSelectedTagId(t.id);
+                                  setAddingNewTag(false);
+                                setTagOpen(false);
+                                }}
+                              >
+                                <S.TagRowLeft>
+                                  <S.Swatch $color={t.color} />
+                                  {t.name}
+                                </S.TagRowLeft>
+                                <S.Radio $active={selectedTagId === t.id} />
+                              </S.TagRow>
+                            ))}
+                            {tagList.length < MAX_TAGS && (
+                              <S.TagAddRow
+                                onClick={() => {
+                                  setAddingNewTag(true);
+                                  setSelectedTagId("");
+                                  setNewTagName("");
+                                  setNewTagColor("#E3E8FF");
+                                }}
+                              >
+                                <S.TagRowLeft>
+                                  <S.Swatch $color="#ffffff" />
+                                  태그 추가하기
+                                </S.TagRowLeft>
+                                <S.Radio $active={false} />
+                              </S.TagAddRow>
+                            )}
+                            {addingNewTag && (
+                              <>
+                                <S.Palette>
+                                  {COLOR_OPTIONS.map((c) => (
+                                    <S.ColorDot
+                                      key={c}
+                                      $color={c}
+                                      $active={newTagColor === c}
+                                      onClick={(e) => {
                                       e.stopPropagation();
-                                      setNewTagColor(c);
-                                    }}
-                                  />
-                                ))}
-                              </S.Palette>
-                              <S.TagNameRow>
-                                <S.SmallInput style={{ width: '100%' }}>
-                                <S.InputEl
-                                    type="text"
-                                    placeholder="태그를 입력해주세요."
-                                    value={newTagName}
-                                    onChange={(e) => setNewTagName(e.target.value)}
-                                    onKeyDown={(e) => {
-                                      if (e.key === 'Enter') {
-                                        const name = newTagName.trim();
-                                        if (!name) return;
-                                        const newId = `t${Date.now()}`;
-                                        setTagList([...tagList, { id: newId, name, color: newTagColor }]);
-                                        setSelectedTagId(newId);
-                                        setNewTagName("");
-                                        setAddingNewTag(false);
-                                      }
-                                    }}
-                                  />
-                                </S.SmallInput>
-                              </S.TagNameRow>
-                            </>
-                          )}
-                          </S.TagMenu>
-                        )}
+                                        setNewTagColor(c);
+                                      }}
+                                    />
+                                  ))}
+                                </S.Palette>
+                                <S.TagNameRow>
+                                  <S.SmallInput style={{ width: "100%" }}>
+                                    <S.InputEl
+                                      type="text"
+                                      placeholder="태그를 입력해주세요."
+                                      value={newTagName}
+                                      onChange={(e) => setNewTagName(e.target.value)}
+                                      onKeyDown={(e) => {
+                                        if (e.key === "Enter") {
+                                          const name = newTagName.trim();
+                                          if (!name) return;
+                                          const newId = `t${Date.now()}`;
+                                          setTagList([...tagList, { id: newId, name, color: newTagColor }]);
+                                          setSelectedTagId(newId);
+                                          setNewTagName("");
+                                          setAddingNewTag(false);
+                                        setTagOpen(false);
+                                        }
+                                      }}
+                                    />
+                                  </S.SmallInput>
+                                </S.TagNameRow>
+                              </>
+                            )}
+                        </S.TagMenuFloating>,
+                        document.body
+                      )}
                       </S.TagSelect>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6vw' }}>
+                    </S.MetaField>
+                    <S.MetaField>
                       <S.SmallChip>장소</S.SmallChip>
                       <S.SmallInput>
                         <S.InputEl
@@ -655,41 +693,35 @@ function RegisterModal({
                           disabled={isManualReadOnly}
                         />
                       </S.SmallInput>
-                    </div>
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.6vw', width: '100%' }}>
-                    <S.TimeWrap>
-                      <S.TimeCol>
-                        <S.InlineRow>
-                          <S.Label>시작</S.Label>
-                          <S.TimeEl
-                            type="time"
-                            value={startTime}
-                            onChange={(e) => {
-                              if (isManualReadOnly) return;
-                              setStartTime(e.target.value);
-                            }}
-                            disabled={allDay || isManualReadOnly}
-                          />
-                        </S.InlineRow>
-                      </S.TimeCol>
-                      <S.TimeCol>
-                        <S.InlineRow>
-                          <S.Label>종료</S.Label>
-                          <S.TimeEl
-                            type="time"
-                            value={endTime}
-                            onChange={(e) => {
-                              if (isManualReadOnly) return;
-                              setEndTime(e.target.value);
-                            }}
-                            disabled={allDay || isManualReadOnly}
-                          />
-                        </S.InlineRow>
-                      </S.TimeCol>
-                    </S.TimeWrap>
-                  </div>
-                </S.FormRow>
+                    </S.MetaField>
+                  </S.MetaColumn>
+                  <S.MetaColumn>
+                    <S.MetaField>
+                      <S.TimeChip>시작하는 시간</S.TimeChip>
+                      <S.TimeEl
+                        type="time"
+                        value={startTime}
+                        onChange={(e) => {
+                          if (isManualReadOnly) return;
+                          setStartTime(e.target.value);
+                        }}
+                        disabled={allDay || isManualReadOnly}
+                      />
+                    </S.MetaField>
+                    <S.MetaField>
+                      <S.TimeChip>끝나는 시간</S.TimeChip>
+                      <S.TimeEl
+                        type="time"
+                        value={endTime}
+                        onChange={(e) => {
+                          if (isManualReadOnly) return;
+                          setEndTime(e.target.value);
+                        }}
+                        disabled={allDay || isManualReadOnly}
+                      />
+                    </S.MetaField>
+                  </S.MetaColumn>
+                </S.MetaRow>
                 <S.ActionsRow $single={isManualReadOnly && !isEditMode}>
                   {showSecondaryButton && (
                     <S.WideButton onClick={handleSecondaryAction}>

@@ -8,7 +8,7 @@ import SETTING from "@/assets/main/setting.svg";
 import EDIT from "@/assets/main/tagedit.svg";
 import EDITING from "@/assets/main/tagediting.svg";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ColorChip from "../../../components/colorchip/ColorChip";
 
 const days = [
@@ -21,7 +21,13 @@ const days = [
   "토요일",
 ];
 
-const MainLeftSection = ({ setSelectedTag, selectedTag }) => {
+const MainLeftSection = ({
+  tags,
+  setTags,
+  setSelectedTag,
+  selectedTag,
+  onRenameTag,
+}) => {
   const [isSettingActive, setIsSettingActive] = useState(false);
   const [isEditActive, setIsEditActive] = useState(null);
   const [activeColorTag, setActiveColorTag] = useState(null);
@@ -41,17 +47,21 @@ const MainLeftSection = ({ setSelectedTag, selectedTag }) => {
   const date = today.getDate();
   const day = days[today.getDay()];
 
-  const [tags, setTags] = useState([
-    { id: 1, color: "#A0D4FF" },
-    { id: 2, color: "#FFEBB5" },
-    { id: 3, color: "#D9C9FF" },
-  ]);
+  useEffect(() => {
+    if (isEditActive === null) {
+      setActiveColorTag(null);
+    }
+  }, [isEditActive]);
 
   const handleTagChange = (id, value) => {
-    setEditedTags((prev) => ({
-      ...prev,
-      [id]: value,
-    }));
+    const oldName = tags.find((t) => t.id === id)?.name;
+    setEditedTags((prev) => ({ ...prev, [id]: value }));
+
+    setTags((prev) =>
+      prev.map((tag) => (tag.id === id ? { ...tag, name: value } : tag))
+    );
+
+    onRenameTag?.(oldName, value);
   };
 
   const handleCheckClick = (tag) => {
@@ -59,6 +69,7 @@ const MainLeftSection = ({ setSelectedTag, selectedTag }) => {
       setActiveColorTag((prev) => (prev === tag.id ? null : tag.id));
     } else {
       setSelectedTagId((prev) => (prev === tag.id ? null : tag.id));
+      setSelectedTag((prev) => (prev === tag.name ? null : tag.name));
     }
   };
 
@@ -98,7 +109,9 @@ const MainLeftSection = ({ setSelectedTag, selectedTag }) => {
               <S.TodoList key={tag.id}>
                 <S.TodoContainer>
                   <S.CheckBox
-                    $isSelected={selectedTagId === tag.id}
+                    $isSelected={
+                      selectedTagId === null || selectedTagId === tag.id
+                    }
                     $color={tag.color}
                     onClick={() => handleCheckClick(tag)}
                   />
@@ -111,7 +124,6 @@ const MainLeftSection = ({ setSelectedTag, selectedTag }) => {
                               t.id === tag.id ? { ...t, color } : t
                             )
                           );
-                          setActiveColorTag(null);
                         }}
                       />
                     </S.ColorChipWrapper>
