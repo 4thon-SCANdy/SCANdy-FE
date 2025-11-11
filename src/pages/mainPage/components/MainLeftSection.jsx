@@ -10,6 +10,7 @@ import EDITING from "@/assets/main/tagediting.svg";
 
 import { useEffect, useState } from "react";
 import ColorChip from "../../../components/colorchip/ColorChip";
+import tagGetApi from "@/apis/tag/tagGetApi";
 import tagEditApi from "../../../apis/tag/tagEditApi";
 
 const days = [
@@ -34,6 +35,7 @@ const MainLeftSection = ({
   const [activeColorTag, setActiveColorTag] = useState(null);
 
   const [selectedTagId, setSelectedTagId] = useState(null);
+  const [editedTags, setEditedTags] = useState({});
 
   const today = new Date();
 
@@ -48,141 +50,140 @@ const MainLeftSection = ({
     }
   }, [isEditActive]);
 
-  const handleTagEdit = async (id, newName) => {
-    // tags가 변경될 때(새 태그 추가 등) 표시명이 비어 보이지 않도록 동기화
-    useEffect(() => {
-      setEditedTags((prev) => {
-        const next = { ...prev };
-        tags.forEach((t) => {
-          if (!next[t.id]) next[t.id] = t.name || "";
-        });
-        // 기존에 사라진 태그 키는 유지해도 무방; 제거하고 싶다면 아래 주석 해제
-        // Object.keys(next).forEach((k) => {
-        //   if (!tags.some((t) => String(t.id) === String(k))) delete next[k];
-        // });
-        return next;
-      });
-    }, [tags]);
+  const handleTagChange = async (id, newName) => {
+    const isDefault = String(id).startsWith("default-");
+    setEditedTags((prev) => ({ ...prev, [id]: newName }));
 
-    const handleTagChange = async (id, value) => {
-      const oldName = tags.find((t) => t.id === id)?.name;
-      setTags((prev) =>
-        prev.map((tag) => (tag.id === id ? { ...tag, name: newName } : tag))
-      );
-      onRenameTag?.(oldName, newName);
-
-      // 디폴트 태그는 수정 요청 안 보냄
-      if (typeof id !== "number") {
-        console.log("로컬 기본 태그 수정 (API 호출 안 함)");
-        return;
-      }
-
-      try {
-        const tag = tags.find((t) => t.id === id);
-        const res = await tagEditApi(id, newName, tag.color, 13);
-        console.log("태그 수정 성공:", res.detail);
-      } catch (error) {
-        console.error("태그 수정 실패:", error);
-      }
-    };
-
-    const handleCheckClick = (tag) => {
-      if (isEditActive === tag.id) {
-        setActiveColorTag((prev) => (prev === tag.id ? null : tag.id));
-      } else {
-        setSelectedTagId((prev) => (prev === tag.id ? null : tag.id));
-        setSelectedTag((prev) => (prev === tag.name ? null : tag.name));
-      }
-    };
-
-    return (
-      <>
-        <S.LeftSectionContainer>
-          <S.Logo src={LOGO} />
-
-          <S.DateBox>
-            <S.DateTop>
-              <S.DateTitle>오늘 날짜</S.DateTitle>
-            </S.DateTop>
-            <S.DateBottom>
-              <S.YearText>{year}년</S.YearText>
-              <S.TodayBox>
-                <S.TodayText>{month}월</S.TodayText>
-                <S.TodayText>{date}일</S.TodayText>
-                <S.Line src={LINE} />
-                <S.TodayText>{day}</S.TodayText>
-              </S.TodayBox>
-            </S.DateBottom>
-          </S.DateBox>
-
-          <MiniCalendar />
-
-          <S.TagBox>
-            <S.TagHeader>
-              <S.TagTop>
-                <S.TagTitle>내 태그</S.TagTitle>
-              </S.TagTop>
-              <S.SettingBox onClick={() => setIsSettingActive((prev) => !prev)}>
-                <S.SettingIcon src={SETTING} />
-              </S.SettingBox>
-            </S.TagHeader>
-            <S.TagBottom>
-              {tags.map((tag) => (
-                <S.TodoList key={tag.id}>
-                  <S.TodoContainer>
-                    <S.CheckBox
-                      $isSelected={
-                        selectedTagId === null || selectedTagId === tag.id
-                      }
-                      $color={tag.color}
-                      onClick={() => handleCheckClick(tag)}
-                    />
-                    {activeColorTag === tag.id && (
-                      <S.ColorChipWrapper>
-                        <ColorChip
-                          onSelect={(color) => {
-                            setTags((prev) =>
-                              prev.map((t) =>
-                                t.id === tag.id ? { ...t, color } : t
-                              )
-                            );
-                          }}
-                        />
-                      </S.ColorChipWrapper>
-                    )}
-
-                    {isEditActive === tag.id ? (
-                      <S.EditInput
-                        type="text"
-                        value={tag.name}
-                        autoFocus
-                        onChange={(e) => handleTagEdit(tag.id, e.target.value)}
-                        onKeyDown={(e) =>
-                          e.key === "Enter" && setIsEditActive(null)
-                        }
-                      />
-                    ) : (
-                      <S.TodoText>{tag.name}</S.TodoText>
-                    )}
-                  </S.TodoContainer>
-                  {isSettingActive && (
-                    <S.TagEdit
-                      src={isEditActive === tag.id ? EDITING : EDIT}
-                      onClick={() =>
-                        setIsEditActive((prev) =>
-                          prev === tag.id ? null : tag.id
-                        )
-                      }
-                    />
-                  )}
-                </S.TodoList>
-              ))}
-            </S.TagBottom>
-          </S.TagBox>
-        </S.LeftSectionContainer>
-      </>
+    const oldName = tags.find((t) => t.id === id)?.name;
+    setTags((prev) =>
+      prev.map((tag) => (tag.id === id ? { ...tag, name: newName } : tag))
     );
+    onRenameTag?.(oldName, newName);
+
+    if (isDefault) {
+      console.log("기본 태그 수정: ", newName);
+      return;
+    }
+
+    try {
+      const tag = tags.find((t) => t.id === id);
+      const res = await tagEditApi(id, newName, tag.color, 13);
+      console.log("태그 수정 성공: ", res.detail);
+    } catch (error) {
+      console.error("태그 수정 실패: ", error);
+    }
   };
+
+  useEffect(() => {
+    setEditedTags((prev) => {
+      const next = { ...prev };
+      tags.forEach((t) => {
+        if (!next[t.id]) next[t.id] = t.name || "";
+      });
+      // 기존에 사라진 태그 키는 유지해도 무방; 제거하고 싶다면 아래 주석 해제
+      // Object.keys(next).forEach((k) => {
+      //   if (!tags.some((t) => String(t.id) === String(k))) delete next[k];
+      // });
+      return next;
+    });
+  }, [tags]);
+
+  const handleCheckClick = (tag) => {
+    if (isEditActive === tag.id) {
+      setActiveColorTag((prev) => (prev === tag.id ? null : tag.id));
+    } else {
+      setSelectedTagId((prev) => (prev === tag.id ? null : tag.id));
+      setSelectedTag((prev) => (prev === tag.name ? null : tag.name));
+    }
+  };
+
+  return (
+    <>
+      <S.LeftSectionContainer>
+        <S.Logo src={LOGO} />
+
+        <S.DateBox>
+          <S.DateTop>
+            <S.DateTitle>오늘 날짜</S.DateTitle>
+          </S.DateTop>
+          <S.DateBottom>
+            <S.YearText>{year}년</S.YearText>
+            <S.TodayBox>
+              <S.TodayText>{month}월</S.TodayText>
+              <S.TodayText>{date}일</S.TodayText>
+              <S.Line src={LINE} />
+              <S.TodayText>{day}</S.TodayText>
+            </S.TodayBox>
+          </S.DateBottom>
+        </S.DateBox>
+
+        <MiniCalendar />
+
+        <S.TagBox>
+          <S.TagHeader>
+            <S.TagTop>
+              <S.TagTitle>내 태그</S.TagTitle>
+            </S.TagTop>
+            <S.SettingBox onClick={() => setIsSettingActive((prev) => !prev)}>
+              <S.SettingIcon src={SETTING} />
+            </S.SettingBox>
+          </S.TagHeader>
+          <S.TagBottom>
+            {tags.map((tag) => (
+              <S.TodoList key={tag.id}>
+                <S.TodoContainer>
+                  <S.CheckBox
+                    $isSelected={
+                      selectedTagId === null || selectedTagId === tag.id
+                    }
+                    $color={tag.color}
+                    onClick={() => handleCheckClick(tag)}
+                  />
+                  {activeColorTag === tag.id && (
+                    <S.ColorChipWrapper>
+                      <ColorChip
+                        onSelect={(color) => {
+                          setTags((prev) =>
+                            prev.map((t) =>
+                              t.id === tag.id ? { ...t, color } : t
+                            )
+                          );
+                        }}
+                      />
+                    </S.ColorChipWrapper>
+                  )}
+
+                  {isEditActive === tag.id ? (
+                    <S.EditInput
+                      type="text"
+                      value={editedTags[tag.id]}
+                      autoFocus
+                      onChange={(e) => handleTagChange(tag.id, e.target.value)}
+                      onKeyDown={(e) =>
+                        e.key === "Enter" && setIsEditActive(null)
+                      }
+                    />
+                  ) : (
+                    <S.TodoText>{tag.name}</S.TodoText>
+                  )}
+                </S.TodoContainer>
+                {isSettingActive && (
+                  <S.TagEdit
+                    src={isEditActive === tag.id ? EDITING : EDIT}
+                    onClick={() =>
+                      setIsEditActive((prev) =>
+                        prev === tag.id ? null : tag.id
+                      )
+                    }
+                  />
+                )}
+              </S.TodoList>
+            ))}
+          </S.TagBottom>
+        </S.TagBox>
+      </S.LeftSectionContainer>
+    </>
+  );
 };
 
 export default MainLeftSection;

@@ -204,10 +204,22 @@ const MainPage = () => {
             let curStart = new Date(start0);
             let curEnd = new Date(end0);
             while (curStart <= until) {
-              acc = acc.concat(addRange(
-                `${curStart.getFullYear()}-${String(curStart.getMonth() + 1).padStart(2, "0")}-${String(curStart.getDate()).padStart(2, "0")}`,
-                `${curEnd.getFullYear()}-${String(curEnd.getMonth() + 1).padStart(2, "0")}-${String(curEnd.getDate()).padStart(2, "0")}`
-              ));
+              acc = acc.concat(
+                addRange(
+                  `${curStart.getFullYear()}-${String(
+                    curStart.getMonth() + 1
+                  ).padStart(2, "0")}-${String(curStart.getDate()).padStart(
+                    2,
+                    "0"
+                  )}`,
+                  `${curEnd.getFullYear()}-${String(
+                    curEnd.getMonth() + 1
+                  ).padStart(2, "0")}-${String(curEnd.getDate()).padStart(
+                    2,
+                    "0"
+                  )}`
+                )
+              );
               curStart.setDate(curStart.getDate() + 7);
               curEnd.setDate(curEnd.getDate() + 7);
             }
