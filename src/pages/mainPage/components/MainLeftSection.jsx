@@ -10,6 +10,7 @@ import EDITING from "@/assets/main/tagediting.svg";
 
 import { useEffect, useState } from "react";
 import ColorChip from "../../../components/colorchip/ColorChip";
+import tagGetApi from "@/apis/tag/tagGetApi";
 import tagEditApi from "../../../apis/tag/tagEditApi";
 
 const days = [
@@ -34,13 +35,8 @@ const MainLeftSection = ({
   const [activeColorTag, setActiveColorTag] = useState(null);
 
   const [selectedTagId, setSelectedTagId] = useState(null);
-
-  const [editedTags, setEditedTags] = useState({
-    1: "개인 일정",
-    2: "회의",
-    3: "프로젝트",
-  });
-
+  const [editedTags, setEditedTags] = useState({});
+  
   const today = new Date();
 
   const year = today.getFullYear();
@@ -53,6 +49,30 @@ const MainLeftSection = ({
       setActiveColorTag(null);
     }
   }, [isEditActive]);
+
+  const handleTagChange = async (id, newName) => {
+    const isDefault = String(id).startsWith("default-");
+    setEditedTags((prev) => ({ ...prev, [id]: newName }));
+
+    const oldName = tags.find((t) => t.id === id)?.name;
+    setTags((prev) =>
+      prev.map((tag) => (tag.id === id ? { ...tag, name: newName } : tag))
+    );
+    onRenameTag?.(oldName, newName);
+
+    if (isDefault) {
+      console.log("기본 태그 수정: ", newName);
+      return;
+    }
+
+    try {
+      const tag = tags.find((t) => t.id === id);
+      const res = await tagEditApi(id, newName, tag.color, 13);
+      console.log("태그 수정 성공: ", res.detail);
+    } catch (error) {
+      console.error("태그 수정 실패: ", error);
+    }
+  };
 
   // tags가 변경될 때(새 태그 추가 등) 표시명이 비어 보이지 않도록 동기화
   useEffect(() => {
@@ -68,24 +88,6 @@ const MainLeftSection = ({
       return next;
     });
   }, [tags]);
- 
-  const handleTagChange = async (id, value) => {
-    const oldName = tags.find((t) => t.id === id)?.name;
-    setEditedTags((prev) => ({ ...prev, [id]: value }));
-    setTags((prev) =>
-      prev.map((tag) => (tag.id === id ? { ...tag, name: value } : tag))
-    );
-    onRenameTag?.(oldName, value);
-
-    try {
-      const color = tags.find((t) => t.id === id)?.color;
-      const calendar = 13;
-      const res = await tagEditApi(id, value, color, calendar);
-      console.log("태그 수정 성공: ", res.detail);
-    } catch (error) {
-      console.error("태그 수정 실패: ", error);
-    }
-  };
 
   const handleCheckClick = (tag) => {
     if (isEditActive === tag.id) {
@@ -163,7 +165,8 @@ const MainLeftSection = ({
                       }
                     />
                   ) : (
-                    <S.TodoText>{editedTags[tag.id]}</S.TodoText>
+                    <S.TodoText>{editedTags[tag.id] || tag.name}</S.TodoText>
+
                   )}
                 </S.TodoContainer>
                 {isSettingActive && (
