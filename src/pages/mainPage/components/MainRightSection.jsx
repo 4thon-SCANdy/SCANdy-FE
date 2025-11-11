@@ -6,7 +6,7 @@ import PlanTag from "./PlanTag";
 
 const MainRightSection = ({
   tags,
-  schedules,
+  schedules = [],
   selectedTag,
   onOpenGoogle,
   isGoogleSynced,
