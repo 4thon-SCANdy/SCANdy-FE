@@ -15,6 +15,7 @@ const MainPage = () => {
   const location = useLocation();
   const [selectedTag, setSelectedTag] = useState(null);
   const [registerOpen, setRegisterOpen] = useState(false);
+  const [registerDate, setRegisterDate] = useState(null);
   const [googleModalOpen, setGoogleModalOpen] = useState(false);
 
   const [isGoogleSynced, setIsGoogleSynced] = useState(false);
@@ -105,7 +106,10 @@ const MainPage = () => {
           tags={tags}
           schedules={schedules}
           selectedTag={selectedTag}
-          onOpenRegister={() => setRegisterOpen(true)}
+          onOpenRegister={(date) => {
+            setRegisterDate(date);
+            setRegisterOpen(true);
+          }}
         />
         <MainRightSection
           tags={tags}
@@ -118,9 +122,79 @@ const MainPage = () => {
       <RegisterModal
         open={registerOpen}
         onClose={() => setRegisterOpen(false)}
+        initialDate={registerDate}
         onCreated={(newItem) => {
-          // 메인 캘린더에 즉시 반영
-          setSchedules((prev) => [...prev, newItem]);
+          // 태그 존재 보장
+          if (newItem?.tag && !tags.some((t) => t.name === newItem.tag)) {
+            setTags((prev) => [
+              ...prev,
+              { id: Date.now(), name: newItem.tag, color: "#A0D4FF" },
+            ]);
+          }
+          // 날짜/반복 규칙에 따라 범위 확장
+          const addRange = (s, e) => {
+            const start = new Date(s);
+            const end = new Date(e || s);
+            const days = [];
+            const cur = new Date(start);
+            while (cur <= end) {
+              const y = cur.getFullYear();
+              const m = String(cur.getMonth() + 1).padStart(2, "0");
+              const d = String(cur.getDate()).padStart(2, "0");
+              days.push(`${y}-${m}-${d}`);
+              cur.setDate(cur.getDate() + 1);
+            }
+            return days.map((date) => ({
+              id: `${newItem.id}-${date}`,
+              date,
+              tag: newItem.tag,
+              title: newItem.title,
+            }));
+          };
+
+          const baseStart = newItem.startDate || newItem.date;
+          const baseEnd = newItem.endDate || newItem.startDate || newItem.date;
+          const repeat = newItem.repeat || "NONE";
+          const until = newItem.until ? new Date(newItem.until) : null;
+
+          let acc = [];
+          if (repeat === "NONE" || !until) {
+            acc = addRange(baseStart, baseEnd);
+          } else if (repeat === "DAILY") {
+            // 매일: 시작일부터 until일까지 매일 동일 태그 표시
+            const cur = new Date(baseStart);
+            while (cur <= until) {
+              const y = cur.getFullYear();
+              const m = String(cur.getMonth() + 1).padStart(2, "0");
+              const d = String(cur.getDate()).padStart(2, "0");
+              acc.push({
+                id: `${newItem.id}-${y}${m}${d}`,
+                date: `${y}-${m}-${d}`,
+                tag: newItem.tag,
+                title: newItem.title,
+              });
+              cur.setDate(cur.getDate() + 1);
+            }
+          } else if (repeat === "WEEKLY") {
+            // 매주: (시작~끝) 구간을 1주 간격으로 until까지 반복
+            const start0 = new Date(baseStart);
+            const end0 = new Date(baseEnd);
+            let curStart = new Date(start0);
+            let curEnd = new Date(end0);
+            while (curStart <= until) {
+              acc = acc.concat(addRange(
+                `${curStart.getFullYear()}-${String(curStart.getMonth() + 1).padStart(2, "0")}-${String(curStart.getDate()).padStart(2, "0")}`,
+                `${curEnd.getFullYear()}-${String(curEnd.getMonth() + 1).padStart(2, "0")}-${String(curEnd.getDate()).padStart(2, "0")}`
+              ));
+              curStart.setDate(curStart.getDate() + 7);
+              curEnd.setDate(curEnd.getDate() + 7);
+            }
+          } else {
+            // 다른 주기(MONTHLY/YEARLY)는 아직 미지원: 단일 구간만 표시
+            acc = addRange(baseStart, baseEnd);
+          }
+
+          setSchedules((prev) => [...prev, ...acc]);
           setRegisterOpen(false);
         }}
       />

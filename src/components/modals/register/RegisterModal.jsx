@@ -15,6 +15,7 @@ function RegisterModal({
   onClose,
   onOpenAI,
   onOpenManual,
+  initialDate,
   onCreated, // 생성 성공 시 상위로 알림
   editSchedule = null,
   onSaveEdit,
@@ -330,6 +331,7 @@ function RegisterModal({
           const body = res?.data || res; // 두 응답 포맷 대응
           const id = body?.id ?? res?.id;
           const startISO = body?.start_datetime ?? payload.start_datetime;
+          const endISO = body?.end_datetime ?? payload.end_datetime;
           const dateKey = (startISO || "").slice(0, 10);
           const tagName =
             body?.tag?.name ??
@@ -338,8 +340,12 @@ function RegisterModal({
           onCreated?.({
             id: id || Date.now(),
             date: dateKey,
+            startDate: (startISO || "").slice(0,10),
+            endDate: (endISO || "").slice(0,10),
             tag: tagName,
             title: payload.title,
+            repeat: payload.repeat,
+            until: (payload.until || "")?.slice?.(0,10) || null,
           });
         } catch {}
         console.log("createEventApi success");
@@ -363,8 +369,12 @@ function RegisterModal({
             onCreated?.({
               id: Date.now(),
               date: dateKey,
+              startDate: form.startDate,
+              endDate: form.endDate || form.startDate,
               tag: pickedTag.name,
               title: form.title || "제목 없음",
+              repeat: form.repeatOn ? (form.repeatType === "weekly" ? "WEEKLY" : "DAILY") : "NONE",
+              until: form.repeatOn && form.repeatEnd ? form.repeatEnd : null,
             });
             onClose?.();
           } catch {}
@@ -444,6 +454,17 @@ function RegisterModal({
                     setMode("create");
                     setCurrentEdit(null);
                     resetForm();
+                    // 달력에서 클릭한 날짜가 있으면 기본값으로 세팅
+                    try {
+                      if (initialDate instanceof Date && !Number.isNaN(initialDate.valueOf())) {
+                        const y = initialDate.getFullYear();
+                        const m = String(initialDate.getMonth() + 1).padStart(2, "0");
+                        const d = String(initialDate.getDate()).padStart(2, "0");
+                        const dateStr = `${y}-${m}-${d}`;
+                        setStartDate(dateStr);
+                        setEndDate(dateStr);
+                      }
+                    } catch {}
                     setView("manual");
                   }}
                 >
