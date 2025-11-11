@@ -13,6 +13,7 @@ const MainPage = () => {
   const location = useLocation();
   const [selectedTag, setSelectedTag] = useState(null);
   const [registerOpen, setRegisterOpen] = useState(false);
+  const [registerDate, setRegisterDate] = useState(null);
   const [googleModalOpen, setGoogleModalOpen] = useState(false);
 
   const [isGoogleSynced, setIsGoogleSynced] = useState(false);
@@ -80,7 +81,10 @@ const MainPage = () => {
           tags={tags}
           schedules={schedules}
           selectedTag={selectedTag}
-          onOpenRegister={() => setRegisterOpen(true)}
+          onOpenRegister={(date) => {
+            setRegisterDate(date);
+            setRegisterOpen(true);
+          }}
         />
         <MainRightSection
           tags={tags}
@@ -93,9 +97,33 @@ const MainPage = () => {
       <RegisterModal
         open={registerOpen}
         onClose={() => setRegisterOpen(false)}
+        initialDate={registerDate}
         onCreated={(newItem) => {
-          // 메인 캘린더에 즉시 반영
-          setSchedules((prev) => [...prev, newItem]);
+          // 태그 존재 보장
+          if (newItem?.tag && !tags.some((t) => t.name === newItem.tag)) {
+            setTags((prev) => [
+              ...prev,
+              { id: Date.now(), name: newItem.tag, color: "#A0D4FF" },
+            ]);
+          }
+          // 날짜 범위 전체 반영
+          const start = new Date(newItem.startDate || newItem.date);
+          const end = new Date(newItem.endDate || newItem.startDate || newItem.date);
+          const acc = [];
+          const cur = new Date(start);
+          while (cur <= end) {
+            const y = cur.getFullYear();
+            const m = String(cur.getMonth() + 1).padStart(2, "0");
+            const d = String(cur.getDate()).padStart(2, "0");
+            acc.push({
+              id: `${newItem.id}-${y}${m}${d}`,
+              date: `${y}-${m}-${d}`,
+              tag: newItem.tag,
+              title: newItem.title,
+            });
+            cur.setDate(cur.getDate() + 1);
+          }
+          setSchedules((prev) => [...prev, ...acc]);
           setRegisterOpen(false);
         }}
       />
