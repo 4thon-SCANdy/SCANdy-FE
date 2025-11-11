@@ -10,7 +10,6 @@ import EDITING from "@/assets/main/tagediting.svg";
 
 import { useEffect, useState } from "react";
 import ColorChip from "../../../components/colorchip/ColorChip";
-import tagGetApi from "@/apis/tag/tagGetApi";
 import tagEditApi from "../../../apis/tag/tagEditApi";
 
 const days = [
@@ -36,7 +35,9 @@ const MainLeftSection = ({
 
   const [selectedTagId, setSelectedTagId] = useState(null);
   const [editedTags, setEditedTags] = useState({});
-  
+
+  const USER_ID = sessionStorage.getItem("user_id");
+
   const today = new Date();
 
   const year = today.getFullYear();
@@ -67,7 +68,7 @@ const MainLeftSection = ({
 
     try {
       const tag = tags.find((t) => t.id === id);
-      const res = await tagEditApi(id, newName, tag.color, 13);
+      const res = await tagEditApi(id, newName, tag.color, USER_ID);
       console.log("태그 수정 성공: ", res.detail);
     } catch (error) {
       console.error("태그 수정 실패: ", error);
@@ -166,7 +167,6 @@ const MainLeftSection = ({
                     />
                   ) : (
                     <S.TodoText>{editedTags[tag.id] || tag.name}</S.TodoText>
-
                   )}
                 </S.TodoContainer>
                 {isSettingActive && (
