@@ -1,7 +1,22 @@
 import React from "react";
 import * as S from "./styles/ModalBase.style";
 
-function ModalBase({ open, title, onClose, widthPx = 1040, heightPx = 640, children, footer, hideHeader = false, closeOnOverlayClick = false, centerBody = false, noBodyPadding = false, noScroll = false }) {
+function ModalBase({
+  open,
+  title,
+  onClose,
+  widthPx = 1040,
+  heightPx = 640,
+  children,
+  footer,
+  hideHeader = false,
+  closeOnOverlayClick = false,
+  centerBody = false,
+  noBodyPadding = false,
+  noScroll = false,
+  containerBg,
+  containerShadow,
+}) {
   if (!open) return null;
 
   return (
@@ -13,6 +28,8 @@ function ModalBase({ open, title, onClose, widthPx = 1040, heightPx = 640, child
       <S.Container
         $widthPx={widthPx}
         $heightPx={heightPx}
+        $background={containerBg}
+        $boxShadow={containerShadow}
         onClick={(e) => e.stopPropagation()}
       >
         {hideHeader ? null : (

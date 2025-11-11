@@ -136,9 +136,9 @@ export const Segmented = styled.div`
 export const SegBtn = styled.button`
   flex: 1;
   height: 100%;
-  border: none;
+  border: ${vw(5)} solid #B4BFFF; /* default (unselected) */
   border-radius: ${vw(28)};
-  background: transparent;
+  background: #F4F6FF;            /* default (unselected) */
   color: #7480f2;
   font-weight: 800;
   font-size: ${vw(18)};
@@ -169,15 +169,10 @@ export const SegBtn = styled.button`
   }
 
   &.active {
-    background: linear-gradient(
-      180deg,
-      rgba(138, 153, 255, 0.4) 0%,
-      rgba(116, 131, 255, 0.55) 100%
-    );
+    background: transparent;
+    border-color: transparent;
     color: #4f5bf5;
-    box-shadow:
-      inset 0 0 0 ${vw(2)} rgba(122, 135, 245, 0.5),
-      0 ${vw(4)} ${vw(12)} rgba(122, 135, 245, 0.25);
+    box-shadow: none;
     img {
       filter: brightness(1.1);
     }
@@ -285,14 +280,15 @@ export const MainCol = styled.div`
 
 export const TitlePill = styled.div`
   height: ${vw(56)};
-  border-radius: ${vw(16)};
+  border-radius: ${vw(28)};
   border: ${vw(2)} solid #b4bfff;
-  background: #fff;
-  color: #7e8df5;
+  background: linear-gradient(180deg, #f5f7ff 0%, #eef1ff 100%);
+  color: #6e79f2;
   font-weight: 800;
   display: flex;
   align-items: center;
   padding: 0 ${vw(16)};
+  box-shadow: inset 0 ${vw(2)} ${vw(6)} rgba(126, 141, 245, 0.15);
 `;
 
 export const TagRow = styled.div`
@@ -324,11 +320,20 @@ export const SmallBtn = styled.button`
   height: ${vw(36)};
   border-radius: ${vw(18)};
   border: ${vw(2)} solid #7e8df5;
-  background: #ffffff;
+  background: linear-gradient(
+    180deg,
+    rgba(126, 141, 245, 0.12) 0%,
+    rgba(126, 141, 245, 0.06) 100%
+  );
   color: #7e8df5;
   font-weight: 800;
   padding: 0 ${vw(12)};
   min-width: ${vw(120)};
+  transition: filter 0.2s ease, box-shadow 0.2s ease;
+  &:hover {
+    filter: brightness(1.02);
+    box-shadow: 0 ${vw(2)} ${vw(8)} rgba(126, 141, 245, 0.15);
+  }
 `;
 
 export const SecondaryBtn = styled(SmallBtn)`

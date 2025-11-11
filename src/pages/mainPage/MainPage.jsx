@@ -93,6 +93,11 @@ const MainPage = () => {
       <RegisterModal
         open={registerOpen}
         onClose={() => setRegisterOpen(false)}
+        onCreated={(newItem) => {
+          // 메인 캘린더에 즉시 반영
+          setSchedules((prev) => [...prev, newItem]);
+          setRegisterOpen(false);
+        }}
       />
 
       {modalInfo.open && (
@@ -102,10 +107,10 @@ const MainPage = () => {
           onClose={() => {
             setModalInfo({ open: false, type: "success", email: "" });
 
-            // 실패 시 로그인 페이지로 리다이렉트
-            if (modalInfo.type === "fail") {
-              window.location.href = "/login";
-            }
+            // // 실패 시 로그인 페이지로 리다이렉트
+            // if (modalInfo.type === "fail") {
+            //   window.location.href = "/login";
+            // }
           }}
         />
       )}

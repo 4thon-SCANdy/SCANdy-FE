@@ -8,12 +8,14 @@ import DIRECT_PREVIEW from "@/assets/modal/Direct.svg";
 import UPLOAD_ICON from "@/assets/modal/img.svg";
 import REPEAT_ICON from "@/assets/modal/repeat.svg";
 import ALLDAY_ICON from "@/assets/modal/allday.svg";
+import { createEventApi } from "@/apis/calendar/createEventApi";
 
 function RegisterModal({
   open,
   onClose,
   onOpenAI,
   onOpenManual,
+  onCreated, // 생성 성공 시 상위로 알림
   editSchedule = null,
   onSaveEdit,
   onDeleteEdit,
@@ -274,13 +276,101 @@ function RegisterModal({
       : "직접 일정 등록하기"
     : "";
 
-  const handlePrimaryAction = () => {
+  const handlePrimaryAction = async () => {
     if (isEditMode) {
       onSaveEdit?.(collectFormData());
       return;
     }
     if (isManualReadOnly) {
-      onOpenManual?.();
+      // 최종 확인 단계에서 서버로 등록 요청
+      try {
+        const form = collectFormData();
+        const toISO = (d, t) => {
+          if (!d) return "";
+          const time = (t || "00:00").padStart(5, "0");
+          // 초가 없으면 :00 붙임
+          const iso = `${d}T${time.length === 5 ? `${time}:00` : time}`;
+          return iso;
+        };
+        // repeat 매핑
+        const repeatMap = {
+          daily: "DAILY",
+          weekly: "WEEKLY",
+          monthly: "MONTHLY",
+          yearly: "YEARLY",
+        };
+        const repeat =
+          form.repeatOn ? repeatMap[form.repeatType] || "DAILY" : "NONE";
+
+        // 태그 매핑(간이): 선택한 태그명이 없으면 기본값
+        const pickedTag =
+          tagListRef.current.find((t) => t.id === form.tagId) ||
+          tagListRef.current[0] || { name: "기본", color: "#B4BFFF" };
+        // 서버 스펙상 color는 number인 경우가 있어 임시 0으로 보냄(서버에서 매핑)
+        const tagPayload = { name: pickedTag.name, color: 0 };
+
+        const payload = {
+          title: form.title || "제목 없음",
+          content: form.title || "",
+          start_datetime: toISO(form.startDate, form.startTime),
+          end_datetime: toISO(form.endDate || form.startDate, form.endTime),
+          all_day: !!form.allDay,
+          repeat,
+          // 반복 종료일: 명세에 맞춰 ISO 문자열(자정)로 전달
+          until:
+            form.repeatOn && form.repeatEnd
+              ? toISO(form.repeatEnd, "00:00:00")
+              : null,
+          location: form.location || "",
+          tag: tagPayload,
+        };
+        const res = await createEventApi(payload);
+        // 상위에 메인 캘린더 반영
+        try {
+          const body = res?.data || res; // 두 응답 포맷 대응
+          const id = body?.id ?? res?.id;
+          const startISO = body?.start_datetime ?? payload.start_datetime;
+          const dateKey = (startISO || "").slice(0, 10);
+          const tagName =
+            body?.tag?.name ??
+            res?.tag?.name ??
+            tagPayload.name;
+          onCreated?.({
+            id: id || Date.now(),
+            date: dateKey,
+            tag: tagName,
+            title: payload.title,
+          });
+        } catch {}
+        console.log("createEventApi success");
+        onClose?.();
+      } catch (e) {
+        console.error("createEventApi error", e);
+        // 개발 환경에서는 낙관적 업데이트로 메인 캘린더에 반영해 개발 흐름을 유지
+        if (import.meta.env?.DEV) {
+          try {
+            const form = collectFormData();
+            const toISO = (d, t) => {
+              if (!d) return "";
+              const time = (t || "00:00").padStart(5, "0");
+              return `${d}T${time.length === 5 ? `${time}:00` : time}`;
+            };
+            const startISO = toISO(form.startDate, form.startTime);
+            const dateKey = (startISO || "").slice(0, 10);
+            const pickedTag =
+              tagListRef.current.find((t) => t.id === form.tagId) ||
+              tagListRef.current[0] || { name: "기본" };
+            onCreated?.({
+              id: Date.now(),
+              date: dateKey,
+              tag: pickedTag.name,
+              title: form.title || "제목 없음",
+            });
+            onClose?.();
+          } catch {}
+        }
+        // 실패 시 화면은 그대로 두어 수정 가능
+      }
       return;
     }
     setManualConfirmed(true);
