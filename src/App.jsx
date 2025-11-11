@@ -17,10 +17,10 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/callback" element={<LoginCallback />} />
 
-          <Route element={<SessionAuth />}>
+          {/* <Route element={<SessionAuth />}> */}
             <Route path="/" element={<MainPage />} />
             <Route path="/playground" element={<ModalPlayground />} />
-          </Route>
+          {/* </Route> */}
         </Routes>
       </BrowserRouter>
     </>
