@@ -3,7 +3,7 @@ import "react-calendar/dist/Calendar.css";
 import * as S from "../styles/MainCalendar.style";
 import { vw } from "@/utils/units";
 import PlanTag from "./PlanTag";
-import { getTagColor as getColorFromMap } from "@/constants/tagColors";
+import { getTagColor as getColorFromMap } from "../../../constants/tagColorMap";
 
 const MainCalendar = ({
   tags,
