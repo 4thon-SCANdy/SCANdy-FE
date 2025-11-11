@@ -9,6 +9,7 @@ import GoogleSuccessModal from "../loginPage/components/GoogleSuccessModal";
 import GoogleModal from "../loginPage/components/GoogleModal";
 import googleSyncApi from "../../apis/auth/googleSyncApi";
 import tagGetApi from "../../apis/tag/tagGetApi";
+import allPlanGetApi from "../../apis/main/allPlanGetApi";
 
 const MainPage = () => {
   const location = useLocation();
@@ -37,11 +38,21 @@ const MainPage = () => {
     fetchTags();
   }, []);
 
-  const [schedules, setSchedules] = useState([
-    { id: 1, date: "2025-11-10", tag: "회의" },
-    { id: 2, date: "2025-11-12", tag: "프로젝트" },
-    { id: 3, date: "2025-11-13", tag: "개인 일정" },
-  ]);
+  const [schedules, setSchedules] = useState([]);
+
+  useEffect(() => {
+    const fetchSchedules = async () => {
+      try {
+        const res = await allPlanGetApi(); // 전체 일정 조회
+        console.log("일정 조회 완료: ", res.data);
+        setSchedules(res.data);
+      } catch (err) {
+        console.error("일정 조회 실패: ", err);
+      }
+    };
+
+    fetchSchedules();
+  }, []);
 
   const handleRenameTag = (oldName, newName) => {
     setSchedules((prev) =>

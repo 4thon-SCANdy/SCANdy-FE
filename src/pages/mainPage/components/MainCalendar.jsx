@@ -16,9 +16,11 @@ const MainCalendar = ({
     return match ? match.color : "#EAEAEA";
   };
 
-  const visibleSchedules = selectedTag
-    ? schedules.filter((s) => s.tag === selectedTag)
-    : schedules;
+  const visibleSchedules = Array.isArray(schedules)
+    ? selectedTag
+      ? schedules.filter((s) => s.tag === selectedTag)
+      : schedules
+    : [];
 
   const formatDateKey = (date) =>
     `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
