@@ -11,14 +11,20 @@ const MainCalendar = ({
   selectedTag,
   onOpenRegister,
 }) => {
-  const getTagColor = (tagName) => {
-    const match = tags.find((t) => t.name === tagName);
+  const getTagColor = (tag) => {
+    if (!tag) return "#EAEAEA";
+    if (typeof tag === "object" && tag.color) return tag.color;
+    const match = tags.find((t) => t.name === tag);
     return match ? match.color : "#EAEAEA";
   };
 
   const visibleSchedules = Array.isArray(schedules)
     ? selectedTag
-      ? schedules.filter((s) => s.tag === selectedTag)
+      ? schedules.filter((s) =>
+          typeof s.tag === "object"
+            ? s.tag.name === selectedTag
+            : s.tag === selectedTag
+        )
       : schedules
     : [];
 
@@ -116,7 +122,7 @@ const MainCalendar = ({
                     }}
                   >
                     <PlanTag size="small" color={getTagColor(schedule.tag)}>
-                      {schedule.tag}
+                      {schedule.title}
                     </PlanTag>
                   </div>
                 ))}
@@ -147,5 +153,3 @@ const MainCalendar = ({
 };
 
 export default MainCalendar;
-
-

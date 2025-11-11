@@ -90,8 +90,13 @@ const MainRightSection = ({
                           backgroundColor: "#FDFDFD",
                         }}
                       >
-                        <PlanTag size="large" color={getTagColor(schedule.tag)}>
-                          {schedule.tag}
+                        <PlanTag
+                          size="large"
+                          color={getTagColor(
+                            schedule.tag?.name || schedule.tag
+                          )}
+                        >
+                          {schedule.title}
                         </PlanTag>
                       </div>
                     ))}
