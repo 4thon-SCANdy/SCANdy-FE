@@ -8,6 +8,8 @@ import { useLocation } from "react-router-dom";
 import GoogleSuccessModal from "../loginPage/components/GoogleSuccessModal";
 import GoogleModal from "../loginPage/components/GoogleModal";
 import googleSyncApi from "../../apis/auth/googleSyncApi";
+import tagGetApi from "../../apis/tag/tagGetApi";
+import allPlanGetApi from "../../apis/main/allPlanGetApi";
 
 const MainPage = () => {
   const location = useLocation();
@@ -17,17 +19,40 @@ const MainPage = () => {
 
   const [isGoogleSynced, setIsGoogleSynced] = useState(false);
 
-  const [tags, setTags] = useState([
-    { id: 1, name: "개인 일정", color: "#A0D4FF" },
-    { id: 2, name: "회의", color: "#FFEBB5" },
-    { id: 3, name: "프로젝트", color: "#D9C9FF" },
-  ]);
+  const [tags, setTags] = useState([]);
 
-  const [schedules, setSchedules] = useState([
-    { id: 1, date: "2025-11-10", tag: "회의" },
-    { id: 2, date: "2025-11-12", tag: "프로젝트" },
-    { id: 3, date: "2025-11-13", tag: "개인 일정" },
-  ]);
+  useEffect(() => {
+    const fetchTags = async () => {
+      try {
+        const res = await tagGetApi();
+
+        const fetchedTags = res.data?.data || res.data || [];
+
+        setTags(fetchedTags);
+        console.log("태그 불러오기 성공: ", fetchedTags);
+      } catch (error) {
+        console.error("태그 불러오기 실패: ", error);
+      }
+    };
+
+    fetchTags();
+  }, []);
+
+  const [schedules, setSchedules] = useState([]);
+
+  useEffect(() => {
+    const fetchSchedules = async () => {
+      try {
+        const res = await allPlanGetApi(); // 전체 일정 조회
+        console.log("일정 조회 완료: ", res.data);
+        setSchedules(res.data);
+      } catch (err) {
+        console.error("일정 조회 실패: ", err);
+      }
+    };
+
+    fetchSchedules();
+  }, []);
 
   const handleRenameTag = (oldName, newName) => {
     setSchedules((prev) =>

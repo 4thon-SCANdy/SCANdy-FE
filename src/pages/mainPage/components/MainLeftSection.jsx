@@ -10,6 +10,7 @@ import EDITING from "@/assets/main/tagediting.svg";
 
 import { useEffect, useState } from "react";
 import ColorChip from "../../../components/colorchip/ColorChip";
+import tagEditApi from "../../../apis/tag/tagEditApi";
 
 const days = [
   "일요일",
@@ -53,15 +54,22 @@ const MainLeftSection = ({
     }
   }, [isEditActive]);
 
-  const handleTagChange = (id, value) => {
+  const handleTagChange = async (id, value) => {
     const oldName = tags.find((t) => t.id === id)?.name;
     setEditedTags((prev) => ({ ...prev, [id]: value }));
-
     setTags((prev) =>
       prev.map((tag) => (tag.id === id ? { ...tag, name: value } : tag))
     );
-
     onRenameTag?.(oldName, value);
+
+    try {
+      const color = tags.find((t) => t.id === id)?.color;
+      const calendar = 13;
+      const res = await tagEditApi(id, value, color, calendar);
+      console.log("태그 수정 성공: ", res.detail);
+    } catch (error) {
+      console.error("태그 수정 실패: ", error);
+    }
   };
 
   const handleCheckClick = (tag) => {
