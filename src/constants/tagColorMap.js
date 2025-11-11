@@ -17,3 +17,10 @@ export const TAG_COLOR_MAP = {
 };
 
 export const getTagColor = (index) => TAG_COLOR_MAP[index] || "#000000";
+
+export const getColorIndex = (hex) => {
+  const entry = Object.entries(TAG_COLOR_MAP).find(
+    ([, value]) => value.toLowerCase() === hex.toLowerCase()
+  );
+  return entry ? Number(entry[0]) : null;
+};
