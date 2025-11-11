@@ -18,19 +18,17 @@ const MainPage = () => {
 
   const [isGoogleSynced, setIsGoogleSynced] = useState(false);
 
-  const [tags, setTags] = useState([
-    { id: 1, name: "개인 일정", color: "#A0D4FF" },
-    { id: 2, name: "회의", color: "#FFEBB5" },
-    { id: 3, name: "프로젝트", color: "#D9C9FF" },
-  ]);
+  const [tags, setTags] = useState([]);
 
   useEffect(() => {
     const fetchTags = async () => {
       try {
         const res = await tagGetApi();
 
-        setTags(res.data);
-        console.log("태그 불러오기 완료: ", res.data);
+        const fetchedTags = res.data?.data || res.data || [];
+
+        setTags(fetchedTags);
+        console.log("태그 불러오기 성공: ", fetchedTags);
       } catch (error) {
         console.error("태그 불러오기 실패: ", error);
       }
