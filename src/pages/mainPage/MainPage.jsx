@@ -21,17 +21,31 @@ const MainPage = () => {
 
   const [tags, setTags] = useState([]);
 
+  const DEFAULT_TAGS = [
+    { id: "default-1", name: "학업", color: "#FFEBB5" },
+    { id: "default-2", name: "일상", color: "#D9C9FF" },
+    { id: "default-3", name: "건강", color: "#A0D4FF" },
+  ];
+
   useEffect(() => {
     const fetchTags = async () => {
       try {
         const res = await tagGetApi();
-
         const fetchedTags = res.data?.data || res.data || [];
 
-        setTags(fetchedTags);
-        console.log("태그 불러오기 성공: ", fetchedTags);
+        const mergedTags = [
+          ...DEFAULT_TAGS,
+          ...fetchedTags.filter(
+            (tag) => !DEFAULT_TAGS.some((d) => d.name === tag.name)
+          ),
+        ];
+
+        setTags(mergedTags);
+        console.log("태그 불러오기 성공: ", mergedTags);
       } catch (error) {
         console.error("태그 불러오기 실패: ", error);
+        // 실패 시 기본 태그만
+        setTags(DEFAULT_TAGS);
       }
     };
 

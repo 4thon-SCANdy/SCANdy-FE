@@ -35,12 +35,6 @@ const MainLeftSection = ({
 
   const [selectedTagId, setSelectedTagId] = useState(null);
 
-  const [editedTags, setEditedTags] = useState({
-    1: "개인 일정",
-    2: "회의",
-    3: "프로젝트",
-  });
-
   const today = new Date();
 
   const year = today.getFullYear();
@@ -54,21 +48,21 @@ const MainLeftSection = ({
     }
   }, [isEditActive]);
 
-  const handleTagChange = async (id, value) => {
+  const handleTagChange = async (id, newName) => {
     const oldName = tags.find((t) => t.id === id)?.name;
-    setEditedTags((prev) => ({ ...prev, [id]: value }));
     setTags((prev) =>
-      prev.map((tag) => (tag.id === id ? { ...tag, name: value } : tag))
+      prev.map((tag) => (tag.id === id ? { ...tag, name: newName } : tag))
     );
-    onRenameTag?.(oldName, value);
+    onRenameTag?.(oldName, newName);
 
-    try {
-      const color = tags.find((t) => t.id === id)?.color;
-      const calendar = 13;
-      const res = await tagEditApi(id, value, color, calendar);
-      console.log("태그 수정 성공: ", res.detail);
-    } catch (error) {
-      console.error("태그 수정 실패: ", error);
+    if (typeof id === "number") {
+      try {
+        const tag = tags.find((t) => t.id === id);
+        const res = await tagEditApi(id, newName, tag.color, 13);
+        console.log("태그 수정 성공: ", res.detail);
+      } catch (error) {
+        console.error("태그 수정 실패: ", error);
+      }
     }
   };
 
@@ -148,7 +142,7 @@ const MainLeftSection = ({
                       }
                     />
                   ) : (
-                    <S.TodoText>{editedTags[tag.id]}</S.TodoText>
+                    <S.TodoText>{tag.name}</S.TodoText>
                   )}
                 </S.TodoContainer>
                 {isSettingActive && (
