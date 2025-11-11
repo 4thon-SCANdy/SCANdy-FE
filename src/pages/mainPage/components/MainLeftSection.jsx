@@ -12,6 +12,8 @@ import { useEffect, useState } from "react";
 import ColorChip from "../../../components/colorchip/ColorChip";
 import tagEditApi from "../../../apis/tag/tagEditApi";
 
+import { TAG_COLOR_MAP, getColorIndex } from "../../../constants/tagColorMap";
+
 const days = [
   "일요일",
   "월요일",
@@ -72,6 +74,22 @@ const MainLeftSection = ({
       console.log("태그 수정 성공: ", res.detail);
     } catch (error) {
       console.error("태그 수정 실패: ", error);
+    }
+  };
+
+  const handleColorChange = async (tag, newHex) => {
+    const colorIndex = getColorIndex(newHex);
+    if (colorIndex === null) return;
+
+    setTags((prev) =>
+      prev.map((t) => (t.id === tag.id ? { ...t, color: colorIndex } : t))
+    );
+
+    try {
+      await tagEditApi(tag.id, tag.name, colorIndex, tag.calendar);
+      console.log("색상 변경 성공");
+    } catch (err) {
+      console.error("색상 변경 실패: ", err);
     }
   };
 
@@ -138,19 +156,18 @@ const MainLeftSection = ({
                     $isSelected={
                       selectedTagId === null || selectedTagId === tag.id
                     }
-                    $color={tag.color}
+                    $color={
+                      typeof tag.color === "number"
+                        ? TAG_COLOR_MAP[tag.color] // 사용자 태그
+                        : tag.color || "#EAEAEA" // 디폴트 태그
+                    }
                     onClick={() => handleCheckClick(tag)}
                   />
+
                   {activeColorTag === tag.id && (
                     <S.ColorChipWrapper>
                       <ColorChip
-                        onSelect={(color) => {
-                          setTags((prev) =>
-                            prev.map((t) =>
-                              t.id === tag.id ? { ...t, color } : t
-                            )
-                          );
-                        }}
+                        onSelect={(color) => handleColorChange(tag, color)}
                       />
                     </S.ColorChipWrapper>
                   )}
