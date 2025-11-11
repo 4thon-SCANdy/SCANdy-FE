@@ -7,9 +7,9 @@ import RegisterModal from "@/components/modals/register/RegisterModal";
 import { useLocation } from "react-router-dom";
 import GoogleSuccessModal from "../loginPage/components/GoogleSuccessModal";
 import GoogleModal from "../loginPage/components/GoogleModal";
-import googleSyncApi from "../../apis/auth/googleSyncApi";
-import tagGetApi from "../../apis/tag/tagGetApi";
-import allPlanGetApi from "../../apis/main/allPlanGetApi";
+import googleSyncApi from "@/apis/auth/googleSyncApi";
+import tagGetApi from "@/apis/tag/tagGetApi";
+import allPlanGetApi from "@/apis/main/allPlanGetApi";
 
 const MainPage = () => {
   const location = useLocation();
