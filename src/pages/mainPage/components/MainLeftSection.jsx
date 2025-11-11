@@ -30,6 +30,7 @@ const MainLeftSection = ({
   setSelectedTag,
   selectedTag,
   onRenameTag,
+  isGoogleSynced,
 }) => {
   const [isSettingActive, setIsSettingActive] = useState(false);
   const [isEditActive, setIsEditActive] = useState(null);
@@ -78,6 +79,11 @@ const MainLeftSection = ({
   };
 
   const handleColorChange = async (tag, newHex) => {
+    if (isGoogleSynced) {
+      console.log("Google 연동 중에는 색상 변경이 비활성화됩니다.");
+      return;
+    }
+
     const colorIndex = getColorIndex(newHex);
     if (colorIndex === null) return;
 
@@ -164,7 +170,7 @@ const MainLeftSection = ({
                     onClick={() => handleCheckClick(tag)}
                   />
 
-                  {activeColorTag === tag.id && (
+                  {activeColorTag === tag.id && !isGoogleSynced && (
                     <S.ColorChipWrapper>
                       <ColorChip
                         onSelect={(color) => handleColorChange(tag, color)}
