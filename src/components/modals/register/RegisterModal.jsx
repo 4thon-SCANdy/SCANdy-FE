@@ -344,6 +344,8 @@ function RegisterModal({
             endDate: (endISO || "").slice(0,10),
             tag: tagName,
             title: payload.title,
+            repeat: payload.repeat,
+            until: (payload.until || "")?.slice?.(0,10) || null,
           });
         } catch {}
         console.log("createEventApi success");
@@ -367,8 +369,12 @@ function RegisterModal({
             onCreated?.({
               id: Date.now(),
               date: dateKey,
+              startDate: form.startDate,
+              endDate: form.endDate || form.startDate,
               tag: pickedTag.name,
               title: form.title || "제목 없음",
+              repeat: form.repeatOn ? (form.repeatType === "weekly" ? "WEEKLY" : "DAILY") : "NONE",
+              until: form.repeatOn && form.repeatEnd ? form.repeatEnd : null,
             });
             onClose?.();
           } catch {}

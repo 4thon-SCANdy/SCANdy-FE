@@ -53,6 +53,21 @@ const MainLeftSection = ({
     }
   }, [isEditActive]);
 
+  // tags가 변경될 때(새 태그 추가 등) 표시명이 비어 보이지 않도록 동기화
+  useEffect(() => {
+    setEditedTags((prev) => {
+      const next = { ...prev };
+      tags.forEach((t) => {
+        if (!next[t.id]) next[t.id] = t.name || "";
+      });
+      // 기존에 사라진 태그 키는 유지해도 무방; 제거하고 싶다면 아래 주석 해제
+      // Object.keys(next).forEach((k) => {
+      //   if (!tags.some((t) => String(t.id) === String(k))) delete next[k];
+      // });
+      return next;
+    });
+  }, [tags]);
+
   const handleTagChange = (id, value) => {
     const oldName = tags.find((t) => t.id === id)?.name;
     setEditedTags((prev) => ({ ...prev, [id]: value }));
