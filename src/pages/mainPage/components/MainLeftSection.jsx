@@ -36,7 +36,7 @@ const MainLeftSection = ({
 
   const [selectedTagId, setSelectedTagId] = useState(null);
   const [editedTags, setEditedTags] = useState({});
-
+  
   const today = new Date();
 
   const year = today.getFullYear();
@@ -74,6 +74,7 @@ const MainLeftSection = ({
     }
   };
 
+  // tags가 변경될 때(새 태그 추가 등) 표시명이 비어 보이지 않도록 동기화
   useEffect(() => {
     setEditedTags((prev) => {
       const next = { ...prev };
@@ -164,7 +165,8 @@ const MainLeftSection = ({
                       }
                     />
                   ) : (
-                    <S.TodoText>{tag.name}</S.TodoText>
+                    <S.TodoText>{editedTags[tag.id] || tag.name}</S.TodoText>
+
                   )}
                 </S.TodoContainer>
                 {isSettingActive && (
