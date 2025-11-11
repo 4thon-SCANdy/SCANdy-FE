@@ -31,7 +31,8 @@ const MainPage = () => {
     const fetchTags = async () => {
       try {
         const res = await tagGetApi();
-        const fetchedTags = res.data?.data || res.data || [];
+
+        const fetchedTags = Array.isArray(res.data?.data) ? res.data.data : [];
 
         const mergedTags = [
           ...DEFAULT_TAGS,
@@ -44,7 +45,6 @@ const MainPage = () => {
         console.log("태그 불러오기 성공: ", mergedTags);
       } catch (error) {
         console.error("태그 불러오기 실패: ", error);
-        // 실패 시 기본 태그만
         setTags(DEFAULT_TAGS);
       }
     };
@@ -57,11 +57,19 @@ const MainPage = () => {
   useEffect(() => {
     const fetchSchedules = async () => {
       try {
-        const res = await allPlanGetApi(); // 전체 일정 조회
-        console.log("일정 조회 완료: ", res.data);
-        setSchedules(res.data);
+        const res = await allPlanGetApi();
+        console.log("일정 조회 완료: ", res);
+
+        const fetched = Array.isArray(res.data?.data)
+          ? res.data.data
+          : Array.isArray(res.data)
+          ? res.data
+          : [];
+
+        setSchedules(fetched);
       } catch (err) {
         console.error("일정 조회 실패: ", err);
+        setSchedules([]);
       }
     };
 

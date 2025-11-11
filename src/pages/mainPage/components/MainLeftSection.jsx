@@ -55,14 +55,18 @@ const MainLeftSection = ({
     );
     onRenameTag?.(oldName, newName);
 
-    if (typeof id === "number") {
-      try {
-        const tag = tags.find((t) => t.id === id);
-        const res = await tagEditApi(id, newName, tag.color, 13);
-        console.log("태그 수정 성공: ", res.detail);
-      } catch (error) {
-        console.error("태그 수정 실패: ", error);
-      }
+    // 디폴트 태그는 수정 요청 안 보냄
+    if (typeof id !== "number") {
+      console.log("로컬 기본 태그 수정 (API 호출 안 함)");
+      return;
+    }
+
+    try {
+      const tag = tags.find((t) => t.id === id);
+      const res = await tagEditApi(id, newName, tag.color, 13);
+      console.log("태그 수정 성공:", res.detail);
+    } catch (error) {
+      console.error("태그 수정 실패:", error);
     }
   };
 
@@ -134,7 +138,7 @@ const MainLeftSection = ({
                   {isEditActive === tag.id ? (
                     <S.EditInput
                       type="text"
-                      value={editedTags[tag.id]}
+                      value={tag.name}
                       autoFocus
                       onChange={(e) => handleTagEdit(tag.id, e.target.value)}
                       onKeyDown={(e) =>
