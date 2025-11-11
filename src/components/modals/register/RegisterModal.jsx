@@ -9,6 +9,8 @@ import UPLOAD_ICON from "@/assets/modal/img.svg";
 import REPEAT_ICON from "@/assets/modal/repeat.svg";
 import ALLDAY_ICON from "@/assets/modal/allday.svg";
 import { createEventApi } from "@/apis/calendar/createEventApi";
+import { taskProcessApi } from "@/apis/analysis/taskProcessApi";
+import { taskGetApi } from "@/apis/analysis/taskGetApi";
 
 function RegisterModal({
   open,
@@ -67,6 +69,11 @@ function RegisterModal({
   // 내부 분석 모달 (부모에서 onOpenAI를 넘기지 않은 경우 대비)
   const [internalAnalyzeOpen, setInternalAnalyzeOpen] = useState(false);
   const [internalAnalyzeImages, setInternalAnalyzeImages] = useState([]); // string URLs
+  const [analyzing, setAnalyzing] = useState(false);
+  const [aiOcrList, setAiOcrList] = useState([]);
+  const [aiLlmList, setAiLlmList] = useState([]);
+  const [aiRecommendations, setAiRecommendations] = useState([]);
+  const [aiTaskId, setAiTaskId] = useState(null);
 
   const openFilePicker = () => {
     if (fileInputRef.current) fileInputRef.current.click();
@@ -406,18 +413,45 @@ function RegisterModal({
   const secondaryButtonLabel = isEditMode ? "삭제하기" : "취소하기";
 
   const openManualConfirmationFromAI = () => {
+    const ai = Array.isArray(aiLlmList) && aiLlmList.length ? aiLlmList[0] : null;
+    const toDate = (iso) => (iso || "").slice(0, 10);
+    const toTime = (iso) => {
+      if (!iso) return "00:00";
+      try {
+        const d = new Date(iso);
+        if (Number.isNaN(d.valueOf())) return "00:00";
+        const hh = String(d.getHours()).padStart(2, "0");
+        const mi = String(d.getMinutes()).padStart(2, "0");
+        return `${hh}:${mi}`;
+      } catch {
+        return "00:00";
+      }
+    };
     setMode("create");
     setCurrentEdit(null);
-    setTitle("일정을 입력해주세요");
-    setStartDate("2025-10-26");
-    setEndDate("2025-10-26");
-    setStartTime("00:00");
-    setEndTime("00:00");
-    setLocation("회의실");
-    setRepeatOn(false);
-    setRepeatEnd("");
-    setAllDay(false);
-    setSelectedTagId("t1");
+    if (ai) {
+      setTitle(ai.title || "일정을 입력해주세요");
+      setStartDate(toDate(ai.start_datetime) || "");
+      setEndDate(toDate(ai.end_datetime) || toDate(ai.start_datetime) || "");
+      setStartTime(ai.all_day ? "00:00" : toTime(ai.start_datetime));
+      setEndTime(ai.all_day ? "00:00" : toTime(ai.end_datetime || ai.start_datetime));
+      setLocation(ai.location || "");
+      setRepeatOn(false);
+      setRepeatEnd("");
+      setAllDay(!!ai.all_day);
+      setSelectedTagId("t1");
+    } else {
+      setTitle("일정을 입력해주세요");
+      setStartDate("");
+      setEndDate("");
+      setStartTime("00:00");
+      setEndTime("00:00");
+      setLocation("");
+      setRepeatOn(false);
+      setRepeatEnd("");
+      setAllDay(false);
+      setSelectedTagId("t1");
+    }
     setManualConfirmed(true);
     setTagOpen(false);
     setAddingNewTag(false);
@@ -517,18 +551,97 @@ function RegisterModal({
                       ))}
                     </S.Dots>
                     <S.UploadButton
-                      onClick={() => {
+                      onClick={async () => {
                         const files = selectedImages.map((i) => i.file);
                         if (onOpenAI) {
                           onOpenAI(files);
-                        } else {
-                          // 내부 분석 모달 오픈 (이미 생성된 object URL 사용)
-                          setInternalAnalyzeImages(selectedImages.map((i) => i.url).filter(Boolean));
+                          return;
+                        }
+                        if (!files.length || analyzing) return;
+                        setAnalyzing(true);
+                        try {
+                          const res = await taskProcessApi(files);
+                          const taskId = res?.task_id ?? null;
+                          const parsePost = () => {
+                            const ocr = Array.isArray(res?.ocr_result) ? res.ocr_result : [];
+                            const llm = Array.isArray(res?.llm_result) ? res.llm_result : [];
+                            const recs = Array.isArray(res?.recommendation) ? res.recommendation : [];
+                            return { ocr, llm, recs };
+                          };
+                          const parseGet = (getRes) => {
+                            const root = getRes || {};
+                            const payload = root?.data || root?.result || root || [];
+                            const arr = Array.isArray(payload) ? payload : [];
+                            let imageUrls = [];
+                            let ocrList = [];
+                            let llmList = [];
+                            arr.forEach((item) => {
+                              if (!item || typeof item !== "object") return;
+                              if (Array.isArray(item.image_urls)) {
+                                imageUrls = item.image_urls.filter(Boolean);
+                              }
+                              if (item.ocr_result) {
+                                if (Array.isArray(item.ocr_result)) {
+                                  ocrList = item.ocr_result;
+                                } else if (typeof item.ocr_result === "string") {
+                                  ocrList = item.ocr_result.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
+                                }
+                              }
+                              if (item.llm_result) {
+                                try {
+                                  const parsed = typeof item.llm_result === "string" ? JSON.parse(item.llm_result) : item.llm_result;
+                                  if (Array.isArray(parsed)) llmList = parsed;
+                                } catch {}
+                              }
+                            });
+                            return { imageUrls, ocrList, llmList };
+                          };
+                          const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+                          let useOcr = parsePost().ocr;
+                          let useLlm = parsePost().llm;
+                          let useRecs = parsePost().recs;
+                          let serverImageUrls = [];
+
+                          if (taskId) {
+                            // 짧게 재시도하며 GET으로 이미지 URL+최종 결과 수집
+                            for (let i = 0; i < 3; i++) {
+                              try {
+                                const getRes = await taskGetApi(taskId);
+                                const { imageUrls, ocrList, llmList } = parseGet(getRes);
+                                if (imageUrls.length || ocrList.length || llmList.length) {
+                                  if (imageUrls.length) serverImageUrls = imageUrls;
+                                  if (ocrList.length) useOcr = ocrList;
+                                  if (llmList.length) useLlm = llmList;
+                                  break;
+                                }
+                              } catch {}
+                              await sleep(400 * (i + 1));
+                            }
+                          }
+                          setAiTaskId(taskId);
+                          setAiOcrList(useOcr);
+                          setAiLlmList(useLlm);
+                          setAiRecommendations(useRecs);
+                          const previewUrls =
+                            (serverImageUrls && serverImageUrls.length ? serverImageUrls : selectedImages.map((i) => i.url).filter(Boolean));
+                          setInternalAnalyzeImages(previewUrls);
                           setInternalAnalyzeOpen(true);
+                        } catch (e) {
+                          console.error("taskProcessApi error", e);
+                          const msg =
+                            e?.response?.data?.detail ||
+                            e?.response?.data?.message ||
+                            e?.message ||
+                            "이미지 분석에 실패했어요. 다시 시도해 주세요.";
+                          try { alert(msg); } catch {}
+                        } finally {
+                          setAnalyzing(false);
                         }
                       }}
+                      disabled={analyzing}
                     >
-                      이미지 등록하기
+                      {analyzing ? "분석 중..." : "이미지 등록하기"}
                     </S.UploadButton>
                     <input
                       ref={fileInputRef}
@@ -853,6 +966,9 @@ function RegisterModal({
       <AnalyzeModal
         open={internalAnalyzeOpen}
         images={internalAnalyzeImages}
+        ocrList={aiOcrList}
+        llmList={aiLlmList}
+        recommendations={aiRecommendations}
         onClose={() => setInternalAnalyzeOpen(false)}
         onReupload={() => { setInternalAnalyzeOpen(false); setView("upload"); }}
         onEdit={() => {

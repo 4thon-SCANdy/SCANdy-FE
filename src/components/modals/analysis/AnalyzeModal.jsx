@@ -50,14 +50,46 @@ const PreviewWrapSm = styled(S.PreviewWrap)`
   justify-content: space-between;
 `;
 
-function AnalyzeModal({ open, onClose, onReupload, onEdit, onSubmit, images = [] }) {
-  const ocrSamples = [
-    "10월 24일 오후 2시 회의 있음",
-    "10월 24일 오후 2시 회의 있음",
-    "10월 24일 오후 2시 회의 있음",
-    "10월 24일 오후 2시 회의 있음",
-    "10월 24일 오후 2시 회의 있음",
+function AnalyzeModal({
+  open,
+  onClose,
+  onReupload,
+  onEdit,
+  onSubmit,
+  images = [],
+  ocrList = [],
+  llmList = [],
+  recommendations = [],
+}) {
+  const fallbackOcr = [
+    "분석 결과가 없습니다.",
   ];
+  const primaryLlm = Array.isArray(llmList) && llmList.length > 0 ? llmList[0] : null;
+  const formatDate = (iso) => {
+    if (!iso) return "";
+    try {
+      const d = new Date(iso);
+      if (Number.isNaN(d.valueOf())) return "";
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      const dd = String(d.getDate()).padStart(2, "0");
+      return `${yyyy}.${mm}.${dd}`;
+    } catch {
+      return "";
+    }
+  };
+  const formatTime = (iso) => {
+    if (!iso) return "00:00";
+    try {
+      const d = new Date(iso);
+      if (Number.isNaN(d.valueOf())) return "00:00";
+      const hh = String(d.getHours()).padStart(2, "0");
+      const mi = String(d.getMinutes()).padStart(2, "0");
+      return `${hh}:${mi}`;
+    } catch {
+      return "00:00";
+    }
+  };
 
   // 이미지 입력은 string URL[], File[], 혹은 { url: string }[] 모두 지원
   const createdUrlsRef = useRef([]);
@@ -105,7 +137,7 @@ function AnalyzeModal({ open, onClose, onReupload, onEdit, onSubmit, images = []
               <S.CardTop>OCR 추출 결과</S.CardTop>
               <OcrBoxSm>
                 <S.OcrList>
-                  {ocrSamples.map((t, i) => (
+                  {(ocrList.length ? ocrList : fallbackOcr).map((t, i) => (
                     <OcrItemSm key={i}>{t}</OcrItemSm>
                   ))}
                 </S.OcrList>
@@ -118,19 +150,23 @@ function AnalyzeModal({ open, onClose, onReupload, onEdit, onSubmit, images = []
               <AiBoxSm>
                 <S.FieldRow>
                   <ChipSm>제목</ChipSm>
-                  <PillSm>일정을 입력해주세요</PillSm>
+                  <PillSm>{primaryLlm?.title || "일정을 입력해주세요"}</PillSm>
                 </S.FieldRow>
                 <S.FieldRow>
                   <ChipSm>날짜</ChipSm>
-                  <PillSm>2025.10.26</PillSm>
+                  <PillSm>{formatDate(primaryLlm?.start_datetime) || "-"}</PillSm>
                 </S.FieldRow>
                 <S.FieldRow>
                   <ChipSm>시간</ChipSm>
-                  <PillSm>00:00</PillSm>
+                  <PillSm>
+                    {primaryLlm?.all_day
+                      ? "하루 종일"
+                      : `${formatTime(primaryLlm?.start_datetime)} ~ ${formatTime(primaryLlm?.end_datetime)}`}
+                  </PillSm>
                 </S.FieldRow>
                 <S.FieldRow>
                   <ChipSm>장소</ChipSm>
-                  <PillSm>회의실</PillSm>
+                  <PillSm>{primaryLlm?.location || "-"}</PillSm>
                 </S.FieldRow>
               </AiBoxSm>
               </S.CardBox>
@@ -167,36 +203,24 @@ function AnalyzeModal({ open, onClose, onReupload, onEdit, onSubmit, images = []
               <S.BottomCardTop>AI앤디의 일정 대안 추천</S.BottomCardTop>
               <S.BottomCardBody>
                 <S.CardsRow>
-                  <S.SuggestCard>
-                    <S.SuggestTitle>이 시간을 추천해요!</S.SuggestTitle>
-                    <S.SuggestBody>
-                      <S.Meta>
-                        <S.MetaLabel>날짜</S.MetaLabel><div>2025.10.26</div>
-                        <S.MetaLabel>시간</S.MetaLabel><div>00:00</div>
-                        <S.MetaLabel>장소</S.MetaLabel><div>회의실</div>
-                      </S.Meta>
-                    </S.SuggestBody>
-                  </S.SuggestCard>
-                  <S.SuggestCard>
-                    <S.SuggestTitle>이런 날짜는 어때요?</S.SuggestTitle>
-                    <S.SuggestBody>
-                      <S.Meta>
-                        <S.MetaLabel>날짜</S.MetaLabel><div>2025.10.26</div>
-                        <S.MetaLabel>시간</S.MetaLabel><div>00:00</div>
-                        <S.MetaLabel>장소</S.MetaLabel><div>회의실</div>
-                      </S.Meta>
-                    </S.SuggestBody>
-                  </S.SuggestCard>
-                  <S.SuggestCard>
-                    <S.SuggestTitle>이 시간은 어떠신가요?</S.SuggestTitle>
-                    <S.SuggestBody>
-                      <S.Meta>
-                        <S.MetaLabel>날짜</S.MetaLabel><div>2025.10.26</div>
-                        <S.MetaLabel>시간</S.MetaLabel><div>00:00</div>
-                        <S.MetaLabel>장소</S.MetaLabel><div>회의실</div>
-                      </S.Meta>
-                    </S.SuggestBody>
-                  </S.SuggestCard>
+                  {(Array.isArray(recommendations) ? recommendations : []).slice(0, 3).map((rec, idx) => {
+                    const loc = llmList?.[idx]?.location ?? primaryLlm?.location ?? "-";
+                    return (
+                      <S.SuggestCard key={idx}>
+                        <S.SuggestTitle>{rec?.detail || "추천 일정"}</S.SuggestTitle>
+                        <S.SuggestBody>
+                          <S.Meta>
+                            <S.MetaLabel>날짜</S.MetaLabel>
+                            <div>{formatDate(rec?.recommended_start) || "-"}</div>
+                            <S.MetaLabel>시간</S.MetaLabel>
+                            <div>{`${formatTime(rec?.recommended_start)} ~ ${formatTime(rec?.recommended_end)}`}</div>
+                            <S.MetaLabel>장소</S.MetaLabel>
+                            <div>{loc}</div>
+                          </S.Meta>
+                        </S.SuggestBody>
+                      </S.SuggestCard>
+                    );
+                  })}
                 </S.CardsRow>
               </S.BottomCardBody>
             </S.CardBox>
