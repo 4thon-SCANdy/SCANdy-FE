@@ -17,6 +17,7 @@ defaultInstance.interceptors.request.use((config) => {
     // 일부 엔드포인트 호환을 위해 token 헤더도 함께 첨부
     config.headers.token = bearer;
   }
+
   return config;
 });
 
