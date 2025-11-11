@@ -8,6 +8,7 @@ import { useLocation } from "react-router-dom";
 import GoogleSuccessModal from "../loginPage/components/GoogleSuccessModal";
 import GoogleModal from "../loginPage/components/GoogleModal";
 import googleSyncApi from "../../apis/auth/googleSyncApi";
+import tagGetApi from "../../apis/tag/tagGetApi";
 
 const MainPage = () => {
   const location = useLocation();
@@ -22,6 +23,21 @@ const MainPage = () => {
     { id: 2, name: "회의", color: "#FFEBB5" },
     { id: 3, name: "프로젝트", color: "#D9C9FF" },
   ]);
+
+  useEffect(() => {
+    const fetchTags = async () => {
+      try {
+        const res = await tagGetApi();
+
+        setTags(res.data);
+        console.log("태그 불러오기 완료: ", res.data);
+      } catch (error) {
+        console.error("태그 불러오기 실패: ", error);
+      }
+    };
+
+    fetchTags();
+  }, []);
 
   const [schedules, setSchedules] = useState([
     { id: 1, date: "2025-11-10", tag: "회의" },
