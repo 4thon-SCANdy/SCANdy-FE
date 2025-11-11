@@ -10,8 +10,9 @@ import EDITING from "@/assets/main/tagediting.svg";
 
 import { useEffect, useState } from "react";
 import ColorChip from "../../../components/colorchip/ColorChip";
-import tagGetApi from "@/apis/tag/tagGetApi";
 import tagEditApi from "../../../apis/tag/tagEditApi";
+
+import { TAG_COLOR_MAP, getColorIndex } from "../../../constants/tagColorMap";
 
 const days = [
   "일요일",
@@ -29,6 +30,7 @@ const MainLeftSection = ({
   setSelectedTag,
   selectedTag,
   onRenameTag,
+  isGoogleSynced,
 }) => {
   const [isSettingActive, setIsSettingActive] = useState(false);
   const [isEditActive, setIsEditActive] = useState(null);
@@ -36,7 +38,9 @@ const MainLeftSection = ({
 
   const [selectedTagId, setSelectedTagId] = useState(null);
   const [editedTags, setEditedTags] = useState({});
-  
+
+  const USER_ID = sessionStorage.getItem("user_id");
+
   const today = new Date();
 
   const year = today.getFullYear();
@@ -67,10 +71,31 @@ const MainLeftSection = ({
 
     try {
       const tag = tags.find((t) => t.id === id);
-      const res = await tagEditApi(id, newName, tag.color, 13);
+      const res = await tagEditApi(id, newName, tag.color, USER_ID);
       console.log("태그 수정 성공: ", res.detail);
     } catch (error) {
       console.error("태그 수정 실패: ", error);
+    }
+  };
+
+  const handleColorChange = async (tag, newHex) => {
+    if (isGoogleSynced) {
+      console.log("Google 연동 중에는 색상 변경이 비활성화됩니다.");
+      return;
+    }
+
+    const colorIndex = getColorIndex(newHex);
+    if (colorIndex === null) return;
+
+    setTags((prev) =>
+      prev.map((t) => (t.id === tag.id ? { ...t, color: colorIndex } : t))
+    );
+
+    try {
+      await tagEditApi(tag.id, tag.name, colorIndex, tag.calendar);
+      console.log("색상 변경 성공");
+    } catch (err) {
+      console.error("색상 변경 실패: ", err);
     }
   };
 
@@ -137,19 +162,18 @@ const MainLeftSection = ({
                     $isSelected={
                       selectedTagId === null || selectedTagId === tag.id
                     }
-                    $color={tag.color}
+                    $color={
+                      typeof tag.color === "number"
+                        ? TAG_COLOR_MAP[tag.color] // 사용자 태그
+                        : tag.color || "#EAEAEA" // 디폴트 태그
+                    }
                     onClick={() => handleCheckClick(tag)}
                   />
-                  {activeColorTag === tag.id && (
+
+                  {activeColorTag === tag.id && !isGoogleSynced && (
                     <S.ColorChipWrapper>
                       <ColorChip
-                        onSelect={(color) => {
-                          setTags((prev) =>
-                            prev.map((t) =>
-                              t.id === tag.id ? { ...t, color } : t
-                            )
-                          );
-                        }}
+                        onSelect={(color) => handleColorChange(tag, color)}
                       />
                     </S.ColorChipWrapper>
                   )}
@@ -166,7 +190,6 @@ const MainLeftSection = ({
                     />
                   ) : (
                     <S.TodoText>{editedTags[tag.id] || tag.name}</S.TodoText>
-
                   )}
                 </S.TodoContainer>
                 {isSettingActive && (

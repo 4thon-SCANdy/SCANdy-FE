@@ -3,6 +3,7 @@ import "react-calendar/dist/Calendar.css";
 import * as S from "../styles/MainCalendar.style";
 import { vw } from "@/utils/units";
 import PlanTag from "./PlanTag";
+import { getTagColor as getColorFromMap } from "../../../constants/tagColorMap";
 
 const MainCalendar = ({
   tags,
@@ -15,7 +16,7 @@ const MainCalendar = ({
     if (!tag) return "#EAEAEA";
     if (typeof tag === "object" && tag.color) return tag.color;
     const match = tags.find((t) => t.name === tag);
-    return match ? match.color : "#EAEAEA";
+    return match ? match.color : getColorFromMap(tag.colorIndex ?? 0);
   };
 
   const visibleSchedules = Array.isArray(schedules)
