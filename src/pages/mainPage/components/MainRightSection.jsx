@@ -4,6 +4,8 @@ import GOOGLE from "@/assets/main/google.svg";
 import ANDY from "@/assets/main/andy.svg";
 import PlanTag from "./PlanTag";
 
+import { TAG_COLOR_MAP } from "../../../constants/tagColorMap";
+
 const MainRightSection = ({
   tags,
   schedules = [],
@@ -26,7 +28,14 @@ const MainRightSection = ({
 
   const getTagColor = (tagName) => {
     const match = tags.find((t) => t.name === tagName);
-    return match ? match.color : "#EAEAEA";
+
+    if (!match) return "#EAEAEA";
+
+    if (typeof match.color === "number") {
+      return TAG_COLOR_MAP[match.color] || "#EAEAEA";
+    }
+
+    return match.color || "#EAEAEA";
   };
 
   const filteredSchedules = selectedTag
