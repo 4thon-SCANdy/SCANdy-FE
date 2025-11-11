@@ -48,7 +48,7 @@ const MainLeftSection = ({
     }
   }, [isEditActive]);
 
-  const handleTagChange = async (id, newName) => {
+  const handleTagEdit = async (id, newName) => {
     const oldName = tags.find((t) => t.id === id)?.name;
     setTags((prev) =>
       prev.map((tag) => (tag.id === id ? { ...tag, name: newName } : tag))
@@ -136,7 +136,7 @@ const MainLeftSection = ({
                       type="text"
                       value={editedTags[tag.id]}
                       autoFocus
-                      onChange={(e) => handleTagChange(tag.id, e.target.value)}
+                      onChange={(e) => handleTagEdit(tag.id, e.target.value)}
                       onKeyDown={(e) =>
                         e.key === "Enter" && setIsEditActive(null)
                       }
