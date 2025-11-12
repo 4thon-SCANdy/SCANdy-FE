@@ -4,6 +4,8 @@ import * as S from "../styles/MainCalendar.style";
 import { vw } from "@/utils/units";
 import PlanTag from "./PlanTag";
 import { getTagColor as getColorFromMap } from "../../../constants/tagColorMap";
+import PlanModal from "./PlanModal";
+import { useEffect, useState } from "react";
 
 const MainCalendar = ({
   tags,
@@ -14,6 +16,8 @@ const MainCalendar = ({
   searchMode,
   searchQuery,
 }) => {
+  const [showNoResult, setShowNoResult] = useState(false);
+
   const getTagColor = (tag) => {
     if (!tag) return "#EAEAEA";
     if (typeof tag === "object" && tag.color) return tag.color;
@@ -47,8 +51,13 @@ const MainCalendar = ({
       .map((s) => s.date)
   );
 
-  console.log("검색어:", searchQuery);
-  console.log("매칭된 날짜:", Array.from(matchedDates));
+  useEffect(() => {
+    if (searchQuery && matchedDates.size === 0) {
+      setShowNoResult(true);
+      const timer = setTimeout(() => setShowNoResult(false), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [searchQuery, matchedDates.size]);
 
   return (
     <S.MainCalendarContainer className="MainCalendar">
@@ -168,6 +177,7 @@ const MainCalendar = ({
           }}
         />
       </S.CalendarBottom>
+      {showNoResult && <PlanModal />}
     </S.MainCalendarContainer>
   );
 };
