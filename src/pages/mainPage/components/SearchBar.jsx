@@ -2,13 +2,31 @@ import * as S from "../styles/SearchBar.style";
 
 import SEARCH from "@/assets/main/search.svg";
 import SEARCHING from "@/assets/main/searching.svg";
+import { useState } from "react";
 
-const SearchBar = ({ onFocus }) => {
+const SearchBar = ({ onFocus, onSearch, onBlur }) => {
+  const [value, setValue] = useState("");
+
   return (
     <>
       <S.SearchBarContainer onClick={onFocus}>
-        <S.Input type="text" placeholder="일정을 검색해 주세요!" />
-        <S.Icon src={SEARCH} data-active={SEARCHING} />
+        <S.Input
+          type="text"
+          placeholder="일정을 검색해 주세요!"
+          value={value}
+          onFocus={onFocus}
+          onBlur={onBlur}
+          onChange={(e) => {
+            setValue(e.target.value);
+          }}
+        />
+        <S.Icon
+          src={SEARCH}
+          data-active={SEARCHING}
+          onFocus={onFocus}
+          onClick={() => onSearch(value)}
+          onBlur={onBlur}
+        />
       </S.SearchBarContainer>
     </>
   );

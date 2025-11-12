@@ -12,6 +12,7 @@ const MainCalendar = ({
   selectedTag,
   onOpenRegister,
   searchMode,
+  searchQuery,
 }) => {
   const getTagColor = (tag) => {
     if (!tag) return "#EAEAEA";
@@ -36,6 +37,19 @@ const MainCalendar = ({
       "0"
     )}-${String(date.getDate()).padStart(2, "0")}`;
 
+  const matchedDates = new Set(
+    visibleSchedules
+      .filter((s) =>
+        searchQuery
+          ? s.title.toLowerCase().includes(searchQuery.toLowerCase())
+          : false
+      )
+      .map((s) => s.date)
+  );
+
+  console.log("검색어:", searchQuery);
+  console.log("매칭된 날짜:", Array.from(matchedDates));
+
   return (
     <S.MainCalendarContainer className="MainCalendar">
       <S.CalendarTop>
@@ -52,6 +66,10 @@ const MainCalendar = ({
           formatShortWeekday={(locale, date) =>
             ["일", "월", "화", "수", "목", "금", "토"][date.getDay()]
           }
+          tileClassName={({ date }) => {
+            const key = formatDateKey(date);
+            return matchedDates.has(key) ? "hasMatch" : "";
+          }}
           formatDay={(locale, date) => {
             const currentMonth = currentDate.getMonth();
             const isCurrentMonth = date.getMonth() === currentMonth;

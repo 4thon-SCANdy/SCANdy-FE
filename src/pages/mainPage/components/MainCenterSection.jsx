@@ -13,6 +13,7 @@ const MainCenterSection = ({
 }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [searchMode, setSearchMode] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const handlePrevMonth = () => {
     const newDate = new Date(currentDate);
@@ -30,7 +31,11 @@ const MainCenterSection = ({
     <>
       <S.CenterSectionContainer>
         <S.CenterHeader>
-          <SearchBar onFocus={() => setSearchMode((prev) => !prev)} />
+          <SearchBar
+            onFocus={() => setSearchMode(true)}
+            onBlur={() => setSearchMode(false)}
+            onSearch={(v) => setSearchQuery(v)}
+          />
           <CalendarArrow
             currentDate={currentDate}
             onPrev={handlePrevMonth}
@@ -44,6 +49,7 @@ const MainCenterSection = ({
           selectedTag={selectedTag}
           onOpenRegister={onOpenRegister}
           searchMode={searchMode}
+          searchQuery={searchQuery}
         />
       </S.CenterSectionContainer>
     </>
