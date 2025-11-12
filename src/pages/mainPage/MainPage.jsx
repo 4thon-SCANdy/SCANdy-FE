@@ -10,6 +10,7 @@ import GoogleModal from "../loginPage/components/GoogleModal";
 import googleSyncApi from "../../apis/auth/googleSyncApi";
 import tagGetApi from "../../apis/tag/tagGetApi";
 import allPlanGetApi from "../../apis/main/allPlanGetApi";
+import { TAG_COLOR_MAP } from "../../constants/tagColorMap";
 
 const MainPage = () => {
   const location = useLocation();
@@ -150,7 +151,15 @@ const MainPage = () => {
           if (newItem?.tag && !tags.some((t) => t.name === newItem.tag)) {
             setTags((prev) => [
               ...prev,
-              { id: Date.now(), name: newItem.tag, color: "#A0D4FF" },
+              {
+                id: Date.now(),
+                name: newItem.tag,
+                // 서버 스펙에 맞춰 사용자 태그는 color 인덱스(숫자)로 유지
+                color:
+                  typeof newItem.tagColorIndex === "number"
+                    ? newItem.tagColorIndex
+                    : 3, // 기본 인덱스(보라) fallback
+              },
             ]);
           }
           // 날짜/반복 규칙에 따라 범위 확장
