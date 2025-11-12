@@ -46,14 +46,18 @@ const MainCenterSection = ({
     const { start, end } = getMonthRange(currentDate);
     try {
       const data = await calendarSearchApi(v, start, end);
+
       if (data?.data?.length) {
         setSearchResult(data.data);
+        setSearchMode(false);
       } else {
         setSearchResult([]); // 일정 없을 경우
+        setSearchMode(true);
       }
     } catch (e) {
       console.error("검색 실패", e);
       setSearchResult([]);
+      setSearchMode(true);
     }
   };
 
