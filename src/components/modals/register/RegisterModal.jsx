@@ -11,6 +11,8 @@ import ALLDAY_ICON from "@/assets/modal/allday.svg";
 import { createEventApi } from "@/apis/calendar/createEventApi";
 import { taskProcessApi } from "@/apis/analysis/taskProcessApi";
 import { taskGetApi } from "@/apis/analysis/taskGetApi";
+import { getColorIndex } from "@/constants/tagColorMap";
+import ColorChip from "@/components/colorchip/ColorChip";
 
 function RegisterModal({
   open,
@@ -38,19 +40,14 @@ function RegisterModal({
   const [tagOpen, setTagOpen] = useState(false);
   const [selectedTagId, setSelectedTagId] = useState("");
   const [tagList, setTagList] = useState([
-    { id: "t1", name: "개인 일정", color: "#FFE28C" },
-    { id: "t2", name: "개인 일정", color: "#E0C3FF" },
-    { id: "t3", name: "개인 일정", color: "#A6D8FF" },
-    { id: "t4", name: "운동하기", color: "#C8E9FF" },
+    { id: "t1", name: "학업", color: "#FFD258" },
+    { id: "t2", name: "일상", color: "#D9C9FF" },
+    { id: "t3", name: "건강", color: "#A0D4FF" },
   ]);
   const tagListRef = useRef(tagList);
-  const COLOR_OPTIONS = [
-    "#5E81F4","#7E8DF5","#A6D8FF","#C8E9FF","#FFE28C","#FFD966","#FFAFCC","#E0C3FF",
-    "#B3F5D0","#9AE6B4","#FFD1DC","#FFDEA0","#90CDF4","#63B3ED","#CBD5E0","#A0AEC0"
-  ];
   const MAX_TAGS = 5;
   const [newTagName, setNewTagName] = useState("");
-  const [newTagColor, setNewTagColor] = useState("#E3E8FF");
+  const [newTagColor, setNewTagColor] = useState("#2BE99A");
   const [addingNewTag, setAddingNewTag] = useState(false);
   const [manualConfirmed, setManualConfirmed] = useState(false);
   const [mode, setMode] = useState("create"); // create | edit
@@ -314,8 +311,10 @@ function RegisterModal({
         const pickedTag =
           tagListRef.current.find((t) => t.id === form.tagId) ||
           tagListRef.current[0] || { name: "기본", color: "#B4BFFF" };
-        // 서버 스펙상 color는 number인 경우가 있어 임시 0으로 보냄(서버에서 매핑)
-        const tagPayload = { name: pickedTag.name, color: 0 };
+        const tagPayload = {
+          name: pickedTag.name,
+          color: getColorIndex(pickedTag.color) ?? 0,
+        };
 
         const payload = {
           title: form.title || "제목 없음",
@@ -350,6 +349,7 @@ function RegisterModal({
             startDate: (startISO || "").slice(0,10),
             endDate: (endISO || "").slice(0,10),
             tag: tagName,
+            tagColorIndex: tagPayload.color,
             title: payload.title,
             repeat: payload.repeat,
             until: (payload.until || "")?.slice?.(0,10) || null,
@@ -379,6 +379,7 @@ function RegisterModal({
               startDate: form.startDate,
               endDate: form.endDate || form.startDate,
               tag: pickedTag.name,
+              tagColorIndex: getColorIndex(pickedTag.color) ?? 0,
               title: form.title || "제목 없음",
               repeat: form.repeatOn ? (form.repeatType === "weekly" ? "WEEKLY" : "DAILY") : "NONE",
               until: form.repeatOn && form.repeatEnd ? form.repeatEnd : null,
@@ -862,17 +863,11 @@ function RegisterModal({
                             {addingNewTag && (
                               <>
                                 <S.Palette>
-                                  {COLOR_OPTIONS.map((c) => (
-                                    <S.ColorDot
-                                      key={c}
-                                      $color={c}
-                                      $active={newTagColor === c}
-                                      onClick={(e) => {
-                                      e.stopPropagation();
-                                        setNewTagColor(c);
-                                      }}
-                                    />
-                                  ))}
+                                  <ColorChip
+                                    onSelect={(c) => {
+                                      setNewTagColor(c);
+                                    }}
+                                  />
                                 </S.Palette>
                                 <S.TagNameRow>
                                   <S.SmallInput style={{ width: "100%" }}>
