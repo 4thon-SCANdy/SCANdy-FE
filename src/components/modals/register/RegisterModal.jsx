@@ -9,6 +9,7 @@ import UPLOAD_ICON from "@/assets/modal/img.svg";
 import REPEAT_ICON from "@/assets/modal/repeat.svg";
 import ALLDAY_ICON from "@/assets/modal/allday.svg";
 import { createEventApi } from "@/apis/calendar/createEventApi";
+import { updateEventApi } from "@/apis/calendar/updateEventApi";
 import { taskProcessApi } from "@/apis/analysis/taskProcessApi";
 import { taskGetApi } from "@/apis/analysis/taskGetApi";
 import { getColorIndex } from "@/constants/tagColorMap";
@@ -52,6 +53,7 @@ function RegisterModal({
   const [manualConfirmed, setManualConfirmed] = useState(false);
   const [mode, setMode] = useState("create"); // create | edit
   const [currentEdit, setCurrentEdit] = useState(null);
+  const [openedFromAnalyze, setOpenedFromAnalyze] = useState(false);
   const tagButtonRef = useRef(null);
   const [tagMenuPos, setTagMenuPos] = useState({ top: 0, left: 0 });
 
@@ -283,7 +285,100 @@ function RegisterModal({
 
   const handlePrimaryAction = async () => {
     if (isEditMode) {
-      onSaveEdit?.(collectFormData());
+      const form = collectFormData();
+      // 분석 모달에서 들어온 수정인 경우: 새 일정 생성 + 메인 캘린더 반영
+      if (openedFromAnalyze) {
+        try {
+          const toISO = (d, t) => {
+            if (!d) return "";
+            const time = (t || "00:00").padStart(5, "0");
+            const iso = `${d}T${time.length === 5 ? `${time}:00` : time}`;
+            return iso;
+          };
+          const repeatMap = { daily: "DAILY", weekly: "WEEKLY", monthly: "MONTHLY", yearly: "YEARLY" };
+          const repeat = form.repeatOn ? repeatMap[form.repeatType] || "DAILY" : "NONE";
+          const pickedTag =
+            tagListRef.current.find((t) => t.id === form.tagId) ||
+            tagListRef.current[0] || { name: "기본", color: "#B4BFFF" };
+          const tagPayload = { name: pickedTag.name, color: getColorIndex(pickedTag.color) ?? 0 };
+          const payload = {
+            title: form.title || "제목 없음",
+            content: form.title || "",
+            start_datetime: toISO(form.startDate, form.startTime),
+            end_datetime: toISO(form.endDate || form.startDate, form.endTime),
+            all_day: !!form.allDay,
+            repeat,
+            until: form.repeatOn && form.repeatEnd ? toISO(form.repeatEnd, "00:00:00") : null,
+            location: form.location || "",
+            tag: tagPayload,
+          };
+          const res = await createEventApi(payload);
+          try {
+            const body = res?.data || res;
+            const id = body?.id ?? res?.id;
+            const startISO = body?.start_datetime ?? payload.start_datetime;
+            const endISO = body?.end_datetime ?? payload.end_datetime;
+            const dateKey = (startISO || "").slice(0, 10);
+            const tagName = body?.tag?.name ?? res?.tag?.name ?? tagPayload.name;
+            onCreated?.({
+              id: id || Date.now(),
+              date: dateKey,
+              startDate: (startISO || "").slice(0, 10),
+              endDate: (endISO || "").slice(0, 10),
+              tag: tagName,
+              tagColorIndex: tagPayload.color,
+              title: payload.title,
+              repeat: payload.repeat,
+              until: (payload.until || "")?.slice?.(0, 10) || null,
+            });
+          } catch {}
+          setOpenedFromAnalyze(false);
+          onClose?.();
+        } catch (e) {
+          console.error("createEventApi (analyze->edit save) error", e);
+        }
+        return;
+      }
+      // 일반 수정: 상위 핸들러가 있으면 사용, 없으면 PATCH
+      if (onSaveEdit) {
+        onSaveEdit(form);
+        return;
+      }
+      try {
+        const toISO = (d, t) => {
+          if (!d) return "";
+          const time = (t || "00:00").padStart(5, "0");
+          return `${d}T${time.length === 5 ? `${time}:00` : time}`;
+        };
+        const repeatMap = { daily: "DAILY", weekly: "WEEKLY", monthly: "MONTHLY", yearly: "YEARLY" };
+        const repeat = form.repeatOn ? repeatMap[form.repeatType] || "DAILY" : "NONE";
+        const pickedTag =
+          tagListRef.current.find((t) => t.id === form.tagId) ||
+          tagListRef.current[0] || { name: "기본", color: "#B4BFFF" };
+        const tagPayload = {
+          name: pickedTag.name,
+          color: getColorIndex(pickedTag.color) ?? 0,
+          calendar: currentEdit?.calendar ?? undefined,
+        };
+        const updateBody = {
+          title: form.title || "제목 없음",
+          content: form.title || "",
+          start_datetime: (form.startDate || ""),
+          end_datetime: (form.endDate || form.startDate || ""),
+          start_time: toISO(form.startDate, form.startTime),
+          end_time: toISO(form.endDate || form.startDate, form.endTime),
+          all_day: !!form.allDay,
+          repeat,
+          location: form.location || "",
+          tag: tagPayload,
+        };
+        if (currentEdit?.id) {
+          await updateEventApi(currentEdit.id, updateBody);
+        }
+        onClose?.();
+      } catch (e) {
+        console.error("updateEventApi error", e);
+      }
       return;
     }
     if (isManualReadOnly) {
@@ -398,6 +493,11 @@ function RegisterModal({
 
   const handleSecondaryAction = () => {
     if (isEditMode) {
+      if (openedFromAnalyze) {
+        setOpenedFromAnalyze(false);
+        onClose?.();
+        return;
+      }
       onDeleteEdit?.(currentEdit || collectFormData());
       return;
     }
@@ -454,6 +554,50 @@ function RegisterModal({
       setSelectedTagId("t1");
     }
     setManualConfirmed(true);
+    setTagOpen(false);
+    setAddingNewTag(false);
+    setInternalAnalyzeOpen(false);
+    setView("manual");
+  };
+  const openManualEditFromAI = () => {
+    const ai = Array.isArray(aiLlmList) && aiLlmList.length ? aiLlmList[0] : null;
+    const toDate = (iso) => (iso || "").slice(0, 10);
+    const toTime = (iso) => {
+      if (!iso) return "00:00";
+      try {
+        const d = new Date(iso);
+        if (Number.isNaN(d.valueOf())) return "00:00";
+        const hh = String(d.getHours()).padStart(2, "0");
+        const mi = String(d.getMinutes()).padStart(2, "0");
+        return `${hh}:${mi}`;
+      } catch {
+        return "00:00";
+      }
+    };
+    setMode("edit");
+    setOpenedFromAnalyze(true);
+    setCurrentEdit({
+      id: currentEdit?.id ?? null, // AI 결과에는 id가 없을 수 있음
+      title: ai?.title || title || "일정을 입력해주세요",
+      startDate: toDate(ai?.start_datetime) || startDate || "",
+      endDate: toDate(ai?.end_datetime) || toDate(ai?.start_datetime) || endDate || "",
+      startTime: ai?.all_day ? "00:00" : toTime(ai?.start_datetime),
+      endTime: ai?.all_day ? "00:00" : toTime(ai?.end_datetime || ai?.start_datetime),
+      location: ai?.location || location || "",
+      allDay: !!ai?.all_day,
+      tagId: "t1",
+    });
+    if (ai) {
+      setTitle(ai.title || "일정을 입력해주세요");
+      setStartDate(toDate(ai.start_datetime) || "");
+      setEndDate(toDate(ai.end_datetime) || toDate(ai.start_datetime) || "");
+      setStartTime(ai.all_day ? "00:00" : toTime(ai.start_datetime));
+      setEndTime(ai.all_day ? "00:00" : toTime(ai.end_datetime || ai.start_datetime));
+      setLocation(ai.location || "");
+      setAllDay(!!ai.all_day);
+      setSelectedTagId("t1");
+    }
+    setManualConfirmed(false);
     setTagOpen(false);
     setAddingNewTag(false);
     setInternalAnalyzeOpen(false);
@@ -966,11 +1110,7 @@ function RegisterModal({
         recommendations={aiRecommendations}
         onClose={() => setInternalAnalyzeOpen(false)}
         onReupload={() => { setInternalAnalyzeOpen(false); setView("upload"); }}
-        onEdit={() => {
-          setInternalAnalyzeOpen(false);
-          setManualConfirmed(false);
-          setView("manual");
-        }}
+        onEdit={openManualEditFromAI}
         onSubmit={openManualConfirmationFromAI}
       />
     )}
