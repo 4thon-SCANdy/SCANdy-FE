@@ -10,6 +10,7 @@ const MainCenterSection = ({
   schedules,
   selectedTag,
   onOpenRegister,
+  onOpenScheduleList,
 }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
 
@@ -42,6 +43,7 @@ const MainCenterSection = ({
           currentDate={currentDate}
           selectedTag={selectedTag}
           onOpenRegister={onOpenRegister}
+          onOpenScheduleList={onOpenScheduleList}
         />
       </S.CenterSectionContainer>
     </>

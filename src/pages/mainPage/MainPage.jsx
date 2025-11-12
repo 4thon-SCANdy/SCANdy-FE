@@ -4,6 +4,8 @@ import MainCenterSection from "./components/MainCenterSection";
 import MainLeftSection from "./components/MainLeftSection";
 import MainRightSection from "./components/MainRightSection";
 import RegisterModal from "@/components/modals/register/RegisterModal";
+import ScheduleListModal from "@/components/modals/schedule/ScheduleListModal";
+import OriginalImageModal from "@/components/modals/analysis/OriginalImageModal";
 import { useLocation } from "react-router-dom";
 import GoogleSuccessModal from "../loginPage/components/GoogleSuccessModal";
 import GoogleModal from "../loginPage/components/GoogleModal";
@@ -11,6 +13,7 @@ import googleSyncApi from "../../apis/auth/googleSyncApi";
 import tagGetApi from "../../apis/tag/tagGetApi";
 import allPlanGetApi from "../../apis/main/allPlanGetApi";
 import { TAG_COLOR_MAP } from "../../constants/tagColorMap";
+import { getEventDetailApi } from "../../apis/calendar/getEventDetailApi";
 
 const MainPage = () => {
   const location = useLocation();
@@ -56,6 +59,14 @@ const MainPage = () => {
 
   const [schedules, setSchedules] = useState([]);
 
+  // 일정 리스트 모달/원본 이미지 모달 상태
+  const [listOpen, setListOpen] = useState(false);
+  const [listItemsWithOriginal, setListItemsWithOriginal] = useState([]);
+  const [listItemsNoOriginal, setListItemsNoOriginal] = useState([]);
+  const [originalOpen, setOriginalOpen] = useState(false);
+  const [originalImages, setOriginalImages] = useState([]);
+  const [editingFromList, setEditingFromList] = useState(null);
+
   useEffect(() => {
     const fetchSchedules = async () => {
       try {
@@ -77,6 +88,49 @@ const MainPage = () => {
 
     fetchSchedules();
   }, []);
+
+  const handleOpenScheduleList = async (dateObj, dailySchedules) => {
+    try {
+      // 상세 조회 병렬 호출
+      const details = await Promise.all(
+        (dailySchedules || []).map(async (s) => {
+          try {
+            const res = await getEventDetailApi(s.id);
+            return res?.data || res;
+          } catch (e) {
+            console.error("상세 조회 실패: ", s?.id, e);
+            return null;
+          }
+        })
+      );
+      const safe = details.filter(Boolean);
+      const toAmpm = (timeStr) => {
+        const hh = Number(String(timeStr || "00:00").slice(0, 2));
+        return hh >= 12 ? "PM" : "AM";
+      };
+      const itemsWith = [];
+      const itemsNo = [];
+      safe.forEach((d) => {
+        const firstTagName = Array.isArray(d.tag) && d.tag.length ? d.tag[0]?.name : undefined;
+        const baseItem = {
+          id: d.id,
+          ampm: toAmpm(d.start_time),
+          time: d.start_time || "00:00",
+          title: d.title || "",
+          tagLabel: firstTagName,
+          __detail: d,
+        };
+        const hasImages = Array.isArray(d.images) && d.images.length > 0;
+        if (hasImages) itemsWith.push(baseItem);
+        else itemsNo.push(baseItem);
+      });
+      setListItemsWithOriginal(itemsWith);
+      setListItemsNoOriginal(itemsNo);
+      setListOpen(true);
+    } catch (e) {
+      console.error("일정 리스트 오픈 실패: ", e);
+    }
+  };
 
   const handleRenameTag = (oldName, newName) => {
     setSchedules((prev) =>
@@ -133,6 +187,7 @@ const MainPage = () => {
             setRegisterDate(date);
             setRegisterOpen(true);
           }}
+          onOpenScheduleList={handleOpenScheduleList}
         />
         <MainRightSection
           tags={tags}
@@ -146,6 +201,7 @@ const MainPage = () => {
         open={registerOpen}
         onClose={() => setRegisterOpen(false)}
         initialDate={registerDate}
+        editSchedule={editingFromList}
         onCreated={(newItem) => {
           // 태그 존재 보장
           if (newItem?.tag && !tags.some((t) => t.name === newItem.tag)) {
@@ -240,6 +296,53 @@ const MainPage = () => {
           setSchedules((prev) => [...prev, ...acc]);
           setRegisterOpen(false);
         }}
+      />
+
+      <ScheduleListModal
+        open={listOpen}
+        onClose={() => setListOpen(false)}
+        itemsWithOriginal={listItemsWithOriginal}
+        itemsNoOriginal={listItemsNoOriginal}
+        onEdit={(item) => {
+          const d = item?.__detail;
+          if (!d) return;
+          // RegisterModal 편의 포맷으로 매핑
+          const toRepeatType = (rep) => {
+            const r = String(rep || "").toUpperCase();
+            if (r === "WEEKLY") return "weekly";
+            if (r === "MONTHLY") return "monthly";
+            if (r === "YEARLY") return "yearly";
+            return "daily";
+          };
+          setEditingFromList({
+            id: d.id,
+            title: d.title || "",
+            startDate: d.start_date || "",
+            endDate: d.end_date || d.start_date || "",
+            startTime: d.start_time || "00:00",
+            endTime: d.end_time || d.start_time || "00:00",
+            location: d.location || "",
+            allDay: !!d.all_day,
+            repeatOn: !!d.repeat && String(d.repeat).toUpperCase() !== "NONE",
+            repeatType: toRepeatType(d.repeat),
+            tagLabel: Array.isArray(d.tag) && d.tag.length ? d.tag[0]?.name : undefined,
+          });
+          setListOpen(false);
+          setRegisterOpen(true);
+        }}
+        onViewOriginal={(item) => {
+          const d = item?.__detail;
+          const imgs = Array.isArray(d?.images) ? d.images.map((x) => x?.image_url).filter(Boolean) : [];
+          setOriginalImages(imgs);
+          setOriginalOpen(true);
+        }}
+      />
+
+      <OriginalImageModal
+        open={originalOpen}
+        images={originalImages}
+        onClose={() => setOriginalOpen(false)}
+        onConfirm={() => setOriginalOpen(false)}
       />
 
       {modalInfo.open && (

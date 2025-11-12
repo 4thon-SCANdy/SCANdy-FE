@@ -1009,9 +1009,9 @@ function RegisterModal({
                                 <S.Palette>
                                   <ColorChip
                                     onSelect={(c) => {
-                                      setNewTagColor(c);
-                                    }}
-                                  />
+                                        setNewTagColor(c);
+                                      }}
+                                    />
                                 </S.Palette>
                                 <S.TagNameRow>
                                   <S.SmallInput style={{ width: "100%" }}>
