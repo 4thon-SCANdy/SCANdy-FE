@@ -61,10 +61,18 @@ const LoginPage = () => {
         <S.LoginRight>
           <S.Logo src={LOGO} />
           <S.LoginBtn>
-            <S.GoogleBtn onClick={handleGoogleOpenModal}>
-              <S.GoogleImg src={GOOGLE} />
-              <p>구글로 시작하기</p>
-            </S.GoogleBtn>
+            <S.GoogleContent>
+              <S.GoogleBtn onClick={handleGoogleOpenModal}>
+                <S.GoogleImg src={GOOGLE} />
+                <p>구글로 시작하기</p>
+              </S.GoogleBtn>
+              <S.ErrorText>
+                현재 개발 중인 서비스로, 구글 연동 시 '안전하지 않음' 경고가
+                표시될 수 있습니다. <br /> 정식 출시 후에는 정상적으로 이용
+                가능합니다.
+              </S.ErrorText>
+            </S.GoogleContent>
+
             <S.BasicBtn onClick={handleBasicOpenModal}>
               <p>가입 없이 사용하기</p>
             </S.BasicBtn>

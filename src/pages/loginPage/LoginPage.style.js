@@ -38,7 +38,6 @@ export const LoginRight = styled.div`
   justify-content: center;
   align-items: center;
   gap: ${vw(80)};
-  margin-top: ${vw(89)};
 `;
 
 export const Logo = styled.img`
@@ -50,7 +49,13 @@ export const LoginBtn = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: ${vw(30)};
+  gap: ${vw(61)};
+`;
+
+export const GoogleContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${vw(17)};
 `;
 
 export const GoogleBtn = styled.button`
@@ -72,6 +77,16 @@ export const GoogleBtn = styled.button`
     line-height: 100%; /* 35px */
     letter-spacing: -0.875px;
   }
+`;
+
+export const ErrorText = styled.p`
+  color: #606060;
+  text-align: center;
+  font-family: Pretendard;
+  font-size: ${vw(20)};
+  font-weight: 400;
+  line-height: 100%; /* 20px */
+  letter-spacing: -0.5px;
 `;
 
 export const GoogleImg = styled.img`
