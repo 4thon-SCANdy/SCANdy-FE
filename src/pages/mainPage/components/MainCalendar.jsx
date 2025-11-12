@@ -11,6 +11,7 @@ const MainCalendar = ({
   currentDate,
   selectedTag,
   onOpenRegister,
+  searchMode,
 }) => {
   const getTagColor = (tag) => {
     if (!tag) return "#EAEAEA";
@@ -40,7 +41,7 @@ const MainCalendar = ({
       <S.CalendarTop>
         <S.MonthText>{currentDate.getMonth() + 1}월</S.MonthText>
       </S.CalendarTop>
-      <S.CalendarBottom>
+      <S.CalendarBottom $searchMode={searchMode}>
         <Calendar
           locale="ko-KR"
           calendarType="gregory"

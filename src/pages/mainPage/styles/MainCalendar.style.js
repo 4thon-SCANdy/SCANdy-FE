@@ -147,7 +147,19 @@ export const CalendarBottom = styled.div`
   flex-shrink: 0;
   border-radius: 0 ${vw(30)} 0 0;
   background: #f4f6ff;
-  box-shadow: 0 0 ${vw(32)} 0 rgba(126, 141, 245, 0.2);
+  box-shadow: "rgba(126, 141, 245, 0.2)";
+  position: relative;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 0 ${vw(30)} 0 0;
+    background: ${({ $searchMode }) =>
+      $searchMode ? "rgba(180, 191, 255, 0.15)" : "transparent"};
+    z-index: 5;
+    pointer-events: none;
+  }
 `;
 
 export const PlusHitArea = styled.div`
