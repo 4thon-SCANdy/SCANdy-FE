@@ -54,6 +54,7 @@ function RegisterModal({
   const [mode, setMode] = useState("create"); // create | edit
   const [currentEdit, setCurrentEdit] = useState(null);
   const [openedFromAnalyze, setOpenedFromAnalyze] = useState(false);
+  const [fromAIFlow, setFromAIFlow] = useState(false);
   const tagButtonRef = useRef(null);
   const [tagMenuPos, setTagMenuPos] = useState({ top: 0, left: 0 });
 
@@ -330,6 +331,7 @@ function RegisterModal({
               title: payload.title,
               repeat: payload.repeat,
               until: (payload.until || "")?.slice?.(0, 10) || null,
+              imageUrls: Array.isArray(internalAnalyzeImages) && internalAnalyzeImages.length ? internalAnalyzeImages : undefined,
             });
           } catch {}
           setOpenedFromAnalyze(false);
@@ -448,7 +450,9 @@ function RegisterModal({
             title: payload.title,
             repeat: payload.repeat,
             until: (payload.until || "")?.slice?.(0,10) || null,
+            imageUrls: fromAIFlow && internalAnalyzeImages?.length ? internalAnalyzeImages : undefined,
           });
+          if (fromAIFlow) setFromAIFlow(false);
         } catch {}
         console.log("createEventApi success");
         onClose?.();
@@ -478,7 +482,9 @@ function RegisterModal({
               title: form.title || "제목 없음",
               repeat: form.repeatOn ? (form.repeatType === "weekly" ? "WEEKLY" : "DAILY") : "NONE",
               until: form.repeatOn && form.repeatEnd ? form.repeatEnd : null,
+              imageUrls: fromAIFlow && internalAnalyzeImages?.length ? internalAnalyzeImages : undefined,
             });
+            if (fromAIFlow) setFromAIFlow(false);
             onClose?.();
           } catch {}
         }
@@ -557,6 +563,7 @@ function RegisterModal({
     setTagOpen(false);
     setAddingNewTag(false);
     setInternalAnalyzeOpen(false);
+    setFromAIFlow(true);
     setView("manual");
   };
   const openManualEditFromAI = () => {
@@ -1009,9 +1016,9 @@ function RegisterModal({
                                 <S.Palette>
                                   <ColorChip
                                     onSelect={(c) => {
-                                        setNewTagColor(c);
-                                      }}
-                                    />
+                                      setNewTagColor(c);
+                                    }}
+                                  />
                                 </S.Palette>
                                 <S.TagNameRow>
                                   <S.SmallInput style={{ width: "100%" }}>

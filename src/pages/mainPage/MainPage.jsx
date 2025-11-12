@@ -95,10 +95,11 @@ const MainPage = () => {
       const details = await Promise.all(
         (dailySchedules || []).map(async (s) => {
           try {
-            const res = await getEventDetailApi(s.id);
+            const realId = s.eventId ?? s.id;
+            const res = await getEventDetailApi(realId);
             return res?.data || res;
           } catch (e) {
-            console.error("상세 조회 실패: ", s?.id, e);
+            console.error("상세 조회 실패: ", s?.id || s?.eventId, e);
             return null;
           }
         })
@@ -110,7 +111,8 @@ const MainPage = () => {
       };
       const itemsWith = [];
       const itemsNo = [];
-      safe.forEach((d) => {
+      safe.forEach((d, idx) => {
+        const src = (dailySchedules || [])[idx] || {};
         const firstTagName = Array.isArray(d.tag) && d.tag.length ? d.tag[0]?.name : undefined;
         const baseItem = {
           id: d.id,
@@ -120,7 +122,8 @@ const MainPage = () => {
           tagLabel: firstTagName,
           __detail: d,
         };
-        const hasImages = Array.isArray(d.images) && d.images.length > 0;
+        const localImages = Array.isArray(src.imageUrls) ? src.imageUrls : [];
+        const hasImages = (Array.isArray(d.images) && d.images.length > 0) || localImages.length > 0;
         if (hasImages) itemsWith.push(baseItem);
         else itemsNo.push(baseItem);
       });
@@ -184,6 +187,7 @@ const MainPage = () => {
           schedules={schedules}
           selectedTag={selectedTag}
           onOpenRegister={(date) => {
+            setEditingFromList(null);
             setRegisterDate(date);
             setRegisterOpen(true);
           }}
@@ -199,7 +203,7 @@ const MainPage = () => {
       </S.MainContainer>
       <RegisterModal
         open={registerOpen}
-        onClose={() => setRegisterOpen(false)}
+        onClose={() => { setRegisterOpen(false); setEditingFromList(null); }}
         initialDate={registerDate}
         editSchedule={editingFromList}
         onCreated={(newItem) => {
@@ -233,9 +237,11 @@ const MainPage = () => {
             }
             return days.map((date) => ({
               id: `${newItem.id}-${date}`,
+              eventId: newItem.id,
               date,
               tag: newItem.tag,
               title: newItem.title,
+              imageUrls: Array.isArray(newItem.imageUrls) ? newItem.imageUrls : undefined,
             }));
           };
 
@@ -256,9 +262,11 @@ const MainPage = () => {
               const d = String(cur.getDate()).padStart(2, "0");
               acc.push({
                 id: `${newItem.id}-${y}${m}${d}`,
+                eventId: newItem.id,
                 date: `${y}-${m}-${d}`,
                 tag: newItem.tag,
                 title: newItem.title,
+                imageUrls: Array.isArray(newItem.imageUrls) ? newItem.imageUrls : undefined,
               });
               cur.setDate(cur.getDate() + 1);
             }
