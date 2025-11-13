@@ -25,6 +25,7 @@ function RegisterModal({
   editSchedule = null,
   onSaveEdit,
   onDeleteEdit,
+  onUpdated,
 }) {
   const [view, setView] = useState("choice"); // choice | upload | manual
   // manual form state
@@ -350,6 +351,8 @@ function RegisterModal({
         return;
       }
       try {
+        // 메인 페이지 재조회 트리거 플래그 (라우팅 복귀 시 안전)
+        try { sessionStorage.setItem("needs_schedule_refresh", "1"); } catch {}
         const toISO = (d, t) => {
           if (!d) return "";
           const time = (t || "00:00").padStart(5, "0");
@@ -380,6 +383,7 @@ function RegisterModal({
         if (currentEdit?.id) {
           await updateEventApi(currentEdit.id, updateBody);
         }
+        try { onUpdated?.(); } catch {}
         onClose?.();
       } catch (e) {
         console.error("updateEventApi error", e);

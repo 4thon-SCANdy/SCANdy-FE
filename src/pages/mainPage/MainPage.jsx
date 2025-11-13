@@ -70,6 +70,114 @@ const MainPage = () => {
   const [originalRecs, setOriginalRecs] = useState([]);
   const [editingFromList, setEditingFromList] = useState(null);
 
+  // 서버 응답을 메인 캘린더가 사용하는 형태로 변환
+  const normalizeSchedules = (raw) => {
+    if (!Array.isArray(raw)) return [];
+    const toDateOnly = (iso) => {
+      if (!iso) return "";
+      try {
+        return String(iso).slice(0, 10);
+      } catch {
+        return "";
+      }
+    };
+    const addRange = (eventId, title, tagName, s, e) => {
+      const start = new Date(s);
+      const end = new Date(e || s);
+      const days = [];
+      const cur = new Date(start);
+      while (!Number.isNaN(cur.valueOf()) && cur <= end) {
+        const y = cur.getFullYear();
+        const m = String(cur.getMonth() + 1).padStart(2, "0");
+        const d = String(cur.getDate()).padStart(2, "0");
+        days.push(`${y}-${m}-${d}`);
+        cur.setDate(cur.getDate() + 1);
+      }
+      return days.map((date) => ({
+        id: `${eventId}-${date}`,
+        eventId,
+        date,
+        tag: tagName,
+        title: title || "",
+      }));
+    };
+    const result = [];
+    raw.forEach((it) => {
+      if (!it || typeof it !== "object") return;
+      const eventId = it.id ?? `${Date.now()}`;
+      const title = it.title || it.content || "";
+      const tagName =
+        (typeof it.tag === "object" ? it.tag?.name : it.tag) || undefined;
+      const baseStart =
+        toDateOnly(it.start_datetime) || toDateOnly(it.start_date);
+      const baseEnd =
+        toDateOnly(it.end_datetime) || toDateOnly(it.end_date) || baseStart;
+      const repeat = String(it.repeat || "NONE").toUpperCase();
+      const until = toDateOnly(it.until);
+      if (!baseStart) return;
+      if (repeat === "NONE" || !until) {
+        result.push(...addRange(eventId, title, tagName, baseStart, baseEnd));
+      } else if (repeat === "DAILY") {
+        try {
+          const cur = new Date(baseStart);
+          const endUntil = new Date(until);
+          while (cur <= endUntil) {
+            const y = cur.getFullYear();
+            const m = String(cur.getMonth() + 1).padStart(2, "0");
+            const d = String(cur.getDate()).padStart(2, "0");
+            const dateStr = `${y}-${m}-${d}`;
+            result.push(
+              ...addRange(eventId, title, tagName, dateStr, dateStr)
+            );
+            cur.setDate(cur.getDate() + 1);
+          }
+        } catch {
+          result.push(...addRange(eventId, title, tagName, baseStart, baseEnd));
+        }
+      } else if (repeat === "WEEKLY") {
+        try {
+          const start0 = new Date(baseStart);
+          const end0 = new Date(baseEnd);
+          const untilDate = new Date(until);
+          let curStart = new Date(start0);
+          let curEnd = new Date(end0);
+          while (curStart <= untilDate) {
+            const s = `${curStart.getFullYear()}-${String(
+              curStart.getMonth() + 1
+            ).padStart(2, "0")}-${String(curStart.getDate()).padStart(2, "0")}`;
+            const e = `${curEnd.getFullYear()}-${String(
+              curEnd.getMonth() + 1
+            ).padStart(2, "0")}-${String(curEnd.getDate()).padStart(2, "0")}`;
+            result.push(...addRange(eventId, title, tagName, s, e));
+            curStart.setDate(curStart.getDate() + 7);
+            curEnd.setDate(curEnd.getDate() + 7);
+          }
+        } catch {
+          result.push(...addRange(eventId, title, tagName, baseStart, baseEnd));
+        }
+      } else {
+        // MONTHLY / YEARLY 등은 단일 구간만 표시
+        result.push(...addRange(eventId, title, tagName, baseStart, baseEnd));
+      }
+    });
+    return result;
+  };
+
+  const refreshSchedules = async () => {
+    try {
+      const res = await allPlanGetApi();
+      const fetched = Array.isArray(res.data?.data)
+        ? res.data.data
+        : Array.isArray(res.data)
+        ? res.data
+        : [];
+      setSchedules(normalizeSchedules(fetched));
+    } catch (err) {
+      console.error("일정 재조회 실패: ", err);
+      setSchedules([]);
+    }
+  };
+
   useEffect(() => {
     const fetchSchedules = async () => {
       try {
@@ -82,7 +190,7 @@ const MainPage = () => {
           ? res.data
           : [];
 
-        setSchedules(fetched);
+        setSchedules(normalizeSchedules(fetched));
       } catch (err) {
         console.error("일정 조회 실패: ", err);
         setSchedules([]);
@@ -107,14 +215,25 @@ const MainPage = () => {
           }
         })
       );
-      const safe = details.filter(Boolean);
+      let safe = details.filter(Boolean);
       const toAmpm = (timeStr) => {
         const hh = Number(String(timeStr || "00:00").slice(0, 2));
         return hh >= 12 ? "PM" : "AM";
       };
+      // 상세 조회가 전부 실패(토큰 없음/권한 문제 등)하면, 전달받은 dailySchedules 기반으로 폴백
+      if (!safe.length && Array.isArray(dailySchedules) && dailySchedules.length) {
+        safe = dailySchedules.map((s) => ({
+          // 가능한 한 필드 맞춰주기 (없으면 빈 값)
+          id: s.eventId ?? s.id ?? `${s.date}-${s.title ?? ""}`,
+          title: s.title || "",
+          start_time: s.time || "00:00",
+          tag: s.tag ? [{ name: typeof s.tag === "object" ? s.tag.name : s.tag }] : [],
+          images: Array.isArray(s.imageUrls) ? s.imageUrls.map((u, i) => ({ id: i, image_url: u })) : [],
+        }));
+      }
       const itemsWith = [];
       const itemsNo = [];
-      safe.forEach((d, idx) => {
+      (safe || []).forEach((d, idx) => {
         const src = (dailySchedules || [])[idx] || {};
         const firstTagName = Array.isArray(d.tag) && d.tag.length ? d.tag[0]?.name : undefined;
         const baseItem = {
@@ -136,6 +255,10 @@ const MainPage = () => {
       setListOpen(true);
     } catch (e) {
       console.error("일정 리스트 오픈 실패: ", e);
+      // 에러 시에도 최소한 빈 리스트라도 열어 사용자 흐름 유지
+      setListItemsWithOriginal([]);
+      setListItemsNoOriginal([]);
+      setListOpen(true);
     }
   };
 
@@ -175,6 +298,32 @@ const MainPage = () => {
       window.history.replaceState({}, document.title);
     }
   }, [location.state]);
+
+  // 브라우저 포커스/가시성 복귀 시, 수정 플래그가 있으면 재조회
+  useEffect(() => {
+    const tryRefreshIfNeeded = () => {
+      try {
+        const flag = sessionStorage.getItem("needs_schedule_refresh");
+        if (flag === "1") {
+          sessionStorage.removeItem("needs_schedule_refresh");
+          refreshSchedules();
+        }
+      } catch {}
+    };
+    const onFocus = () => tryRefreshIfNeeded();
+    const onPageShow = () => tryRefreshIfNeeded();
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") tryRefreshIfNeeded();
+    };
+    window.addEventListener("focus", onFocus);
+    window.addEventListener("pageshow", onPageShow);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      window.removeEventListener("pageshow", onPageShow);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, []);
 
   return (
     <>
@@ -314,6 +463,7 @@ const MainPage = () => {
           setSchedules((prev) => [...prev, ...acc]);
           setRegisterOpen(false);
         }}
+      onUpdated={refreshSchedules}
       />
 
       <ScheduleListModal
@@ -340,11 +490,20 @@ const MainPage = () => {
               return "";
             }
           };
+          const local = item?.__local || {};
           setEditingFromList({
             id: d.id,
             title: d.title || "",
-            startDate: d.start_date || toDateOnly(d.start_datetime) || "",
-            endDate: d.end_date || d.start_date || toDateOnly(d.end_datetime) || "",
+            // 서버 상세 → ISO → 로컬(date) 순서로 안정적인 기본값 지정
+            startDate:
+              d.start_date ||
+              toDateOnly(d.start_datetime) ||
+              (local.date || ""),
+            endDate:
+              d.end_date ||
+              d.start_date ||
+              toDateOnly(d.end_datetime) ||
+              (local.date || ""),
             startTime: d.start_time || "00:00",
             endTime: d.end_time || d.start_time || "00:00",
             location: d.location || "",
@@ -352,7 +511,11 @@ const MainPage = () => {
             repeatOn: !!d.repeat && String(d.repeat).toUpperCase() !== "NONE",
             repeatType: toRepeatType(d.repeat),
             repeatEnd: toDateOnly(d.until) || "",
-            tagLabel: Array.isArray(d.tag) && d.tag.length ? d.tag[0]?.name : undefined,
+            tagLabel:
+              (Array.isArray(d.tag) && d.tag.length ? d.tag[0]?.name : undefined) ||
+              local.tagLabel ||
+              (typeof local.tag === "object" ? local.tag?.name : local.tag) ||
+              undefined,
           });
           setListOpen(false);
           setRegisterOpen(true);
