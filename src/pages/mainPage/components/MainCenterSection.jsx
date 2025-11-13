@@ -17,6 +17,7 @@ const MainCenterSection = ({
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResult, setSearchResult] = useState([]);
   const [highlightDates, setHighlightDates] = useState([]);
+  const [noResult, setNoResult] = useState(false);
 
   const getMonthRange = (date) => {
     const year = date.getFullYear();
@@ -57,10 +58,12 @@ const MainCenterSection = ({
         setSearchResult(transformed);
         setHighlightDates(transformed.map((s) => s.date));
         setSearchMode(false);
+        setNoResult(false);
       } else {
         setSearchResult([]); // 일정 없을 경우
         setHighlightDates([]);
         setSearchMode(true);
+        setNoResult(true);
       }
     } catch (e) {
       console.error("검색 실패", e);
@@ -75,7 +78,8 @@ const MainCenterSection = ({
     setSearchQuery("");
   };
 
-  const displayedSchedules = searchMode ? searchResult : schedules;
+  const displayedSchedules =
+    searchQuery && searchMode ? searchResult : schedules;
 
   return (
     <>
@@ -100,6 +104,7 @@ const MainCenterSection = ({
           searchMode={searchMode}
           searchQuery={searchQuery}
           highlightDates={highlightDates}
+          noResult={noResult}
           onExitSearchMode={exitSearchMode}
         />
       </S.CenterSectionContainer>

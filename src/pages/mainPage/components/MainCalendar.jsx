@@ -17,6 +17,7 @@ const MainCalendar = ({
   searchQuery,
   highlightDates,
   onExitSearchMode,
+  noResult,
 }) => {
   const [showNoResult, setShowNoResult] = useState(false);
   const [highlightSet, setHighlightSet] = useState(new Set());
@@ -44,18 +45,8 @@ const MainCalendar = ({
       "0"
     )}-${String(date.getDate()).padStart(2, "0")}`;
 
-  const matchedDates = new Set(
-    visibleSchedules
-      .filter((s) =>
-        searchQuery
-          ? s.title.toLowerCase().includes(searchQuery.toLowerCase())
-          : false
-      )
-      .map((s) => s.date)
-  );
-
   useEffect(() => {
-    if (searchQuery && matchedDates.size === 0) {
+    if (noResult) {
       setShowNoResult(true);
       const timer = setTimeout(() => {
         setShowNoResult(false);
@@ -63,7 +54,7 @@ const MainCalendar = ({
       }, 3000);
       return () => clearTimeout(timer);
     }
-  }, [searchQuery, matchedDates.size]);
+  }, [noResult]);
 
   useEffect(() => {
     if (highlightDates && highlightDates.length > 0) {
