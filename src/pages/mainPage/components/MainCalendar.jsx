@@ -16,6 +16,7 @@ const MainCalendar = ({
   searchMode,
   searchQuery,
   highlightDates,
+  onExitSearchMode,
 }) => {
   const [showNoResult, setShowNoResult] = useState(false);
   const [highlightSet, setHighlightSet] = useState(new Set());
@@ -56,7 +57,10 @@ const MainCalendar = ({
   useEffect(() => {
     if (searchQuery && matchedDates.size === 0) {
       setShowNoResult(true);
-      const timer = setTimeout(() => setShowNoResult(false), 3000);
+      const timer = setTimeout(() => {
+        setShowNoResult(false);
+        onExitSearchMode();
+      }, 3000);
       return () => clearTimeout(timer);
     }
   }, [searchQuery, matchedDates.size]);

@@ -66,8 +66,13 @@ const MainCenterSection = ({
       console.error("검색 실패", e);
       setSearchResult([]);
       setHighlightDates([]);
-      setSearchMode(true);
+      setSearchMode(false);
     }
+  };
+
+  const exitSearchMode = () => {
+    setSearchMode(false);
+    setSearchQuery("");
   };
 
   const displayedSchedules = searchMode ? searchResult : schedules;
@@ -95,6 +100,7 @@ const MainCenterSection = ({
           searchMode={searchMode}
           searchQuery={searchQuery}
           highlightDates={highlightDates}
+          onExitSearchMode={exitSearchMode}
         />
       </S.CenterSectionContainer>
     </>
