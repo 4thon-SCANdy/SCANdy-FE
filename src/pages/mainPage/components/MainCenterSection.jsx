@@ -4,7 +4,7 @@ import { useState } from "react";
 import MainCalendar from "./MainCalendar";
 import CalendarArrow from "./CalendarArrow";
 import SearchBar from "./SearchBar";
-import { calendarSearchApi } from "../../../apis/calendar/calendarSearchApi";
+import calendarSearchApi from "../../../apis/calendar/calendarSearchApi";
 
 const MainCenterSection = ({
   tags,

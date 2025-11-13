@@ -1,6 +1,6 @@
 import defaultInstance from "../utils/instance";
 
-export const calendarSearchApi = async (query, start, end) => {
+const calendarSearchApi = async (query, start, end) => {
   try {
     const response = await defaultInstance.get("/calendar/events/search", {
       params: { q: query, start, end },
@@ -12,3 +12,5 @@ export const calendarSearchApi = async (query, start, end) => {
     throw error;
   }
 };
+
+export default calendarSearchApi;
