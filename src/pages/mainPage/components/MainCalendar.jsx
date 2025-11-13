@@ -4,6 +4,8 @@ import * as S from "../styles/MainCalendar.style";
 import { vw } from "@/utils/units";
 import PlanTag from "./PlanTag";
 import { getTagColor as getColorFromMap } from "../../../constants/tagColorMap";
+import PlanModal from "./PlanModal";
+import { useEffect, useState } from "react";
 
 const MainCalendar = ({
   tags,
@@ -12,7 +14,11 @@ const MainCalendar = ({
   selectedTag,
   onOpenRegister,
   onOpenScheduleList,
+  searchMode,
+  searchQuery,
 }) => {
+  const [showNoResult, setShowNoResult] = useState(false);
+
   const getTagColor = (tag) => {
     if (!tag) return "#EAEAEA";
     if (typeof tag === "object" && tag.color) return tag.color;
@@ -36,12 +42,30 @@ const MainCalendar = ({
       "0"
     )}-${String(date.getDate()).padStart(2, "0")}`;
 
+  const matchedDates = new Set(
+    visibleSchedules
+      .filter((s) =>
+        searchQuery
+          ? s.title.toLowerCase().includes(searchQuery.toLowerCase())
+          : false
+      )
+      .map((s) => s.date)
+  );
+
+  useEffect(() => {
+    if (searchQuery && matchedDates.size === 0) {
+      setShowNoResult(true);
+      const timer = setTimeout(() => setShowNoResult(false), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [searchQuery, matchedDates.size]);
+
   return (
     <S.MainCalendarContainer className="MainCalendar">
       <S.CalendarTop>
         <S.MonthText>{currentDate.getMonth() + 1}월</S.MonthText>
       </S.CalendarTop>
-      <S.CalendarBottom>
+      <S.CalendarBottom $searchMode={searchMode}>
         <Calendar
           locale="ko-KR"
           calendarType="gregory"
@@ -61,6 +85,10 @@ const MainCalendar = ({
           formatShortWeekday={(locale, date) =>
             ["일", "월", "화", "수", "목", "금", "토"][date.getDay()]
           }
+          tileClassName={({ date }) => {
+            const key = formatDateKey(date);
+            return matchedDates.has(key) ? "hasMatch" : "";
+          }}
           formatDay={(locale, date) => {
             const currentMonth = currentDate.getMonth();
             const isCurrentMonth = date.getMonth() === currentMonth;
@@ -159,6 +187,7 @@ const MainCalendar = ({
           }}
         />
       </S.CalendarBottom>
+      {showNoResult && <PlanModal />}
     </S.MainCalendarContainer>
   );
 };

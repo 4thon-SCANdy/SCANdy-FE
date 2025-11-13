@@ -42,6 +42,17 @@ export const MainCalendarContainer = styled.div`
     cursor: pointer;
   }
 
+  .react-calendar__tile.hasMatch {
+    border: ${vw(3)} solid #7E8DF5 !important;
+    border-right: none;
+    border-bottom: none;
+  }
+
+  /* hover 시 강조 효과 */
+  .react-calendar__tile.hasMatch:hover {
+    box-shadow: 0 0 ${vw(16)} rgba(94, 129, 244, 0.5);
+  }
+
   /* 날짜 칸 */
   .react-calendar__tile {
     position: relative;
@@ -57,8 +68,8 @@ export const MainCalendarContainer = styled.div`
     justify-content: flex-start;
     padding: 0; /* 내부 패딩 완전 제거 */
 
-     &:hover::before {
-      bottom: ${vw(13)};         
+    &:hover::before {
+      bottom: ${vw(13)};
       right: ${vw(10)};
       width: ${vw(40)};
       height: ${vw(40)};
@@ -75,7 +86,7 @@ export const MainCalendarContainer = styled.div`
     &::before {
       content: "";
       position: absolute;
-      bottom: ${vw(13)};         
+      bottom: ${vw(13)};
       right: ${vw(10)};
       width: ${vw(40)};
       height: ${vw(40)};
@@ -86,9 +97,7 @@ export const MainCalendarContainer = styled.div`
       transition: opacity 0.3s ease-in-out;
       pointer-events: none;
     }
-  }
-
-  }
+}}
 
   .MainCalendar .react-calendar__tile::after {
     content: "";
@@ -147,7 +156,19 @@ export const CalendarBottom = styled.div`
   flex-shrink: 0;
   border-radius: 0 ${vw(30)} 0 0;
   background: #f4f6ff;
-  box-shadow: 0 0 ${vw(32)} 0 rgba(126, 141, 245, 0.2);
+  box-shadow: "rgba(126, 141, 245, 0.2)";
+  position: relative;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 0 ${vw(30)} 0 0;
+    background: ${({ $searchMode }) =>
+      $searchMode ? "rgba(180, 191, 255, 0.15)" : "transparent"};
+    z-index: 5;
+    pointer-events: none;
+  }
 `;
 
 export const PlusHitArea = styled.div`
