@@ -16,6 +16,7 @@ const MainCenterSection = ({
   const [searchMode, setSearchMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResult, setSearchResult] = useState([]);
+  const [highlightDates, setHighlightDates] = useState([]);
 
   const getMonthRange = (date) => {
     const year = date.getFullYear();
@@ -40,6 +41,7 @@ const MainCenterSection = ({
     setSearchQuery(v);
     if (!v) {
       setSearchResult([]); // 검색어 없으면 초기화
+      setHighlightDates([]);
       return;
     }
 
@@ -53,17 +55,22 @@ const MainCenterSection = ({
           date: item.start_datetime.split("T")[0],
         }));
         setSearchResult(transformed);
+        setHighlightDates(transformed.map((s) => s.date));
         setSearchMode(false);
       } else {
         setSearchResult([]); // 일정 없을 경우
+        setHighlightDates([]);
         setSearchMode(true);
       }
     } catch (e) {
       console.error("검색 실패", e);
       setSearchResult([]);
+      setHighlightDates([]);
       setSearchMode(true);
     }
   };
+
+  const displayedSchedules = searchMode ? searchResult : schedules;
 
   return (
     <>
@@ -81,12 +88,13 @@ const MainCenterSection = ({
         </S.CenterHeader>
         <MainCalendar
           tags={tags}
-          schedules={searchResult.length ? searchResult : schedules}
+          schedules={displayedSchedules}
           currentDate={currentDate}
           selectedTag={selectedTag}
           onOpenRegister={onOpenRegister}
           searchMode={searchMode}
           searchQuery={searchQuery}
+          highlightDates={highlightDates}
         />
       </S.CenterSectionContainer>
     </>

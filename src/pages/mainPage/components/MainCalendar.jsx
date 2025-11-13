@@ -15,8 +15,10 @@ const MainCalendar = ({
   onOpenRegister,
   searchMode,
   searchQuery,
+  highlightDates,
 }) => {
   const [showNoResult, setShowNoResult] = useState(false);
+  const [highlightSet, setHighlightSet] = useState(new Set());
 
   const getTagColor = (tag) => {
     if (!tag) return "#EAEAEA";
@@ -59,6 +61,19 @@ const MainCalendar = ({
     }
   }, [searchQuery, matchedDates.size]);
 
+  useEffect(() => {
+    if (highlightDates && highlightDates.length > 0) {
+      const newSet = new Set(highlightDates);
+      setHighlightSet(newSet);
+
+      const timer = setTimeout(() => {
+        setHighlightSet(new Set());
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [highlightDates]);
+
   return (
     <S.MainCalendarContainer className="MainCalendar">
       <S.CalendarTop>
@@ -77,7 +92,8 @@ const MainCalendar = ({
           }
           tileClassName={({ date }) => {
             const key = formatDateKey(date);
-            return matchedDates.has(key) ? "hasMatch" : "";
+
+            return highlightSet.has(key) ? "hasMatch" : "";
           }}
           formatDay={(locale, date) => {
             const currentMonth = currentDate.getMonth();
@@ -155,6 +171,7 @@ const MainCalendar = ({
                     </PlanTag>
                   </div>
                 ))}
+
                 <S.PlusHitArea
                   role="button"
                   tabIndex={0}
