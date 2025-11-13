@@ -13,7 +13,7 @@ export const TagWrapper = styled.div`
 
 export const TagContainer = styled.div`
   left: 50%;
-  z-index: 10;
+  z-index: 10000;
 
   display: flex;
   align-items: center;
