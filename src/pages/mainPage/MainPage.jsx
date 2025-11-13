@@ -70,6 +70,7 @@ const MainPage = () => {
   const [originalLlm, setOriginalLlm] = useState([]);
   const [originalRecs, setOriginalRecs] = useState([]);
   const [editingFromList, setEditingFromList] = useState(null);
+  const [selectedDateForList, setSelectedDateForList] = useState(null);
 
   // 서버 응답을 메인 캘린더가 사용하는 형태로 변환
   const normalizeSchedules = (raw) => {
@@ -203,6 +204,7 @@ const MainPage = () => {
 
   const handleOpenScheduleList = async (dateObj, dailySchedules) => {
     try {
+      setSelectedDateForList(dateObj instanceof Date ? dateObj : null);
       // 상세 조회 병렬 호출
       const details = await Promise.all(
         (dailySchedules || []).map(async (s) => {
@@ -493,6 +495,7 @@ const MainPage = () => {
       <ScheduleListModal
         open={listOpen}
         onClose={() => setListOpen(false)}
+        selectedDate={selectedDateForList}
         itemsWithOriginal={listItemsWithOriginal}
         itemsNoOriginal={listItemsNoOriginal}
         onEdit={(item) => {

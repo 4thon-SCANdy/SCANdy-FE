@@ -40,6 +40,7 @@ function ScheduleListModal({
   onShare,
   showOriginalButton = false,
   title = "일정 확인",
+  selectedDate,
 }) {
   if (!open) return null;
 
@@ -53,11 +54,14 @@ function ScheduleListModal({
     }
   }, [open]);
 
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = today.getMonth() + 1;
-  const date = today.getDate();
-  const day = days[today.getDay()];
+  const baseDate =
+    selectedDate instanceof Date && !Number.isNaN(selectedDate.valueOf())
+      ? selectedDate
+      : new Date();
+  const year = baseDate.getFullYear();
+  const month = baseDate.getMonth() + 1;
+  const date = baseDate.getDate();
+  const day = days[baseDate.getDay()];
 
   // 호환성: 단일 items가 주어지면 각 아이템의 hasOriginal로 판단
   // itemsWithOriginal / itemsNoOriginal 가 주어지면 두 배열을 합쳐 한 리스트로 렌더
