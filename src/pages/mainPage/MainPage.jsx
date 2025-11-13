@@ -332,17 +332,26 @@ const MainPage = () => {
             if (r === "YEARLY") return "yearly";
             return "daily";
           };
+          const toDateOnly = (v) => {
+            if (!v) return "";
+            try {
+              return String(v).slice(0, 10);
+            } catch {
+              return "";
+            }
+          };
           setEditingFromList({
             id: d.id,
             title: d.title || "",
-            startDate: d.start_date || "",
-            endDate: d.end_date || d.start_date || "",
+            startDate: d.start_date || toDateOnly(d.start_datetime) || "",
+            endDate: d.end_date || d.start_date || toDateOnly(d.end_datetime) || "",
             startTime: d.start_time || "00:00",
             endTime: d.end_time || d.start_time || "00:00",
             location: d.location || "",
             allDay: !!d.all_day,
             repeatOn: !!d.repeat && String(d.repeat).toUpperCase() !== "NONE",
             repeatType: toRepeatType(d.repeat),
+            repeatEnd: toDateOnly(d.until) || "",
             tagLabel: Array.isArray(d.tag) && d.tag.length ? d.tag[0]?.name : undefined,
           });
           setListOpen(false);
