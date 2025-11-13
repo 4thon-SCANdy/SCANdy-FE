@@ -11,6 +11,7 @@ const MainCenterSection = ({
   schedules,
   selectedTag,
   onOpenRegister,
+  onOpenScheduleList,
 }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [searchMode, setSearchMode] = useState(false);
@@ -82,6 +83,7 @@ const MainCenterSection = ({
           currentDate={currentDate}
           selectedTag={selectedTag}
           onOpenRegister={onOpenRegister}
+          onOpenScheduleList={onOpenScheduleList}
           searchMode={searchMode}
           searchQuery={searchQuery}
         />

@@ -14,6 +14,7 @@ import { taskProcessApi } from "@/apis/analysis/taskProcessApi";
 import { taskGetApi } from "@/apis/analysis/taskGetApi";
 import { getColorIndex } from "@/constants/tagColorMap";
 import ColorChip from "@/components/colorchip/ColorChip";
+import ConfirmDeleteModal from "./ConfirmDeleteModal";
 
 function RegisterModal({
   open,
@@ -25,6 +26,7 @@ function RegisterModal({
   editSchedule = null,
   onSaveEdit,
   onDeleteEdit,
+  onUpdated,
 }) {
   const [view, setView] = useState("choice"); // choice | upload | manual
   // manual form state
@@ -54,8 +56,10 @@ function RegisterModal({
   const [mode, setMode] = useState("create"); // create | edit
   const [currentEdit, setCurrentEdit] = useState(null);
   const [openedFromAnalyze, setOpenedFromAnalyze] = useState(false);
+  const [fromAIFlow, setFromAIFlow] = useState(false);
   const tagButtonRef = useRef(null);
   const [tagMenuPos, setTagMenuPos] = useState({ top: 0, left: 0 });
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
 
   const isEditMode = mode === "edit";
 
@@ -330,12 +334,53 @@ function RegisterModal({
               title: payload.title,
               repeat: payload.repeat,
               until: (payload.until || "")?.slice?.(0, 10) || null,
+            imageUrls: Array.isArray(internalAnalyzeImages) && internalAnalyzeImages.length ? internalAnalyzeImages : undefined,
+            ocrList: Array.isArray(aiOcrList) ? aiOcrList : undefined,
+            llmList: Array.isArray(aiLlmList) ? aiLlmList : undefined,
+            recommendations: Array.isArray(aiRecommendations) ? aiRecommendations : undefined,
             });
           } catch {}
           setOpenedFromAnalyze(false);
           onClose?.();
         } catch (e) {
           console.error("createEventApi (analyze->edit save) error", e);
+          // 개발환경에서는 낙관적 업데이트로 메인 캘린더 반영
+          if (import.meta.env?.DEV) {
+            try {
+              const toISO = (d, t) => {
+                if (!d) return "";
+                const time = (t || "00:00").padStart(5, "0");
+                const iso = `${d}T${time.length === 5 ? `${time}:00` : time}`;
+                return iso;
+              };
+              const repeatMap = { daily: "DAILY", weekly: "WEEKLY", monthly: "MONTHLY", yearly: "YEARLY" };
+              const repeat = form.repeatOn ? repeatMap[form.repeatType] || "DAILY" : "NONE";
+              const pickedTag =
+                tagListRef.current.find((t) => t.id === form.tagId) ||
+                tagListRef.current[0] || { name: "기본", color: "#B4BFFF" };
+              const tagPayload = { name: pickedTag.name, color: getColorIndex(pickedTag.color) ?? 0 };
+              const startISO = toISO(form.startDate, form.startTime);
+              const endISO = toISO(form.endDate || form.startDate, form.endTime);
+              const dateKey = (startISO || "").slice(0, 10);
+              onCreated?.({
+                id: Date.now(),
+                date: dateKey,
+                startDate: (startISO || "").slice(0, 10),
+                endDate: (endISO || "").slice(0, 10),
+                tag: pickedTag.name,
+                tagColorIndex: tagPayload.color,
+                title: form.title || "제목 없음",
+                repeat,
+                until: form.repeatOn && form.repeatEnd ? form.repeatEnd : null,
+                imageUrls: Array.isArray(internalAnalyzeImages) && internalAnalyzeImages.length ? internalAnalyzeImages : undefined,
+                ocrList: Array.isArray(aiOcrList) ? aiOcrList : undefined,
+                llmList: Array.isArray(aiLlmList) ? aiLlmList : undefined,
+                recommendations: Array.isArray(aiRecommendations) ? aiRecommendations : undefined,
+              });
+              setOpenedFromAnalyze(false);
+              onClose?.();
+            } catch {}
+          }
         }
         return;
       }
@@ -345,6 +390,8 @@ function RegisterModal({
         return;
       }
       try {
+        // 메인 페이지 재조회 트리거 플래그 (라우팅 복귀 시 안전)
+        try { sessionStorage.setItem("needs_schedule_refresh", "1"); } catch {}
         const toISO = (d, t) => {
           if (!d) return "";
           const time = (t || "00:00").padStart(5, "0");
@@ -375,6 +422,7 @@ function RegisterModal({
         if (currentEdit?.id) {
           await updateEventApi(currentEdit.id, updateBody);
         }
+        try { onUpdated?.(); } catch {}
         onClose?.();
       } catch (e) {
         console.error("updateEventApi error", e);
@@ -448,7 +496,12 @@ function RegisterModal({
             title: payload.title,
             repeat: payload.repeat,
             until: (payload.until || "")?.slice?.(0,10) || null,
+            imageUrls: fromAIFlow && internalAnalyzeImages?.length ? internalAnalyzeImages : undefined,
+            ocrList: fromAIFlow && Array.isArray(aiOcrList) ? aiOcrList : undefined,
+            llmList: fromAIFlow && Array.isArray(aiLlmList) ? aiLlmList : undefined,
+            recommendations: fromAIFlow && Array.isArray(aiRecommendations) ? aiRecommendations : undefined,
           });
+          if (fromAIFlow) setFromAIFlow(false);
         } catch {}
         console.log("createEventApi success");
         onClose?.();
@@ -478,7 +531,12 @@ function RegisterModal({
               title: form.title || "제목 없음",
               repeat: form.repeatOn ? (form.repeatType === "weekly" ? "WEEKLY" : "DAILY") : "NONE",
               until: form.repeatOn && form.repeatEnd ? form.repeatEnd : null,
+              imageUrls: fromAIFlow && internalAnalyzeImages?.length ? internalAnalyzeImages : undefined,
+              ocrList: fromAIFlow && Array.isArray(aiOcrList) ? aiOcrList : undefined,
+              llmList: fromAIFlow && Array.isArray(aiLlmList) ? aiLlmList : undefined,
+              recommendations: fromAIFlow && Array.isArray(aiRecommendations) ? aiRecommendations : undefined,
             });
+            if (fromAIFlow) setFromAIFlow(false);
             onClose?.();
           } catch {}
         }
@@ -498,7 +556,8 @@ function RegisterModal({
         onClose?.();
         return;
       }
-      onDeleteEdit?.(currentEdit || collectFormData());
+      // 삭제 확인 모달 오픈
+      setConfirmDeleteOpen(true);
       return;
     }
     setManualConfirmed(false);
@@ -557,6 +616,7 @@ function RegisterModal({
     setTagOpen(false);
     setAddingNewTag(false);
     setInternalAnalyzeOpen(false);
+    setFromAIFlow(true);
     setView("manual");
   };
   const openManualEditFromAI = () => {
@@ -1101,6 +1161,18 @@ function RegisterModal({
         </S.Content>
       </S.Padding>
     </ModalBase>
+    {/* 삭제 확인 모달 */}
+    <ConfirmDeleteModal
+      open={confirmDeleteOpen}
+      onCancel={() => setConfirmDeleteOpen(false)}
+      onConfirm={() => {
+        try {
+          onDeleteEdit?.(currentEdit || collectFormData());
+        } finally {
+          setConfirmDeleteOpen(false);
+        }
+      }}
+    />
     {internalAnalyzeOpen && (
       <AnalyzeModal
         open={internalAnalyzeOpen}

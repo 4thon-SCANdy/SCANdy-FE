@@ -13,6 +13,7 @@ const MainCalendar = ({
   currentDate,
   selectedTag,
   onOpenRegister,
+  onOpenScheduleList,
   searchMode,
   searchQuery,
 }) => {
@@ -72,6 +73,15 @@ const MainCalendar = ({
           prev2Label={null}
           next2Label={null}
           activeStartDate={currentDate}
+          onClickDay={(date) => {
+            const dayKey = formatDateKey(date);
+            const dailySchedules = visibleSchedules.filter((s) => s.date === dayKey);
+            if (dailySchedules && dailySchedules.length > 0) {
+              onOpenScheduleList?.(date, dailySchedules);
+            } else {
+              onOpenRegister?.(date);
+            }
+          }}
           formatShortWeekday={(locale, date) =>
             ["일", "월", "화", "수", "목", "금", "토"][date.getDay()]
           }

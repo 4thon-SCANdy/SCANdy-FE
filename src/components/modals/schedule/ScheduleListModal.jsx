@@ -40,6 +40,7 @@ function ScheduleListModal({
   onShare,
   showOriginalButton = false,
   title = "일정 확인",
+  selectedDate,
 }) {
   if (!open) return null;
 
@@ -53,11 +54,14 @@ function ScheduleListModal({
     }
   }, [open]);
 
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = today.getMonth() + 1;
-  const date = today.getDate();
-  const day = days[today.getDay()];
+  const baseDate =
+    selectedDate instanceof Date && !Number.isNaN(selectedDate.valueOf())
+      ? selectedDate
+      : new Date();
+  const year = baseDate.getFullYear();
+  const month = baseDate.getMonth() + 1;
+  const date = baseDate.getDate();
+  const day = days[baseDate.getDay()];
 
   // 호환성: 단일 items가 주어지면 각 아이템의 hasOriginal로 판단
   // itemsWithOriginal / itemsNoOriginal 가 주어지면 두 배열을 합쳐 한 리스트로 렌더
@@ -89,10 +93,16 @@ function ScheduleListModal({
   }, [items, itemsNoOriginal, itemsWithOriginal, showOriginalButton]);
 
   useEffect(() => {
-    setShareSelection((prev) =>
-      prev.filter((id) => allItems.some((item) => item.id === id)),
-    );
-  }, [allItems]);
+    if (!open) return;
+    setShareSelection((prev) => {
+      const next = prev.filter((id) => allItems.some((item) => item.id === id));
+      // 변경 사항이 없으면 setState 생략해 렌더 루프 방지
+      if (prev.length === next.length && prev.every((v, i) => v === next[i])) {
+        return prev;
+      }
+      return next;
+    });
+  }, [open, allItems]);
 
   const toggleShareSelection = (targetId) => {
     setShareSelection((prev) =>

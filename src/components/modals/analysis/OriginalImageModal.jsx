@@ -2,14 +2,42 @@ import React, { useMemo, useState, useEffect, useRef } from "react";
 import ModalBase from "../ModalBase";
 import * as S from "./OriginalImageModal.style";
 
-function OriginalImageModal({ open, onClose, onConfirm, images = [] }) {
-  const ocrSamples = [
-    "10월 24일 오후 2시 회의 있음",
-    "10월 24일 오후 2시 회의 있음",
-    "10월 24일 오후 2시 회의 있음",
-    "10월 24일 오후 2시 회의 있음",
-    "10월 24일 오후 2시 회의 있음",
-  ];
+function OriginalImageModal({
+  open,
+  onClose,
+  onConfirm,
+  images = [],
+  ocrList = [],
+  llmList = [],
+  recommendations = [],
+}) {
+  const primaryLlm =
+    Array.isArray(llmList) && llmList.length > 0 ? llmList[0] : null;
+  const formatDate = (iso) => {
+    if (!iso) return "";
+    try {
+      const d = new Date(iso);
+      if (Number.isNaN(d.valueOf())) return "";
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      const dd = String(d.getDate()).padStart(2, "0");
+      return `${yyyy}.${mm}.${dd}`;
+    } catch {
+      return "";
+    }
+  };
+  const formatTime = (iso) => {
+    if (!iso) return "00:00";
+    try {
+      const d = new Date(iso);
+      if (Number.isNaN(d.valueOf())) return "00:00";
+      const hh = String(d.getHours()).padStart(2, "0");
+      const mi = String(d.getMinutes()).padStart(2, "0");
+      return `${hh}:${mi}`;
+    } catch {
+      return "00:00";
+    }
+  };
 
   const createdUrlsRef = useRef([]);
   const sanitizedImages = useMemo(() => {
@@ -55,7 +83,7 @@ function OriginalImageModal({ open, onClose, onConfirm, images = [] }) {
               <S.CardTop>OCR 추출 결과</S.CardTop>
               <S.OcrBox>
                 <S.OcrList>
-                  {ocrSamples.map((t, i) => (
+                  {(Array.isArray(ocrList) && ocrList.length ? ocrList : ["분석 결과가 없습니다."]).map((t, i) => (
                     <S.OcrItem key={i}>{t}</S.OcrItem>
                   ))}
                 </S.OcrList>
@@ -67,19 +95,23 @@ function OriginalImageModal({ open, onClose, onConfirm, images = [] }) {
               <S.AiBox>
                 <S.FieldRow>
                   <S.Chip>제목</S.Chip>
-                  <S.Pill>일정을 입력해주세요</S.Pill>
+                  <S.Pill>{primaryLlm?.title || "일정을 입력해주세요"}</S.Pill>
                 </S.FieldRow>
                 <S.FieldRow>
                   <S.Chip>날짜</S.Chip>
-                  <S.Pill>2025.10.26</S.Pill>
+                  <S.Pill>{formatDate(primaryLlm?.start_datetime) || "-"}</S.Pill>
                 </S.FieldRow>
                 <S.FieldRow>
                   <S.Chip>시간</S.Chip>
-                  <S.Pill>00:00</S.Pill>
+                  <S.Pill>
+                    {primaryLlm?.all_day
+                      ? "하루 종일"
+                      : `${formatTime(primaryLlm?.start_datetime)} ~ ${formatTime(primaryLlm?.end_datetime)}`}
+                  </S.Pill>
                 </S.FieldRow>
                 <S.FieldRow>
                   <S.Chip>장소</S.Chip>
-                  <S.Pill>회의실</S.Pill>
+                  <S.Pill>{primaryLlm?.location || "-"}</S.Pill>
                 </S.FieldRow>
               </S.AiBox>
             </S.CardBox>
@@ -118,5 +150,6 @@ function OriginalImageModal({ open, onClose, onConfirm, images = [] }) {
 }
 
 export default OriginalImageModal;
+
 
 
