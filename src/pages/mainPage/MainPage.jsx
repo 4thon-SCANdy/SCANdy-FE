@@ -14,6 +14,7 @@ import tagGetApi from "../../apis/tag/tagGetApi";
 import allPlanGetApi from "../../apis/main/allPlanGetApi";
 import { TAG_COLOR_MAP } from "../../constants/tagColorMap";
 import { getEventDetailApi } from "../../apis/calendar/getEventDetailApi";
+import { deleteEventApi } from "../../apis/calendar/deleteEventApi";
 
 const MainPage = () => {
   const location = useLocation();
@@ -359,6 +360,25 @@ const MainPage = () => {
         onClose={() => { setRegisterOpen(false); setEditingFromList(null); }}
         initialDate={registerDate}
         editSchedule={editingFromList}
+        onDeleteEdit={async (editObj) => {
+          try {
+            const id = editObj?.id || editingFromList?.id;
+            if (!id) return;
+            // 서버 삭제
+            await deleteEventApi(id);
+            // 즉시 로컬에서 제거
+            setSchedules((prev) => prev.filter((s) => s.eventId !== id));
+            // 안전망: 복귀/포커스 시 재조회하도록 플래그
+            try { sessionStorage.setItem("needs_schedule_refresh", "1"); } catch {}
+            // 바로 재조회도 수행
+            refreshSchedules();
+          } catch (e) {
+            console.error("deleteEventApi error", e);
+          } finally {
+            setRegisterOpen(false);
+            setEditingFromList(null);
+          }
+        }}
         onCreated={(newItem) => {
           // 태그 존재 보장
           if (newItem?.tag && !tags.some((t) => t.name === newItem.tag)) {
