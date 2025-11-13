@@ -48,7 +48,11 @@ const MainCenterSection = ({
       const data = await calendarSearchApi(v, start, end);
 
       if (data?.data?.length) {
-        setSearchResult(data.data);
+        const transformed = data.data.map((item) => ({
+          ...item,
+          date: item.start_datetime.split("T")[0],
+        }));
+        setSearchResult(transformed);
         setSearchMode(false);
       } else {
         setSearchResult([]); // 일정 없을 경우
@@ -67,7 +71,6 @@ const MainCenterSection = ({
         <S.CenterHeader>
           <SearchBar
             onFocus={() => setSearchMode(true)}
-            onBlur={() => setSearchMode(false)}
             onSearch={handleSearch}
           />
           <CalendarArrow
