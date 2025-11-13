@@ -89,10 +89,16 @@ function ScheduleListModal({
   }, [items, itemsNoOriginal, itemsWithOriginal, showOriginalButton]);
 
   useEffect(() => {
-    setShareSelection((prev) =>
-      prev.filter((id) => allItems.some((item) => item.id === id)),
-    );
-  }, [allItems]);
+    if (!open) return;
+    setShareSelection((prev) => {
+      const next = prev.filter((id) => allItems.some((item) => item.id === id));
+      // 변경 사항이 없으면 setState 생략해 렌더 루프 방지
+      if (prev.length === next.length && prev.every((v, i) => v === next[i])) {
+        return prev;
+      }
+      return next;
+    });
+  }, [open, allItems]);
 
   const toggleShareSelection = (targetId) => {
     setShareSelection((prev) =>
