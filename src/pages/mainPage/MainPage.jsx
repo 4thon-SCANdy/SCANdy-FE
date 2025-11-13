@@ -361,20 +361,24 @@ const MainPage = () => {
         initialDate={registerDate}
         editSchedule={editingFromList}
         onDeleteEdit={async (editObj) => {
+          const idRaw = editObj?.id || editingFromList?.id;
+          if (!idRaw) {
+            setRegisterOpen(false);
+            setEditingFromList(null);
+            return;
+          }
+          const idStr = String(idRaw);
+          // 1) UI를 먼저 낙관적으로 업데이트(모든 날짜 인스턴스 제거)
+          setSchedules((prev) => prev.filter((s) => String(s.eventId) !== idStr));
           try {
-            const id = editObj?.id || editingFromList?.id;
-            if (!id) return;
-            // 서버 삭제
-            await deleteEventApi(id);
-            // 즉시 로컬에서 제거
-            setSchedules((prev) => prev.filter((s) => s.eventId !== id));
-            // 안전망: 복귀/포커스 시 재조회하도록 플래그
-            try { sessionStorage.setItem("needs_schedule_refresh", "1"); } catch {}
-            // 바로 재조회도 수행
-            refreshSchedules();
+            // 2) 서버 삭제 시도
+            await deleteEventApi(idRaw);
           } catch (e) {
             console.error("deleteEventApi error", e);
           } finally {
+            // 3) 안전망: 복귀/포커스 시 재조회 플래그 + 즉시 재조회
+            try { sessionStorage.setItem("needs_schedule_refresh", "1"); } catch {}
+            refreshSchedules();
             setRegisterOpen(false);
             setEditingFromList(null);
           }
