@@ -4,7 +4,7 @@ import SEARCH from "@/assets/main/search.svg";
 import SEARCHING from "@/assets/main/searching.svg";
 import { useState } from "react";
 
-const SearchBar = ({ onFocus, onSearch, onBlur }) => {
+const SearchBar = ({ onFocus, onSearch }) => {
   const [value, setValue] = useState("");
 
   return (
@@ -15,7 +15,6 @@ const SearchBar = ({ onFocus, onSearch, onBlur }) => {
           placeholder="일정을 검색해 주세요!"
           value={value}
           onFocus={onFocus}
-          onBlur={onBlur}
           onChange={(e) => {
             setValue(e.target.value);
           }}
@@ -25,7 +24,6 @@ const SearchBar = ({ onFocus, onSearch, onBlur }) => {
           data-active={SEARCHING}
           onFocus={onFocus}
           onClick={() => onSearch(value)}
-          onBlur={onBlur}
         />
       </S.SearchBarContainer>
     </>
