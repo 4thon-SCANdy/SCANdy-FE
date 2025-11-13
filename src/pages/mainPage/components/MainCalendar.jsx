@@ -3,7 +3,10 @@ import "react-calendar/dist/Calendar.css";
 import * as S from "../styles/MainCalendar.style";
 import { vw } from "@/utils/units";
 import PlanTag from "./PlanTag";
-import { getTagColor as getColorFromMap } from "../../../constants/tagColorMap";
+import {
+  getTagColor as getColorFromMap,
+  TAG_COLOR_MAP,
+} from "../../../constants/tagColorMap";
 import PlanModal from "./PlanModal";
 import { useEffect, useState } from "react";
 
@@ -22,20 +25,30 @@ const MainCalendar = ({
   const [showNoResult, setShowNoResult] = useState(false);
   const [highlightSet, setHighlightSet] = useState(new Set());
 
-  const getTagColor = (tag) => {
-    if (!tag) return "#EAEAEA";
-    if (typeof tag === "object" && tag.color) return tag.color;
-    const match = tags.find((t) => t.name === tag);
-    return match ? match.color : getColorFromMap(tag.colorIndex ?? 0);
+  const getTagColor = (tagName, tagColorIndex) => {
+    if (typeof tagColorIndex === "number") {
+      return TAG_COLOR_MAP[tagColorIndex];
+    }
+
+    const match = tags.find((t) => t.name === tagName);
+    if (match) {
+      if (typeof match.color === "number") {
+        return TAG_COLOR_MAP[match.color];
+      }
+      return match.color;
+    }
+
+    return "#EAEAEA";
   };
 
   const visibleSchedules = Array.isArray(schedules)
     ? selectedTag
-      ? schedules.filter((s) =>
-          typeof s.tag === "object"
-            ? s.tag.name === selectedTag
-            : s.tag === selectedTag
-        )
+      ? schedules.filter((s) => {
+          const tagValue = s.tagName || s.tag;
+          return typeof tagValue === "string"
+            ? tagValue === selectedTag
+            : false;
+        })
       : schedules
     : [];
 
@@ -161,7 +174,7 @@ const MainCalendar = ({
                       backgroundColor: "#FDFDFD",
                     }}
                   >
-                    <PlanTag size="small" color={getTagColor(schedule.tag)}>
+                    <PlanTag size="small" color={schedule.tagColor}>
                       {schedule.title}
                     </PlanTag>
                   </div>
