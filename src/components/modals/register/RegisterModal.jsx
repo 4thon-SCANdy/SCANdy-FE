@@ -331,7 +331,10 @@ function RegisterModal({
               title: payload.title,
               repeat: payload.repeat,
               until: (payload.until || "")?.slice?.(0, 10) || null,
-              imageUrls: Array.isArray(internalAnalyzeImages) && internalAnalyzeImages.length ? internalAnalyzeImages : undefined,
+            imageUrls: Array.isArray(internalAnalyzeImages) && internalAnalyzeImages.length ? internalAnalyzeImages : undefined,
+            ocrList: Array.isArray(aiOcrList) ? aiOcrList : undefined,
+            llmList: Array.isArray(aiLlmList) ? aiLlmList : undefined,
+            recommendations: Array.isArray(aiRecommendations) ? aiRecommendations : undefined,
             });
           } catch {}
           setOpenedFromAnalyze(false);
@@ -451,6 +454,9 @@ function RegisterModal({
             repeat: payload.repeat,
             until: (payload.until || "")?.slice?.(0,10) || null,
             imageUrls: fromAIFlow && internalAnalyzeImages?.length ? internalAnalyzeImages : undefined,
+            ocrList: fromAIFlow && Array.isArray(aiOcrList) ? aiOcrList : undefined,
+            llmList: fromAIFlow && Array.isArray(aiLlmList) ? aiLlmList : undefined,
+            recommendations: fromAIFlow && Array.isArray(aiRecommendations) ? aiRecommendations : undefined,
           });
           if (fromAIFlow) setFromAIFlow(false);
         } catch {}
@@ -483,6 +489,9 @@ function RegisterModal({
               repeat: form.repeatOn ? (form.repeatType === "weekly" ? "WEEKLY" : "DAILY") : "NONE",
               until: form.repeatOn && form.repeatEnd ? form.repeatEnd : null,
               imageUrls: fromAIFlow && internalAnalyzeImages?.length ? internalAnalyzeImages : undefined,
+              ocrList: fromAIFlow && Array.isArray(aiOcrList) ? aiOcrList : undefined,
+              llmList: fromAIFlow && Array.isArray(aiLlmList) ? aiLlmList : undefined,
+              recommendations: fromAIFlow && Array.isArray(aiRecommendations) ? aiRecommendations : undefined,
             });
             if (fromAIFlow) setFromAIFlow(false);
             onClose?.();

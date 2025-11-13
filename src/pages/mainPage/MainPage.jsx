@@ -65,6 +65,9 @@ const MainPage = () => {
   const [listItemsNoOriginal, setListItemsNoOriginal] = useState([]);
   const [originalOpen, setOriginalOpen] = useState(false);
   const [originalImages, setOriginalImages] = useState([]);
+  const [originalOcr, setOriginalOcr] = useState([]);
+  const [originalLlm, setOriginalLlm] = useState([]);
+  const [originalRecs, setOriginalRecs] = useState([]);
   const [editingFromList, setEditingFromList] = useState(null);
 
   useEffect(() => {
@@ -121,6 +124,7 @@ const MainPage = () => {
           title: d.title || "",
           tagLabel: firstTagName,
           __detail: d,
+          __local: src, // 이미지/ocr/llm 등 로컬 생성 정보
         };
         const localImages = Array.isArray(src.imageUrls) ? src.imageUrls : [];
         const hasImages = (Array.isArray(d.images) && d.images.length > 0) || localImages.length > 0;
@@ -242,6 +246,9 @@ const MainPage = () => {
               tag: newItem.tag,
               title: newItem.title,
               imageUrls: Array.isArray(newItem.imageUrls) ? newItem.imageUrls : undefined,
+              ocrList: Array.isArray(newItem.ocrList) ? newItem.ocrList : undefined,
+              llmList: Array.isArray(newItem.llmList) ? newItem.llmList : undefined,
+              recommendations: Array.isArray(newItem.recommendations) ? newItem.recommendations : undefined,
             }));
           };
 
@@ -267,6 +274,9 @@ const MainPage = () => {
                 tag: newItem.tag,
                 title: newItem.title,
                 imageUrls: Array.isArray(newItem.imageUrls) ? newItem.imageUrls : undefined,
+                ocrList: Array.isArray(newItem.ocrList) ? newItem.ocrList : undefined,
+                llmList: Array.isArray(newItem.llmList) ? newItem.llmList : undefined,
+                recommendations: Array.isArray(newItem.recommendations) ? newItem.recommendations : undefined,
               });
               cur.setDate(cur.getDate() + 1);
             }
@@ -340,8 +350,14 @@ const MainPage = () => {
         }}
         onViewOriginal={(item) => {
           const d = item?.__detail;
-          const imgs = Array.isArray(d?.images) ? d.images.map((x) => x?.image_url).filter(Boolean) : [];
+          const local = item?.__local || {};
+          const imgsFromServer = Array.isArray(d?.images) ? d.images.map((x) => x?.image_url).filter(Boolean) : [];
+          const imgs = (imgsFromServer.length ? imgsFromServer : (Array.isArray(local.imageUrls) ? local.imageUrls : []));
           setOriginalImages(imgs);
+          // OCR/LLM/RECS도 로컬 보관분이 있으면 전달
+          setOriginalOcr(Array.isArray(local.ocrList) ? local.ocrList : []);
+          setOriginalLlm(Array.isArray(local.llmList) ? local.llmList : []);
+          setOriginalRecs(Array.isArray(local.recommendations) ? local.recommendations : []);
           setOriginalOpen(true);
         }}
       />
@@ -349,6 +365,9 @@ const MainPage = () => {
       <OriginalImageModal
         open={originalOpen}
         images={originalImages}
+        ocrList={originalOcr}
+        llmList={originalLlm}
+        recommendations={originalRecs}
         onClose={() => setOriginalOpen(false)}
         onConfirm={() => setOriginalOpen(false)}
       />
