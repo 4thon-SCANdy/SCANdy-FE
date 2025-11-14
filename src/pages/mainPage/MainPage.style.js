@@ -1,0 +1,14 @@
+import styled from "styled-components";
+import { vw } from "../../utils/units";
+
+export const MainContainer = styled.div`
+  width: ${vw(1920)};
+  height: 100%;
+  flex-shrink: 0;
+  background: #fdfdfd;
+  display: flex;
+  align-items: flex-start;
+  gap: ${vw(38)};
+  overflow-y: auto;
+  overflow-x: hidden;
+`;
