@@ -39,7 +39,10 @@ const MainRightSection = ({
   };
 
   const filteredSchedules = selectedTag
-    ? schedules.filter((s) => s.tag === selectedTag)
+    ? schedules.filter((s) => {
+        const tagValue = s.tagName || s.tag;
+        return typeof tagValue === "string" ? tagValue === selectedTag : false;
+      })
     : schedules;
 
   const hasSchedule = filteredSchedules.length > 0;
@@ -101,9 +104,14 @@ const MainRightSection = ({
                       >
                         <PlanTag
                           size="large"
-                          color={getTagColor(
-                            schedule.tag?.name || schedule.tag
-                          )}
+                          color={
+                            schedule.tagColor ||
+                            getTagColor(
+                              schedule.tagName ||
+                                schedule.tag?.name ||
+                                schedule.tag
+                            )
+                          }
                         >
                           {schedule.title}
                         </PlanTag>

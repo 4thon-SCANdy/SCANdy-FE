@@ -4,7 +4,7 @@ import { useState } from "react";
 import MainCalendar from "./MainCalendar";
 import CalendarArrow from "./CalendarArrow";
 import SearchBar from "./SearchBar";
-import { calendarSearchApi } from "../../../apis/calendar/calendarSearchApi";
+import calendarSearchApi from "../../../apis/calendar/calendarSearchApi";
 
 const MainCenterSection = ({
   tags,
@@ -17,6 +17,8 @@ const MainCenterSection = ({
   const [searchMode, setSearchMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResult, setSearchResult] = useState([]);
+  const [highlightDates, setHighlightDates] = useState([]);
+  const [noResult, setNoResult] = useState(false);
 
   const getMonthRange = (date) => {
     const year = date.getFullYear();
@@ -41,6 +43,7 @@ const MainCenterSection = ({
     setSearchQuery(v);
     if (!v) {
       setSearchResult([]); // 검색어 없으면 초기화
+      setHighlightDates([]);
       return;
     }
 
@@ -49,18 +52,35 @@ const MainCenterSection = ({
       const data = await calendarSearchApi(v, start, end);
 
       if (data?.data?.length) {
-        setSearchResult(data.data);
+        const transformed = data.data.map((item) => ({
+          ...item,
+          date: item.start_datetime.split("T")[0],
+        }));
+        setSearchResult(transformed);
+        setHighlightDates(transformed.map((s) => s.date));
         setSearchMode(false);
+        setNoResult(false);
       } else {
         setSearchResult([]); // 일정 없을 경우
+        setHighlightDates([]);
         setSearchMode(true);
+        setNoResult(true);
       }
     } catch (e) {
       console.error("검색 실패", e);
       setSearchResult([]);
-      setSearchMode(true);
+      setHighlightDates([]);
+      setSearchMode(false);
     }
   };
+
+  const exitSearchMode = () => {
+    setSearchMode(false);
+    setSearchQuery("");
+  };
+
+  const displayedSchedules =
+    searchQuery && searchMode ? searchResult : schedules;
 
   return (
     <>
@@ -68,7 +88,6 @@ const MainCenterSection = ({
         <S.CenterHeader>
           <SearchBar
             onFocus={() => setSearchMode(true)}
-            onBlur={() => setSearchMode(false)}
             onSearch={handleSearch}
           />
           <CalendarArrow
@@ -79,13 +98,16 @@ const MainCenterSection = ({
         </S.CenterHeader>
         <MainCalendar
           tags={tags}
-          schedules={searchResult.length ? searchResult : schedules}
+          schedules={displayedSchedules}
           currentDate={currentDate}
           selectedTag={selectedTag}
           onOpenRegister={onOpenRegister}
           onOpenScheduleList={onOpenScheduleList}
           searchMode={searchMode}
           searchQuery={searchQuery}
+          highlightDates={highlightDates}
+          noResult={noResult}
+          onExitSearchMode={exitSearchMode}
         />
       </S.CenterSectionContainer>
     </>

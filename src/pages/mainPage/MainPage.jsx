@@ -28,9 +28,9 @@ const MainPage = () => {
   const [tags, setTags] = useState([]);
 
   const DEFAULT_TAGS = [
-    { id: "default-1", name: "학업", color: "#FFEBB5" },
-    { id: "default-2", name: "일상", color: "#D9C9FF" },
-    { id: "default-3", name: "건강", color: "#A0D4FF" },
+    { id: -1, name: "학업", color: 13 },
+    { id: -2, name: "일상", color: 7 },
+    { id: -3, name: "건강", color: 4 },
   ];
 
   useEffect(() => {
@@ -186,21 +186,54 @@ const MainPage = () => {
         const res = await allPlanGetApi();
         console.log("일정 조회 완료: ", res);
 
-        const fetched = Array.isArray(res.data?.data)
-          ? res.data.data
-          : Array.isArray(res.data)
-          ? res.data
-          : [];
+        let fetched = [];
+        if (Array.isArray(res)) {
+          fetched = res;
+        } else if (Array.isArray(res.data)) {
+          fetched = res.data;
+        } else if (Array.isArray(res.data?.data)) {
+          fetched = res.data.data;
+        }
 
-        setSchedules(normalizeSchedules(fetched));
+        const tagMap = {};
+        tags.forEach((t) => {
+          tagMap[t.id] = t;
+        });
+
+        const transformed = fetched.map((item) => {
+          let tagObj;
+          if (typeof item.tag === "object" && item.tag !== null) {
+            tagObj = item.tag;
+            console.log("태그가 객체: ", item.tag);
+          } else if (typeof item.tag === "number") {
+            tagObj = tags.find((t) => t.id === item.tag);
+            console.log("태그가 숫자: ", item.tag, "찾은 태그: ", tagObj);
+          }
+
+          const tagName = tagObj?.name ?? "기타";
+          const tagColorIndex = tagObj?.color ?? 0;
+
+          const transformedItem = {
+            ...item,
+            date: item.start_datetime.split("T")[0],
+            tag: tagName,
+            tagName: tagName,
+            tagColor: TAG_COLOR_MAP[tagColorIndex] || TAG_COLOR_MAP[0],
+          };
+
+          return transformedItem;
+        });
+        setSchedules(transformed);
       } catch (err) {
         console.error("일정 조회 실패: ", err);
         setSchedules([]);
       }
     };
 
-    fetchSchedules();
-  }, []);
+    if (tags.length > 0) {
+      fetchSchedules();
+    }
+  }, [tags]);
 
   const handleOpenScheduleList = async (dateObj, dailySchedules) => {
     try {
