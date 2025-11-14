@@ -75,6 +75,7 @@ const MainPage = () => {
   const expandForCalendar = (raw, tagList) => {
     if (!Array.isArray(raw)) return [];
     const tagsSafe = Array.isArray(tagList) ? tagList : [];
+
     const toDateOnly = (iso) => {
       if (!iso) return "";
       try {
@@ -83,18 +84,23 @@ const MainPage = () => {
         return "";
       }
     };
+
     const resolveTag = (tagField) => {
       let tagObj;
       if (tagField && typeof tagField === "object") tagObj = tagField;
       else if (typeof tagField === "number")
         tagObj = tagsSafe.find((t) => t.id === tagField);
+
       const name = tagObj?.name ?? "기타";
       let color = TAG_COLOR_MAP[0];
+
       if (typeof tagObj?.color === "number")
         color = TAG_COLOR_MAP[tagObj.color] || TAG_COLOR_MAP[0];
       else if (typeof tagObj?.color === "string") color = tagObj.color;
+
       return { name, color };
     };
+
     const addRange = (eventId, title, tagName, tagColor, s, e) => {
       const start = new Date(s);
       const end = new Date(e || s);
@@ -120,24 +126,55 @@ const MainPage = () => {
       }
       return out;
     };
+
     const result = [];
+
     raw.forEach((it) => {
       if (!it || typeof it !== "object") return;
-      const eventId = it.id ?? `${Date.now()}`;
+
+      const eventId = it.id
+        ? String(it.id)
+        : it.google_event_id
+        ? `g-${it.google_event_id}`
+        : `temp-${Date.now()}`;
+
       const title = it.title || it.content || "";
+
       const { name: tagName, color: tagColor } = resolveTag(it.tag);
+
+      let finalTagName = tagName;
+      let finalTagColor = tagColor;
+
+      if (it.google_event_id && it.google_calendar !== null) {
+        finalTagName = "Google";
+        finalTagColor = "#4285F4";
+      }
+
       const baseStart =
         toDateOnly(it.start_datetime) || toDateOnly(it.start_date);
       const baseEnd =
         toDateOnly(it.end_datetime) || toDateOnly(it.end_date) || baseStart;
+
       const repeat = String(it.repeat || "NONE").toUpperCase();
       const until = toDateOnly(it.until);
+
       if (!baseStart) return;
+
       if (repeat === "NONE" || !until) {
         result.push(
-          ...addRange(eventId, title, tagName, tagColor, baseStart, baseEnd)
+          ...addRange(
+            eventId,
+            title,
+            finalTagName,
+            finalTagColor,
+            baseStart,
+            baseEnd
+          )
         );
-      } else if (repeat === "DAILY") {
+        return;
+      }
+
+      if (repeat === "DAILY") {
         try {
           for (
             let cur = new Date(baseStart), end = new Date(until);
@@ -148,20 +185,39 @@ const MainPage = () => {
             const m = String(cur.getMonth() + 1).padStart(2, "0");
             const d = String(cur.getDate()).padStart(2, "0");
             const dateStr = `${y}-${m}-${d}`;
+
             result.push(
-              ...addRange(eventId, title, tagName, tagColor, dateStr, dateStr)
+              ...addRange(
+                eventId,
+                title,
+                finalTagName,
+                finalTagColor,
+                dateStr,
+                dateStr
+              )
             );
           }
         } catch {
           result.push(
-            ...addRange(eventId, title, tagName, tagColor, baseStart, baseEnd)
+            ...addRange(
+              eventId,
+              title,
+              finalTagName,
+              finalTagColor,
+              baseStart,
+              baseEnd
+            )
           );
         }
-      } else if (repeat === "WEEKLY") {
+        return;
+      }
+
+      if (repeat === "WEEKLY") {
         try {
           let curStart = new Date(baseStart);
           let curEnd = new Date(baseEnd);
           const untilDate = new Date(until);
+
           while (curStart <= untilDate) {
             const s = `${curStart.getFullYear()}-${String(
               curStart.getMonth() + 1
@@ -169,21 +225,41 @@ const MainPage = () => {
             const e = `${curEnd.getFullYear()}-${String(
               curEnd.getMonth() + 1
             ).padStart(2, "0")}-${String(curEnd.getDate()).padStart(2, "0")}`;
-            result.push(...addRange(eventId, title, tagName, tagColor, s, e));
+
+            result.push(
+              ...addRange(eventId, title, finalTagName, finalTagColor, s, e)
+            );
+
             curStart.setDate(curStart.getDate() + 7);
             curEnd.setDate(curEnd.getDate() + 7);
           }
         } catch {
           result.push(
-            ...addRange(eventId, title, tagName, tagColor, baseStart, baseEnd)
+            ...addRange(
+              eventId,
+              title,
+              finalTagName,
+              finalTagColor,
+              baseStart,
+              baseEnd
+            )
           );
         }
-      } else {
-        result.push(
-          ...addRange(eventId, title, tagName, tagColor, baseStart, baseEnd)
-        );
+        return;
       }
+
+      result.push(
+        ...addRange(
+          eventId,
+          title,
+          finalTagName,
+          finalTagColor,
+          baseStart,
+          baseEnd
+        )
+      );
     });
+
     return result;
   };
 
