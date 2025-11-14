@@ -77,7 +77,11 @@ const MainPage = () => {
     const tagsSafe = Array.isArray(tagList) ? tagList : [];
     const toDateOnly = (iso) => {
       if (!iso) return "";
-      try { return String(iso).slice(0, 10); } catch { return ""; }
+      try {
+        return String(iso).slice(0, 10);
+      } catch {
+        return "";
+      }
     };
     const resolveTag = (tagField) => {
       let tagObj;
@@ -95,7 +99,11 @@ const MainPage = () => {
       const start = new Date(s);
       const end = new Date(e || s);
       const out = [];
-      for (const cur = new Date(start); !Number.isNaN(cur.valueOf()) && cur <= end; cur.setDate(cur.getDate() + 1)) {
+      for (
+        const cur = new Date(start);
+        !Number.isNaN(cur.valueOf()) && cur <= end;
+        cur.setDate(cur.getDate() + 1)
+      ) {
         const y = cur.getFullYear();
         const m = String(cur.getMonth() + 1).padStart(2, "0");
         const d = String(cur.getDate()).padStart(2, "0");
@@ -118,24 +126,36 @@ const MainPage = () => {
       const eventId = it.id ?? `${Date.now()}`;
       const title = it.title || it.content || "";
       const { name: tagName, color: tagColor } = resolveTag(it.tag);
-      const baseStart = toDateOnly(it.start_datetime) || toDateOnly(it.start_date);
-      const baseEnd = toDateOnly(it.end_datetime) || toDateOnly(it.end_date) || baseStart;
+      const baseStart =
+        toDateOnly(it.start_datetime) || toDateOnly(it.start_date);
+      const baseEnd =
+        toDateOnly(it.end_datetime) || toDateOnly(it.end_date) || baseStart;
       const repeat = String(it.repeat || "NONE").toUpperCase();
       const until = toDateOnly(it.until);
       if (!baseStart) return;
       if (repeat === "NONE" || !until) {
-        result.push(...addRange(eventId, title, tagName, tagColor, baseStart, baseEnd));
+        result.push(
+          ...addRange(eventId, title, tagName, tagColor, baseStart, baseEnd)
+        );
       } else if (repeat === "DAILY") {
         try {
-          for (let cur = new Date(baseStart), end = new Date(until); cur <= end; cur.setDate(cur.getDate() + 1)) {
+          for (
+            let cur = new Date(baseStart), end = new Date(until);
+            cur <= end;
+            cur.setDate(cur.getDate() + 1)
+          ) {
             const y = cur.getFullYear();
             const m = String(cur.getMonth() + 1).padStart(2, "0");
             const d = String(cur.getDate()).padStart(2, "0");
             const dateStr = `${y}-${m}-${d}`;
-            result.push(...addRange(eventId, title, tagName, tagColor, dateStr, dateStr));
+            result.push(
+              ...addRange(eventId, title, tagName, tagColor, dateStr, dateStr)
+            );
           }
         } catch {
-          result.push(...addRange(eventId, title, tagName, tagColor, baseStart, baseEnd));
+          result.push(
+            ...addRange(eventId, title, tagName, tagColor, baseStart, baseEnd)
+          );
         }
       } else if (repeat === "WEEKLY") {
         try {
@@ -143,17 +163,25 @@ const MainPage = () => {
           let curEnd = new Date(baseEnd);
           const untilDate = new Date(until);
           while (curStart <= untilDate) {
-            const s = `${curStart.getFullYear()}-${String(curStart.getMonth() + 1).padStart(2, "0")}-${String(curStart.getDate()).padStart(2, "0")}`;
-            const e = `${curEnd.getFullYear()}-${String(curEnd.getMonth() + 1).padStart(2, "0")}-${String(curEnd.getDate()).padStart(2, "0")}`;
+            const s = `${curStart.getFullYear()}-${String(
+              curStart.getMonth() + 1
+            ).padStart(2, "0")}-${String(curStart.getDate()).padStart(2, "0")}`;
+            const e = `${curEnd.getFullYear()}-${String(
+              curEnd.getMonth() + 1
+            ).padStart(2, "0")}-${String(curEnd.getDate()).padStart(2, "0")}`;
             result.push(...addRange(eventId, title, tagName, tagColor, s, e));
             curStart.setDate(curStart.getDate() + 7);
             curEnd.setDate(curEnd.getDate() + 7);
           }
         } catch {
-          result.push(...addRange(eventId, title, tagName, tagColor, baseStart, baseEnd));
+          result.push(
+            ...addRange(eventId, title, tagName, tagColor, baseStart, baseEnd)
+          );
         }
       } else {
-        result.push(...addRange(eventId, title, tagName, tagColor, baseStart, baseEnd));
+        result.push(
+          ...addRange(eventId, title, tagName, tagColor, baseStart, baseEnd)
+        );
       }
     });
     return result;
@@ -288,14 +316,22 @@ const MainPage = () => {
         }
       };
       // 상세 조회가 전부 실패(토큰 없음/권한 문제 등)하면, 전달받은 dailySchedules 기반으로 폴백
-      if (!safe.length && Array.isArray(dailySchedules) && dailySchedules.length) {
+      if (
+        !safe.length &&
+        Array.isArray(dailySchedules) &&
+        dailySchedules.length
+      ) {
         safe = dailySchedules.map((s) => ({
           // 가능한 한 필드 맞춰주기 (없으면 빈 값)
           id: s.eventId ?? s.id ?? `${s.date}-${s.title ?? ""}`,
           title: s.title || "",
           start_time: s.time || "00:00",
-          tag: s.tag ? [{ name: typeof s.tag === "object" ? s.tag.name : s.tag }] : [],
-          images: Array.isArray(s.imageUrls) ? s.imageUrls.map((u, i) => ({ id: i, image_url: u })) : [],
+          tag: s.tag
+            ? [{ name: typeof s.tag === "object" ? s.tag.name : s.tag }]
+            : [],
+          images: Array.isArray(s.imageUrls)
+            ? s.imageUrls.map((u, i) => ({ id: i, image_url: u }))
+            : [],
         }));
       }
       const itemsWith = [];
@@ -315,10 +351,13 @@ const MainPage = () => {
           // 문자열 형태
           if (typeof d.tag === "string" && d.tag) return d.tag;
           // 로컬 폴백 (메인 캘린더 아이템)
-          if (typeof src.tagLabel === "string" && src.tagLabel) return src.tagLabel;
-          if (typeof src.tagName === "string" && src.tagName) return src.tagName;
+          if (typeof src.tagLabel === "string" && src.tagLabel)
+            return src.tagLabel;
+          if (typeof src.tagName === "string" && src.tagName)
+            return src.tagName;
           if (typeof src.tag === "string" && src.tag) return src.tag;
-          if (src.tag && typeof src.tag === "object" && src.tag.name) return src.tag.name;
+          if (src.tag && typeof src.tag === "object" && src.tag.name)
+            return src.tag.name;
           return undefined;
         };
         const firstTagName = pickTagName();
@@ -344,7 +383,9 @@ const MainPage = () => {
           __local: src, // 이미지/ocr/llm 등 로컬 생성 정보
         };
         const localImages = Array.isArray(src.imageUrls) ? src.imageUrls : [];
-        const hasImages = (Array.isArray(d.images) && d.images.length > 0) || localImages.length > 0;
+        const hasImages =
+          (Array.isArray(d.images) && d.images.length > 0) ||
+          localImages.length > 0;
         if (hasImages) itemsWith.push(baseItem);
         else itemsNo.push(baseItem);
       });
@@ -454,7 +495,10 @@ const MainPage = () => {
       </S.MainContainer>
       <RegisterModal
         open={registerOpen}
-        onClose={() => { setRegisterOpen(false); setEditingFromList(null); }}
+        onClose={() => {
+          setRegisterOpen(false);
+          setEditingFromList(null);
+        }}
         initialDate={registerDate}
         editSchedule={editingFromList}
         onDeleteEdit={async (editObj) => {
@@ -478,7 +522,9 @@ const MainPage = () => {
             console.error("deleteEventApi error", e);
           } finally {
             // 3) 안전망: 복귀/포커스 시 재조회 플래그 + 즉시 재조회
-            try { sessionStorage.setItem("needs_schedule_refresh", "1"); } catch {}
+            try {
+              sessionStorage.setItem("needs_schedule_refresh", "1");
+            } catch {}
             refreshSchedules();
             setRegisterOpen(false);
             setEditingFromList(null);
@@ -518,13 +564,22 @@ const MainPage = () => {
               eventId: newItem.id,
               date,
               tag: newItem.tag,
-            tagName: newItem.tag,
-            tagColor: TAG_COLOR_MAP[newItem.tagColorIndex] || TAG_COLOR_MAP[0],
+              tagName: newItem.tag,
+              tagColor:
+                TAG_COLOR_MAP[newItem.tagColorIndex] || TAG_COLOR_MAP[0],
               title: newItem.title,
-              imageUrls: Array.isArray(newItem.imageUrls) ? newItem.imageUrls : undefined,
-              ocrList: Array.isArray(newItem.ocrList) ? newItem.ocrList : undefined,
-              llmList: Array.isArray(newItem.llmList) ? newItem.llmList : undefined,
-              recommendations: Array.isArray(newItem.recommendations) ? newItem.recommendations : undefined,
+              imageUrls: Array.isArray(newItem.imageUrls)
+                ? newItem.imageUrls
+                : undefined,
+              ocrList: Array.isArray(newItem.ocrList)
+                ? newItem.ocrList
+                : undefined,
+              llmList: Array.isArray(newItem.llmList)
+                ? newItem.llmList
+                : undefined,
+              recommendations: Array.isArray(newItem.recommendations)
+                ? newItem.recommendations
+                : undefined,
             }));
           };
 
@@ -549,12 +604,21 @@ const MainPage = () => {
                 date: `${y}-${m}-${d}`,
                 tag: newItem.tag,
                 tagName: newItem.tag,
-                tagColor: TAG_COLOR_MAP[newItem.tagColorIndex] || TAG_COLOR_MAP[0],
+                tagColor:
+                  TAG_COLOR_MAP[newItem.tagColorIndex] || TAG_COLOR_MAP[0],
                 title: newItem.title,
-                imageUrls: Array.isArray(newItem.imageUrls) ? newItem.imageUrls : undefined,
-                ocrList: Array.isArray(newItem.ocrList) ? newItem.ocrList : undefined,
-                llmList: Array.isArray(newItem.llmList) ? newItem.llmList : undefined,
-                recommendations: Array.isArray(newItem.recommendations) ? newItem.recommendations : undefined,
+                imageUrls: Array.isArray(newItem.imageUrls)
+                  ? newItem.imageUrls
+                  : undefined,
+                ocrList: Array.isArray(newItem.ocrList)
+                  ? newItem.ocrList
+                  : undefined,
+                llmList: Array.isArray(newItem.llmList)
+                  ? newItem.llmList
+                  : undefined,
+                recommendations: Array.isArray(newItem.recommendations)
+                  ? newItem.recommendations
+                  : undefined,
               });
               cur.setDate(cur.getDate() + 1);
             }
@@ -592,7 +656,7 @@ const MainPage = () => {
           setSchedules((prev) => [...prev, ...acc]);
           setRegisterOpen(false);
         }}
-      onUpdated={refreshSchedules}
+        onUpdated={refreshSchedules}
       />
 
       <ScheduleListModal
@@ -642,21 +706,23 @@ const MainPage = () => {
           const startTime24 = extractTime(d.start_time, d.start_datetime);
           const endTime24 = d.all_day
             ? "00:00"
-            : extractTime(d.end_time || null, d.end_datetime || d.start_datetime);
+            : extractTime(
+                d.end_time || null,
+                d.end_datetime || d.start_datetime
+              );
           const local = item?.__local || {};
           setEditingFromList({
             id: d.id,
             title: d.title || "",
             // 서버 상세 → ISO → 로컬(date) 순서로 안정적인 기본값 지정
             startDate:
-              d.start_date ||
-              toDateOnly(d.start_datetime) ||
-              (local.date || ""),
+              d.start_date || toDateOnly(d.start_datetime) || local.date || "",
             endDate:
               d.end_date ||
               d.start_date ||
               toDateOnly(d.end_datetime) ||
-              (local.date || ""),
+              local.date ||
+              "",
             startTime: startTime24,
             endTime: endTime24 || startTime24,
             location: d.location || "",
@@ -665,7 +731,9 @@ const MainPage = () => {
             repeatType: toRepeatType(d.repeat),
             repeatEnd: toDateOnly(d.until) || "",
             tagLabel:
-              (Array.isArray(d.tag) && d.tag.length ? d.tag[0]?.name : undefined) ||
+              (Array.isArray(d.tag) && d.tag.length
+                ? d.tag[0]?.name
+                : undefined) ||
               local.tagLabel ||
               (typeof local.tag === "object" ? local.tag?.name : local.tag) ||
               undefined,
@@ -676,13 +744,21 @@ const MainPage = () => {
         onViewOriginal={(item) => {
           const d = item?.__detail;
           const local = item?.__local || {};
-          const imgsFromServer = Array.isArray(d?.images) ? d.images.map((x) => x?.image_url).filter(Boolean) : [];
-          const imgs = (imgsFromServer.length ? imgsFromServer : (Array.isArray(local.imageUrls) ? local.imageUrls : []));
+          const imgsFromServer = Array.isArray(d?.images)
+            ? d.images.map((x) => x?.image_url).filter(Boolean)
+            : [];
+          const imgs = imgsFromServer.length
+            ? imgsFromServer
+            : Array.isArray(local.imageUrls)
+            ? local.imageUrls
+            : [];
           setOriginalImages(imgs);
           // OCR/LLM/RECS도 로컬 보관분이 있으면 전달
           setOriginalOcr(Array.isArray(local.ocrList) ? local.ocrList : []);
           setOriginalLlm(Array.isArray(local.llmList) ? local.llmList : []);
-          setOriginalRecs(Array.isArray(local.recommendations) ? local.recommendations : []);
+          setOriginalRecs(
+            Array.isArray(local.recommendations) ? local.recommendations : []
+          );
           setOriginalOpen(true);
         }}
       />
@@ -704,10 +780,10 @@ const MainPage = () => {
           onClose={() => {
             setModalInfo({ open: false, type: "success", email: "" });
 
-            // // 실패 시 로그인 페이지로 리다이렉트
-            // if (modalInfo.type === "fail") {
-            //   window.location.href = "/login";
-            // }
+            // 실패 시 로그인 페이지로 리다이렉트
+            if (modalInfo.type === "fail") {
+              window.location.href = "/login";
+            }
           }}
         />
       )}
