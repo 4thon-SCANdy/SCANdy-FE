@@ -251,9 +251,41 @@ const MainPage = () => {
         })
       );
       let safe = details.filter(Boolean);
-      const toAmpm = (timeStr) => {
-        const hh = Number(String(timeStr || "00:00").slice(0, 2));
-        return hh >= 12 ? "PM" : "AM";
+      const extractTime = (detail) => {
+        // 1) 서버가 start_time 제공 시 우선 사용
+        const raw = detail?.start_time;
+        if (raw && typeof raw === "string") {
+          // 포맷 다양성 대비: HH:mm[:ss] 형태 지원
+          const hhmm = raw.slice(0, 5);
+          if (/^\d{2}:\d{2}$/.test(hhmm)) return hhmm;
+        }
+        // 2) start_datetime 에서 HH:mm 추출
+        const dt = detail?.start_datetime;
+        if (dt) {
+          try {
+            const d = new Date(dt);
+            if (!Number.isNaN(d.valueOf())) {
+              const hh = String(d.getHours()).padStart(2, "0");
+              const mm = String(d.getMinutes()).padStart(2, "0");
+              return `${hh}:${mm}`;
+            }
+          } catch {}
+        }
+        // 3) 기본값
+        return "00:00";
+      };
+      const toAmpm = (detail) => {
+        // time 우선 → datetime 순서로 AM/PM 계산
+        const timeStr = extractTime(detail);
+        const hhByTime = Number(String(timeStr || "00:00").slice(0, 2));
+        if (!Number.isNaN(hhByTime)) return hhByTime >= 12 ? "PM" : "AM";
+        try {
+          const d = new Date(detail?.start_datetime);
+          const h = d.getHours();
+          return h >= 12 ? "PM" : "AM";
+        } catch {
+          return "AM";
+        }
       };
       // 상세 조회가 전부 실패(토큰 없음/권한 문제 등)하면, 전달받은 dailySchedules 기반으로 폴백
       if (!safe.length && Array.isArray(dailySchedules) && dailySchedules.length) {
@@ -273,8 +305,8 @@ const MainPage = () => {
         const firstTagName = Array.isArray(d.tag) && d.tag.length ? d.tag[0]?.name : undefined;
         const baseItem = {
           id: d.id,
-          ampm: toAmpm(d.start_time),
-          time: d.start_time || "00:00",
+          ampm: toAmpm(d),
+          time: extractTime(d),
           title: d.title || "",
           tagLabel: firstTagName,
           __detail: d,
@@ -557,6 +589,29 @@ const MainPage = () => {
               return "";
             }
           };
+          const extractTime = (rawTime, rawDatetime) => {
+            // 1) 명시적 time 우선
+            if (rawTime && typeof rawTime === "string") {
+              const hhmm = rawTime.slice(0, 5);
+              if (/^\d{2}:\d{2}$/.test(hhmm)) return hhmm;
+            }
+            // 2) datetime에서 HH:mm
+            if (rawDatetime) {
+              try {
+                const dt = new Date(rawDatetime);
+                if (!Number.isNaN(dt.valueOf())) {
+                  const hh = String(dt.getHours()).padStart(2, "0");
+                  const mm = String(dt.getMinutes()).padStart(2, "0");
+                  return `${hh}:${mm}`;
+                }
+              } catch {}
+            }
+            return "00:00";
+          };
+          const startTime24 = extractTime(d.start_time, d.start_datetime);
+          const endTime24 = d.all_day
+            ? "00:00"
+            : extractTime(d.end_time || null, d.end_datetime || d.start_datetime);
           const local = item?.__local || {};
           setEditingFromList({
             id: d.id,
@@ -571,8 +626,8 @@ const MainPage = () => {
               d.start_date ||
               toDateOnly(d.end_datetime) ||
               (local.date || ""),
-            startTime: d.start_time || "00:00",
-            endTime: d.end_time || d.start_time || "00:00",
+            startTime: startTime24,
+            endTime: endTime24 || startTime24,
             location: d.location || "",
             allDay: !!d.all_day,
             repeatOn: !!d.repeat && String(d.repeat).toUpperCase() !== "NONE",
