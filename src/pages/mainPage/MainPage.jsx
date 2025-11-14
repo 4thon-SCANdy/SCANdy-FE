@@ -48,7 +48,6 @@ const MainPage = () => {
         ];
 
         setTags(mergedTags);
-        console.log("태그 불러오기 성공: ", mergedTags);
       } catch (error) {
         console.error("태그 불러오기 실패: ", error);
         setTags(DEFAULT_TAGS);
@@ -72,94 +71,89 @@ const MainPage = () => {
   const [editingFromList, setEditingFromList] = useState(null);
   const [selectedDateForList, setSelectedDateForList] = useState(null);
 
-  // 서버 응답을 메인 캘린더가 사용하는 형태로 변환
-  const normalizeSchedules = (raw) => {
+  // 서버 응답을 메인 캘린더가 사용하는 형태로 변환 + 기간/반복 확장 + 태그 색 매핑
+  const expandForCalendar = (raw, tagList) => {
     if (!Array.isArray(raw)) return [];
+    const tagsSafe = Array.isArray(tagList) ? tagList : [];
     const toDateOnly = (iso) => {
       if (!iso) return "";
-      try {
-        return String(iso).slice(0, 10);
-      } catch {
-        return "";
-      }
+      try { return String(iso).slice(0, 10); } catch { return ""; }
     };
-    const addRange = (eventId, title, tagName, s, e) => {
+    const resolveTag = (tagField) => {
+      let tagObj;
+      if (tagField && typeof tagField === "object") tagObj = tagField;
+      else if (typeof tagField === "number")
+        tagObj = tagsSafe.find((t) => t.id === tagField);
+      const name = tagObj?.name ?? "기타";
+      let color = TAG_COLOR_MAP[0];
+      if (typeof tagObj?.color === "number")
+        color = TAG_COLOR_MAP[tagObj.color] || TAG_COLOR_MAP[0];
+      else if (typeof tagObj?.color === "string") color = tagObj.color;
+      return { name, color };
+    };
+    const addRange = (eventId, title, tagName, tagColor, s, e) => {
       const start = new Date(s);
       const end = new Date(e || s);
-      const days = [];
-      const cur = new Date(start);
-      while (!Number.isNaN(cur.valueOf()) && cur <= end) {
+      const out = [];
+      for (const cur = new Date(start); !Number.isNaN(cur.valueOf()) && cur <= end; cur.setDate(cur.getDate() + 1)) {
         const y = cur.getFullYear();
         const m = String(cur.getMonth() + 1).padStart(2, "0");
         const d = String(cur.getDate()).padStart(2, "0");
-        days.push(`${y}-${m}-${d}`);
-        cur.setDate(cur.getDate() + 1);
+        const date = `${y}-${m}-${d}`;
+        out.push({
+          id: `${eventId}-${date}`,
+          eventId,
+          date,
+          tag: tagName,
+          tagName,
+          tagColor,
+          title: title || "",
+        });
       }
-      return days.map((date) => ({
-        id: `${eventId}-${date}`,
-        eventId,
-        date,
-        tag: tagName,
-        title: title || "",
-      }));
+      return out;
     };
     const result = [];
     raw.forEach((it) => {
       if (!it || typeof it !== "object") return;
       const eventId = it.id ?? `${Date.now()}`;
       const title = it.title || it.content || "";
-      const tagName =
-        (typeof it.tag === "object" ? it.tag?.name : it.tag) || undefined;
-      const baseStart =
-        toDateOnly(it.start_datetime) || toDateOnly(it.start_date);
-      const baseEnd =
-        toDateOnly(it.end_datetime) || toDateOnly(it.end_date) || baseStart;
+      const { name: tagName, color: tagColor } = resolveTag(it.tag);
+      const baseStart = toDateOnly(it.start_datetime) || toDateOnly(it.start_date);
+      const baseEnd = toDateOnly(it.end_datetime) || toDateOnly(it.end_date) || baseStart;
       const repeat = String(it.repeat || "NONE").toUpperCase();
       const until = toDateOnly(it.until);
       if (!baseStart) return;
       if (repeat === "NONE" || !until) {
-        result.push(...addRange(eventId, title, tagName, baseStart, baseEnd));
+        result.push(...addRange(eventId, title, tagName, tagColor, baseStart, baseEnd));
       } else if (repeat === "DAILY") {
         try {
-          const cur = new Date(baseStart);
-          const endUntil = new Date(until);
-          while (cur <= endUntil) {
+          for (let cur = new Date(baseStart), end = new Date(until); cur <= end; cur.setDate(cur.getDate() + 1)) {
             const y = cur.getFullYear();
             const m = String(cur.getMonth() + 1).padStart(2, "0");
             const d = String(cur.getDate()).padStart(2, "0");
             const dateStr = `${y}-${m}-${d}`;
-            result.push(
-              ...addRange(eventId, title, tagName, dateStr, dateStr)
-            );
-            cur.setDate(cur.getDate() + 1);
+            result.push(...addRange(eventId, title, tagName, tagColor, dateStr, dateStr));
           }
         } catch {
-          result.push(...addRange(eventId, title, tagName, baseStart, baseEnd));
+          result.push(...addRange(eventId, title, tagName, tagColor, baseStart, baseEnd));
         }
       } else if (repeat === "WEEKLY") {
         try {
-          const start0 = new Date(baseStart);
-          const end0 = new Date(baseEnd);
+          let curStart = new Date(baseStart);
+          let curEnd = new Date(baseEnd);
           const untilDate = new Date(until);
-          let curStart = new Date(start0);
-          let curEnd = new Date(end0);
           while (curStart <= untilDate) {
-            const s = `${curStart.getFullYear()}-${String(
-              curStart.getMonth() + 1
-            ).padStart(2, "0")}-${String(curStart.getDate()).padStart(2, "0")}`;
-            const e = `${curEnd.getFullYear()}-${String(
-              curEnd.getMonth() + 1
-            ).padStart(2, "0")}-${String(curEnd.getDate()).padStart(2, "0")}`;
-            result.push(...addRange(eventId, title, tagName, s, e));
+            const s = `${curStart.getFullYear()}-${String(curStart.getMonth() + 1).padStart(2, "0")}-${String(curStart.getDate()).padStart(2, "0")}`;
+            const e = `${curEnd.getFullYear()}-${String(curEnd.getMonth() + 1).padStart(2, "0")}-${String(curEnd.getDate()).padStart(2, "0")}`;
+            result.push(...addRange(eventId, title, tagName, tagColor, s, e));
             curStart.setDate(curStart.getDate() + 7);
             curEnd.setDate(curEnd.getDate() + 7);
           }
         } catch {
-          result.push(...addRange(eventId, title, tagName, baseStart, baseEnd));
+          result.push(...addRange(eventId, title, tagName, tagColor, baseStart, baseEnd));
         }
       } else {
-        // MONTHLY / YEARLY 등은 단일 구간만 표시
-        result.push(...addRange(eventId, title, tagName, baseStart, baseEnd));
+        result.push(...addRange(eventId, title, tagName, tagColor, baseStart, baseEnd));
       }
     });
     return result;
@@ -176,20 +170,25 @@ const MainPage = () => {
         tagObj = tagsSafe.find((t) => t.id === item.tag);
       }
       const tagName = tagObj?.name ?? "기타";
-      const tagColorIndex = tagObj?.color ?? 0;
+      let tagColorValue = TAG_COLOR_MAP[0];
+      if (typeof tagObj?.color === "number") {
+        tagColorValue = TAG_COLOR_MAP[tagObj.color] || TAG_COLOR_MAP[0];
+      } else if (typeof tagObj?.color === "string") {
+        tagColorValue = tagObj.color;
+      }
       return {
         ...item,
         date: String(item?.start_datetime || "").split("T")[0] || "",
         tag: tagName,
         tagName,
-        tagColor: TAG_COLOR_MAP[tagColorIndex] || TAG_COLOR_MAP[0],
+        tagColor: tagColorValue,
       };
     });
   };
 
   const refreshSchedules = async () => {
     try {
-      const res = await allPlanGetApi();
+      const res = await allPlanGetApi({ _ts: Date.now() });
       let fetched = [];
       if (Array.isArray(res)) {
         fetched = res;
@@ -198,7 +197,7 @@ const MainPage = () => {
       } else if (Array.isArray(res?.data?.data)) {
         fetched = res.data.data;
       }
-      setSchedules(transformForCalendar(fetched, tags));
+      setSchedules(expandForCalendar(fetched, tags));
     } catch (err) {
       console.error("일정 재조회 실패: ", err);
       setSchedules([]);
@@ -208,9 +207,7 @@ const MainPage = () => {
   useEffect(() => {
     const fetchSchedules = async () => {
       try {
-        const res = await allPlanGetApi();
-        console.log("일정 조회 완료: ", res);
-
+        const res = await allPlanGetApi({ _ts: Date.now() });
         let fetched = [];
         if (Array.isArray(res)) {
           fetched = res;
@@ -225,30 +222,7 @@ const MainPage = () => {
           tagMap[t.id] = t;
         });
 
-        const transformed = fetched.map((item) => {
-          let tagObj;
-          if (typeof item.tag === "object" && item.tag !== null) {
-            tagObj = item.tag;
-            console.log("태그가 객체: ", item.tag);
-          } else if (typeof item.tag === "number") {
-            tagObj = tags.find((t) => t.id === item.tag);
-            console.log("태그가 숫자: ", item.tag, "찾은 태그: ", tagObj);
-          }
-
-          const tagName = tagObj?.name ?? "기타";
-          const tagColorIndex = tagObj?.color ?? 0;
-
-          const transformedItem = {
-            ...item,
-            date: item.start_datetime.split("T")[0],
-            tag: tagName,
-            tagName: tagName,
-            tagColor: TAG_COLOR_MAP[tagColorIndex] || TAG_COLOR_MAP[0],
-          };
-
-          return transformedItem;
-        });
-        setSchedules(transformed);
+        setSchedules(expandForCalendar(fetched, tags));
       } catch (err) {
         console.error("일정 조회 실패: ", err);
         setSchedules([]);
@@ -481,6 +455,8 @@ const MainPage = () => {
               eventId: newItem.id,
               date,
               tag: newItem.tag,
+            tagName: newItem.tag,
+            tagColor: TAG_COLOR_MAP[newItem.tagColorIndex] || TAG_COLOR_MAP[0],
               title: newItem.title,
               imageUrls: Array.isArray(newItem.imageUrls) ? newItem.imageUrls : undefined,
               ocrList: Array.isArray(newItem.ocrList) ? newItem.ocrList : undefined,
@@ -509,6 +485,8 @@ const MainPage = () => {
                 eventId: newItem.id,
                 date: `${y}-${m}-${d}`,
                 tag: newItem.tag,
+                tagName: newItem.tag,
+                tagColor: TAG_COLOR_MAP[newItem.tagColorIndex] || TAG_COLOR_MAP[0],
                 title: newItem.title,
                 imageUrls: Array.isArray(newItem.imageUrls) ? newItem.imageUrls : undefined,
                 ocrList: Array.isArray(newItem.ocrList) ? newItem.ocrList : undefined,

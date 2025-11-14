@@ -3,10 +3,7 @@ import "react-calendar/dist/Calendar.css";
 import * as S from "../styles/MainCalendar.style";
 import { vw } from "@/utils/units";
 import PlanTag from "./PlanTag";
-import {
-  getTagColor as getColorFromMap,
-  TAG_COLOR_MAP,
-} from "../../../constants/tagColorMap";
+// tagColor는 상위에서 계산되어 내려옵니다
 import PlanModal from "./PlanModal";
 import { useEffect, useState } from "react";
 
@@ -25,22 +22,6 @@ const MainCalendar = ({
 }) => {
   const [showNoResult, setShowNoResult] = useState(false);
   const [highlightSet, setHighlightSet] = useState(new Set());
-
-  const getTagColor = (tagName, tagColorIndex) => {
-    if (typeof tagColorIndex === "number") {
-      return TAG_COLOR_MAP[tagColorIndex];
-    }
-
-    const match = tags.find((t) => t.name === tagName);
-    if (match) {
-      if (typeof match.color === "number") {
-        return TAG_COLOR_MAP[match.color];
-      }
-      return match.color;
-    }
-
-    return "#EAEAEA";
-  };
 
   const visibleSchedules = Array.isArray(schedules)
     ? selectedTag
