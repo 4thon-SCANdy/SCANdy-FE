@@ -165,15 +165,40 @@ const MainPage = () => {
     return result;
   };
 
+  const transformForCalendar = (fetchedArr, tagList) => {
+    const list = Array.isArray(fetchedArr) ? fetchedArr : [];
+    const tagsSafe = Array.isArray(tagList) ? tagList : [];
+    return list.map((item) => {
+      let tagObj;
+      if (item && typeof item.tag === "object" && item.tag !== null) {
+        tagObj = item.tag;
+      } else if (typeof item?.tag === "number") {
+        tagObj = tagsSafe.find((t) => t.id === item.tag);
+      }
+      const tagName = tagObj?.name ?? "기타";
+      const tagColorIndex = tagObj?.color ?? 0;
+      return {
+        ...item,
+        date: String(item?.start_datetime || "").split("T")[0] || "",
+        tag: tagName,
+        tagName,
+        tagColor: TAG_COLOR_MAP[tagColorIndex] || TAG_COLOR_MAP[0],
+      };
+    });
+  };
+
   const refreshSchedules = async () => {
     try {
       const res = await allPlanGetApi();
-      const fetched = Array.isArray(res.data?.data)
-        ? res.data.data
-        : Array.isArray(res.data)
-        ? res.data
-        : [];
-      setSchedules(normalizeSchedules(fetched));
+      let fetched = [];
+      if (Array.isArray(res)) {
+        fetched = res;
+      } else if (Array.isArray(res?.data)) {
+        fetched = res.data;
+      } else if (Array.isArray(res?.data?.data)) {
+        fetched = res.data.data;
+      }
+      setSchedules(transformForCalendar(fetched, tags));
     } catch (err) {
       console.error("일정 재조회 실패: ", err);
       setSchedules([]);
@@ -403,8 +428,12 @@ const MainPage = () => {
             return;
           }
           const idStr = String(idRaw);
-          // 1) UI를 먼저 낙관적으로 업데이트(모든 날짜 인스턴스 제거)
-          setSchedules((prev) => prev.filter((s) => String(s.eventId) !== idStr));
+          // 1) UI를 먼저 낙관적으로 업데이트(해당 이벤트의 모든 항목 제거)
+          setSchedules((prev) =>
+            prev.filter(
+              (s) => String(s.eventId) !== idStr && String(s.id) !== idStr
+            )
+          );
           try {
             // 2) 서버 삭제 시도
             await deleteEventApi(idRaw);
