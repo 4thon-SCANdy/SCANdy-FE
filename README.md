@@ -1,16 +1,70 @@
-# React + Vite
+# 📅 Scan:dy — AI 기반 이미지 일정 인식 캘린더  
+**당신의 일정을 스마트하게, 인식부터 등록까지**  
+AI 기반 이미지 분석으로 일정 등록을 자동화하는 스마트 캘린더 서비스입니다.  
+캘린더에 직접 입력하던 번거로움을 줄이고, 일정 관리 경험을 혁신합니다.  
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+---
 
-Currently, two official plugins are available:
+## 🚀 주요 기능
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### 🖼️ 1. 이미지 기반 일정 자동 등록 (OCR + AI)
+- 카톡 캡처, 공지 이미지, 메모 사진 등 업로드하면  
+  → **OCR 분석 → AI 일정 구조화 → 원클릭 등록**
+- 제목 · 날짜 · 시간 · 장소 자동 인식  
+- 일정 등록 후 원본 이미지도 보관  
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 🔖 2. 태그 기반 일정 관리
+- 단순 색상 구분이 아닌 **태그 시스템** 지원  
+- 색상 커스터마이징  
+- 태그별 필터링  
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### 🔍 3. 일정 검색
+- 키워드 기반 검색  
+
+---
+
+### ⚠️ 4. 일정 충돌 알림
+- 이미 있는 일정과 시간이 겹치면 즉시 감지  
+- AI 기반 대안 시간 추천  
+
+---
+
+### 🔗 5. 공유 기능
+- 텍스트 일정 자동 변환 → 복사 후 바로 공유  
+- 향후 링크 기반 투표형 시간 조율 기능 예정  
+
+---
+
+### 🔄 6. 구글 캘린더 연동
+- Google OAuth  
+- 연동 여부 UI 표시  
+
+---
+
+## 🧩 서비스 구조
+
+### 📌 메인 기능 흐름
+1. 이미지 업로드  
+2. OCR 분석 및 AI 파싱  
+3. 일정 데이터 구조화  
+4. 충돌 감지  
+5. 태그 선택 후 저장  
+6. 원본 이미지 & 일정 정보 보관  
+
+---
+
+## 🛠️ 기술 스택 (Frontend)
+
+| Category | Stack |
+|---------|-------|
+| Framework | React + Vite |
+| Language | JavaScript |
+| Styling | styled-components |
+| API | Axios |
+| Deploy | Vercel |
+
+
