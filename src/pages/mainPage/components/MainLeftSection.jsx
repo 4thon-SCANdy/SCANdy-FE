@@ -36,7 +36,7 @@ const MainLeftSection = ({
   const [isEditActive, setIsEditActive] = useState(null);
   const [activeColorTag, setActiveColorTag] = useState(null);
 
-  const [selectedTagId, setSelectedTagId] = useState(null);
+  const [selectedTagIds, setSelectedTagIds] = useState([]);
   const [editedTags, setEditedTags] = useState({});
 
   const USER_ID = sessionStorage.getItem("user_id");
@@ -117,10 +117,23 @@ const MainLeftSection = ({
   const handleCheckClick = (tag) => {
     if (isEditActive === tag.id) {
       setActiveColorTag((prev) => (prev === tag.id ? null : tag.id));
-    } else {
-      setSelectedTagId((prev) => (prev === tag.id ? null : tag.id));
-      setSelectedTag((prev) => (prev === tag.name ? null : tag.name));
+      return;
     }
+
+    setSelectedTagIds((prev) =>
+      prev.includes(tag.id)
+        ? prev.filter((id) => id !== tag.id)
+        : [...prev, tag.id]
+    );
+
+    setSelectedTag((prev) => {
+      const isSelected = prev?.includes(tag.name);
+      if (isSelected) {
+        return prev.filter((n) => n !== tag.name);
+      } else {
+        return [...(prev || []), tag.name];
+      }
+    });
   };
 
   return (
@@ -159,9 +172,7 @@ const MainLeftSection = ({
               <S.TodoList key={tag.id}>
                 <S.TodoContainer>
                   <S.CheckBox
-                    $isSelected={
-                      selectedTagId === null || selectedTagId === tag.id
-                    }
+                    $isSelected={selectedTagIds.includes(tag.id)}
                     $color={
                       typeof tag.color === "number"
                         ? TAG_COLOR_MAP[tag.color] // 사용자 태그
