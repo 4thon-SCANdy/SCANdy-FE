@@ -277,13 +277,15 @@ export const TagRow = styled.div`
   color: #6f6f6f;
   font-weight: 600;
   font-size: ${vw(16)};
+  margin-left: ${vw(6)};
 `;
 
 export const TagDot = styled.span`
   width: ${vw(18)};
   height: ${vw(18)};
   border-radius: ${vw(6)};
-  background: linear-gradient(180deg, #ffe9a9 0%, #ffd770 100%);
+  background: ${({ $color }) =>
+    $color ? $color : "linear-gradient(180deg, #ffe9a9 0%, #ffd770 100%)"};
   display: inline-block;
 `;
 

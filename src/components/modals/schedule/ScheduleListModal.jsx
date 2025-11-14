@@ -141,7 +141,7 @@ function ScheduleListModal({
             </S.AmPmGroup>
             {item.tagLabel ? (
               <S.TagRow>
-                <S.TagDot />
+                <S.TagDot $color={item.tagColor} />
                 <span>{item.tagLabel}</span>
               </S.TagRow>
             ) : null}

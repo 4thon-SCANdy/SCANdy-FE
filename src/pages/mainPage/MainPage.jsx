@@ -302,13 +302,44 @@ const MainPage = () => {
       const itemsNo = [];
       (safe || []).forEach((d, idx) => {
         const src = (dailySchedules || [])[idx] || {};
-        const firstTagName = Array.isArray(d.tag) && d.tag.length ? d.tag[0]?.name : undefined;
+        const pickTagName = () => {
+          // 서버 상세에서 배열 형태
+          if (Array.isArray(d.tag) && d.tag.length) {
+            const n0 = d.tag[0]?.name || d.tag[0];
+            if (typeof n0 === "string" && n0) return n0;
+          }
+          // 서버 상세에서 객체 형태
+          if (d.tag && typeof d.tag === "object" && d.tag.name) {
+            return d.tag.name;
+          }
+          // 문자열 형태
+          if (typeof d.tag === "string" && d.tag) return d.tag;
+          // 로컬 폴백 (메인 캘린더 아이템)
+          if (typeof src.tagLabel === "string" && src.tagLabel) return src.tagLabel;
+          if (typeof src.tagName === "string" && src.tagName) return src.tagName;
+          if (typeof src.tag === "string" && src.tag) return src.tag;
+          if (src.tag && typeof src.tag === "object" && src.tag.name) return src.tag.name;
+          return undefined;
+        };
+        const firstTagName = pickTagName();
+        const resolveTagColor = (tagName) => {
+          if (!tagName) return "#EAEAEA";
+          const match = tags.find((t) => t.name === tagName);
+          if (!match) return "#EAEAEA";
+          if (typeof match.color === "number") {
+            return TAG_COLOR_MAP[match.color] || "#EAEAEA";
+          }
+          if (typeof match.color === "string") return match.color;
+          return "#EAEAEA";
+        };
+        const firstTagColor = resolveTagColor(firstTagName);
         const baseItem = {
           id: d.id,
           ampm: toAmpm(d),
           time: extractTime(d),
           title: d.title || "",
           tagLabel: firstTagName,
+          tagColor: firstTagColor,
           __detail: d,
           __local: src, // 이미지/ocr/llm 등 로컬 생성 정보
         };
