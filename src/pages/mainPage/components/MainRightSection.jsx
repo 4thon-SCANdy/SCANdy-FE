@@ -21,11 +21,6 @@ const MainRightSection = ({
     return date;
   });
 
-  const year = today.getFullYear();
-  const month = today.getMonth() + 1;
-  const date = today.getDate();
-  const day = ["일", "월", "화", "수", "목", "금", "토"][today.getDay()];
-
   const getTagColor = (tagName) => {
     const match = tags.find((t) => t.name === tagName);
 

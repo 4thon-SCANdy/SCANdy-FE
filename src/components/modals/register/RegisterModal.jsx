@@ -395,10 +395,12 @@ function RegisterModal({
         const toISO = (d, t) => {
           if (!d) return "";
           const time = (t || "00:00").padStart(5, "0");
+          // 초가 없으면 :00 붙임
           return `${d}T${time.length === 5 ? `${time}:00` : time}`;
         };
         const repeatMap = { daily: "DAILY", weekly: "WEEKLY", monthly: "MONTHLY", yearly: "YEARLY" };
         const repeat = form.repeatOn ? repeatMap[form.repeatType] || "DAILY" : "NONE";
+        const untilISO = form.repeatOn && form.repeatEnd ? toISO(form.repeatEnd, "00:00:00") : null;
         const pickedTag =
           tagListRef.current.find((t) => t.id === form.tagId) ||
           tagListRef.current[0] || { name: "기본", color: "#B4BFFF" };
@@ -407,15 +409,15 @@ function RegisterModal({
           color: getColorIndex(pickedTag.color) ?? 0,
           calendar: currentEdit?.calendar ?? undefined,
         };
+        // 서버 스펙에 맞춰 start/end는 ISO로, 반복은 repeat/until로 전달
         const updateBody = {
           title: form.title || "제목 없음",
           content: form.title || "",
-          start_datetime: (form.startDate || ""),
-          end_datetime: (form.endDate || form.startDate || ""),
-          start_time: toISO(form.startDate, form.startTime),
-          end_time: toISO(form.endDate || form.startDate, form.endTime),
+          start_datetime: toISO(form.startDate, form.startTime),
+          end_datetime: toISO(form.endDate || form.startDate, form.endTime),
           all_day: !!form.allDay,
           repeat,
+          until: untilISO,
           location: form.location || "",
           tag: tagPayload,
         };

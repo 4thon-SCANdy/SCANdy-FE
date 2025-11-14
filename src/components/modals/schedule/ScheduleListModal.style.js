@@ -99,27 +99,6 @@ export const Line = styled.img`
   height: ${vw(32)};
 `;
 
-export const TabRow = styled.div`
-  display: inline-flex;
-  align-items: center;
-  gap: ${vw(12)};
-  margin: ${vw(6)} 0 ${vw(12)};
-`;
-
-export const Tab = styled.div`
-  width: ${vw(300)};
-  height: ${vw(56)};
-  border-radius: ${vw(32)};
-  border: ${vw(2)} solid rgba(126, 141, 245, 0.6);
-  background: linear-gradient(180deg, #f7f8ff 0%, #ffffff 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #7e8df5;
-  font-weight: 800;
-  font-size: ${vw(18)};
-`;
-
 // 상단 탭을 하나의 분할 컨트롤처럼 보이도록
 export const Segmented = styled.div`
   flex: 1;
